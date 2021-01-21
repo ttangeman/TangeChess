@@ -28,6 +28,10 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "cmath": "cpp",
+        "coroutine": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp"
     }
 }

@@ -2,7 +2,6 @@
 
 // NOTE: Implements all of the functions from this header.
 #include "Render/Renderer.h"
-#include "Render/D3D11/D3D11ResourceManager.h"
 
 #include <d3d11.h>
 #include <dxgi.h>
@@ -24,4 +23,46 @@ namespace Render
     static ID3D11Device* g_pDevice;
     static ID3D11DeviceContext* g_pDeviceContext;
     static ID3D11RenderTargetView* g_pRenderTarget;
+
+    struct Vertex
+    {
+        Vec3 Position;
+        Vec4 Color;
+        Vec2 TexCoord;
+    };
+    
+    struct Quad
+    {
+        Vertex Vertices[6];
+    };
+    
+    struct Mesh
+    {
+        uint64 Id;
+        ID3D11Buffer* pVertexBuffer;
+        ID3D11Buffer* pIndexBuffer;
+        
+        Mesh(uint64 id, ID3D11Buffer* pVertexBuffer, ID3D11Buffer *pIndexbuffer);
+        ~Mesh();
+    };
+    
+    struct Shader
+    {
+        uint64 Id;
+        ID3D11VertexShader* pVertexShader;
+        ID3D11PixelShader* pPixelShader;
+        ID3D11InputLayout* pInputLayout;
+
+        ~Shader(); 
+    };
+    
+    struct Texture
+    {
+        uint64 Id;
+        ID3D11ShaderResourceView* pTextureView;
+        
+        Texture(uint64 id, ID3D11ShaderResourceView* pTextureView);
+        ~Texture();
+    };
+    
 }

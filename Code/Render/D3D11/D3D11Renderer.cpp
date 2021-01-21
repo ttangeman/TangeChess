@@ -1,7 +1,35 @@
-#include "D3D11Renderer.h"
+#include "Render/D3D11/D3D11Renderer.h"
 
 namespace Render
 {
+    Mesh::Mesh(uint64 id, ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIndexBuffer)
+        : Id(id), pVertexBuffer(pVertexBuffer), pIndexBuffer(pIndexBuffer)
+    {
+    }
+
+    Mesh::~Mesh()
+    {
+        SafeRelease(pVertexBuffer);
+        SafeRelease(pIndexBuffer);
+    }   
+
+    Shader::~Shader()
+    {
+        SafeRelease(pVertexShader);
+        SafeRelease(pPixelShader);
+        SafeRelease(pInputLayout);
+    }
+
+    Texture::Texture(uint64 id, ID3D11ShaderResourceView* pTextureView)
+        : Id(id), pTextureView(pTextureView)
+    {
+    }
+    
+    Texture::~Texture()
+    {
+        SafeRelease(pTextureView);
+    }
+
     void InitializePipeline()
     {
         auto& platform = Platform::PlatformManager::GetInstance();
@@ -120,6 +148,29 @@ namespace Render
         g_pDeviceContext->ClearRenderTargetView(g_pRenderTarget, clearColor.Data);
     }
 
+    void SetShader(const std::string& shaderName)
+    {
+        auto& resourceManager = ResourceManager::GetInstance();
+        auto hShader = resourceManager.GetShaderHandle(shaderName);
+        const Shader& shader = resourceManager.GetShader(hShader);
+        
+        g_pDeviceContext->VSSetShader(shader.pVertexShader, nullptr, 0);
+        g_pDeviceContext->PSSetShader(shader.pPixelShader, nullptr, 0);
+        g_pDeviceContext->IASetInputLayout(shader.pInputLayout);
+    } 
+
+    void SetViewport(Vec2 dimensions)
+    {
+        D3D11_VIEWPORT viewport = {};
+        viewport.TopLeftX = 0.0f;
+        viewport.TopLeftY = 0.0f;
+        viewport.Width = dimensions.Width;
+        viewport.Height = dimensions.Height;
+        viewport.MinDepth = 0.0f;
+        viewport.MaxDepth = 1.0f;
+        
+        g_pDeviceContext->RSSetViewports(1, &viewport);
+    }
     void ResizeWindow(float desiredWidth, float desiredHeight)
     {
         BOOL isFullscreen;
@@ -163,19 +214,6 @@ namespace Render
         BOOL isFullscreen;
         g_pSwapChain->GetFullscreenState(&isFullscreen, nullptr);
         return isFullscreen;
-    }
-
-    void SetViewport(Vec2 dimensions)
-    {
-        D3D11_VIEWPORT viewport = {};
-        viewport.TopLeftX = 0.0f;
-        viewport.TopLeftY = 0.0f;
-        viewport.Width = dimensions.Width;
-        viewport.Height = dimensions.Height;
-        viewport.MinDepth = 0.0f;
-        viewport.MaxDepth = 1.0f;
-        
-        g_pDeviceContext->RSSetViewports(1, &viewport);
     }
 
     void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight)

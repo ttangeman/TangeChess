@@ -2,12 +2,17 @@
 
 #include "Core/Common.h"
 #include "Platform/PlatformManager.h"
-#include "Render/ResourceManager.h"
 
 // NOTE: All of these functions should be implemented for
 // each graphics API.
 namespace Render
 {
+    struct Vertex;
+    struct Quad;
+    struct Mesh;
+    struct Shader;
+    struct Texture;
+
     // Initializes the renderer.
     void InitializePipeline();
 
@@ -20,6 +25,12 @@ namespace Render
     // Clears the screen with a color.
     void FullClear(Vec4 clearColor);
     
+    // Sets the active shader.
+    void SetShader(const std::string& shaderName);
+
+    // Sets the viewport.
+    void SetViewport(Vec2 dimensions);
+
     // Resizes the application.
     void ResizeWindow(float desiredWidth, float desiredHeight); 
 
@@ -29,9 +40,6 @@ namespace Render
     void ForceWindowed();
 
     bool IsFullscreen();
-    
-    // Sets the viewport.
-    void SetViewport(Vec2 dimensions);
     
     // Resizes the swap chain's back buffer size.
     void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight);

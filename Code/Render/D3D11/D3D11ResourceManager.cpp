@@ -1,24 +1,8 @@
-#include "D3D11ResourceManager.h"
+#include "Render/ResourceManager.h"
+#include "Render/D3D11/D3D11Renderer.h"
 
 namespace Render
 {
-    Shader::~Shader()
-    {
-        SafeRelease(pVertexShader);
-        SafeRelease(pPixelShader);
-        SafeRelease(pInputLayout);
-    }
-
-    Texture::Texture(uint64 id, ID3D11ShaderResourceView* pTextureView)
-        : Id(id), pTextureView(pTextureView)
-    {
-    }
-    
-    Texture::~Texture()
-    {
-        SafeRelease(pTextureView);
-    }
-
     ResourceManager& ResourceManager::GetInstance()
     {
         static ResourceManager instance;
@@ -26,18 +10,65 @@ namespace Render
     }
     
     ResourceManager::ResourceManager()
-        // The uid's for handles cannot be 0.
-        : m_shaderAccumulator(1), m_textureAccumulator(1)
     {
-        // One might expect a lot of textures and shaders to be submitted.
-        // So it is worth reserving space for them.
+        // One might expect a lot of meshes, textures, and shaders to be submitted,
+        // so it is worth reserving space for them.
+        m_meshes.reserve(64);
         m_shaders.reserve(8);
         m_textures.reserve(32);
     }
     
-   void ResourceManager::SubmitShader(const std::string& shaderName,
-                                      const std::string& vertexShaderByteCode, 
-                                      const std::string& pixelShaderByteCode)
+    void ResourceManager::SubmitMesh(const std::string& meshName, 
+                                     const std::vector<Vertex>& vertices)
+    {
+        // Create the vertex buffer.
+        ID3D11Buffer* pVertexBuffer;
+        D3D11_BUFFER_DESC bufferDesc = {};
+        bufferDesc.ByteWidth = vertices.size();
+        bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        // TODO: Configuration for these.
+        //bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        //bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        
+        D3D11_SUBRESOURCE_DATA data = {vertices.data(), 0, 0};
+        
+        HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
+        CheckResult(result);
+        
+        m_meshes.emplace_back(Mesh(m_meshAccumulator, pVertexBuffer, nullptr));
+        m_hMeshTable.emplace(
+            std::make_pair(meshName, Handle<Mesh>(m_meshAccumulator, m_meshes.size() - 1))
+        );
+        m_meshAccumulator++;
+    }
+    
+    Handle<Mesh> ResourceManager::GetMeshHandle(const std::string& meshName) const
+    {
+        return m_hMeshTable.at(meshName);
+    }
+    
+    const Mesh& ResourceManager::GetMesh(Handle<Mesh> hMesh)
+    {
+        const auto& mesh = m_meshes.at(hMesh.GetIndex());
+        // Assert that we are not referencing a stale handle.
+        Assert(mesh.Id == hMesh.GetId());
+        return mesh;
+    }
+    
+    bool ResourceManager::MeshExists(const std::string& meshName) const
+    {
+        // C++20 has a .contains() but my C/C++ extension in VSCode can't find it.
+        // (Even though it compiles). 
+        //return m_hShaderTable.contains(shaderName);
+        
+        // Less elegant alternative.
+        auto query = m_hMeshTable.find(meshName);
+        return (query != m_hMeshTable.end()) ? true : false;
+    }
+
+    void ResourceManager::SubmitShader(const std::string& shaderName,
+                                       const std::string& vertexShaderByteCode, 
+                                       const std::string& pixelShaderByteCode)
     {
         Shader shader = {};
         

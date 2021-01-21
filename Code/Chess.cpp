@@ -17,6 +17,23 @@ namespace Game
         Render::InitializePipeline();
 
         auto& resourceManager = ResourceManager::GetInstance();
+        
+        Vertex vertData[] =
+        {
+            {Vec3(0.0f, 0.5f, 0.0f), Vec4(), Vec2()},
+            {Vec3(0.5f, -0.5f, 0.0f), Vec4(), Vec2()},
+            {Vec3(-0.5f, -0.5f, 0.0f), Vec4(), Vec2()},
+        };
+        
+        std::vector<Vertex> verts;
+        for (auto v : vertData)
+            verts.push_back(v);
+        
+        resourceManager.SubmitMesh("Test", verts);
+
+        RenderObject robj;
+        
+        // TODO: File loading and shaders.
 
         m_gameState.StartGame(PieceColor::White); 
     }        
