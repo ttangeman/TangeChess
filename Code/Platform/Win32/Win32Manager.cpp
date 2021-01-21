@@ -40,7 +40,6 @@ namespace Platform
 
     PlatformManager& PlatformManager::GetInstance()
     {
-        // NOTE: This is allegedly thread-safe in C++11!
         static PlatformManager instance;
         return instance;
     }
@@ -116,7 +115,7 @@ namespace Platform
         }
     }
 
-    void PlatformManager::HandleSystemMessages()
+    void PlatformManager::HandleSystemMessages() 
     {
         MSG message;
         
@@ -188,40 +187,42 @@ namespace Platform
                                                     int32 windowHeight, bool showCursor, 
                                                     bool useWindowBorders)
     {
-        HINSTANCE instance = GetModuleHandle(0);
+        HINSTANCE hInstance = GetModuleHandle(0);
         
         WNDCLASSA windowClass = {};
         windowClass.lpfnWndProc = Win32MessagePump;
-        windowClass.hInstance = instance;
+        windowClass.hInstance = hInstance;
         windowClass.lpszClassName = "Win32Class";
         windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
         RegisterClassA(&windowClass);
         
-        m_window = CreateWindowExA(0, windowClass.lpszClassName, pWindowTitle, 
+        m_hWindow = CreateWindowExA(0, windowClass.lpszClassName, pWindowTitle, 
                                    WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 
-                                   windowWidth, windowHeight, 0, 0, instance, 0);
+                                   windowWidth, windowHeight, 0, 0, hInstance, 0);
         
-        if (m_window) 
+        if (m_hWindow) 
         {
+            // Initialize input handler.
             auto& inputHandler = InputHandler::GetInstance();
-            inputHandler.Initialize(m_window);
+            inputHandler.Initialize(m_hWindow);
+
             m_shouldQuit = false;
             
-            ShowWindow(m_window, SW_SHOWNORMAL);
+            ShowWindow(m_hWindow, SW_SHOWNORMAL);
             ShowCursor(showCursor);
             
             if (!useWindowBorders)
             {
                 // Remove the Windows window border
-                LONG windowStyle = GetWindowLong(m_window, GWL_STYLE);
+                LONG windowStyle = GetWindowLong(m_hWindow, GWL_STYLE);
                 windowStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-                SetWindowLongPtr(m_window, GWL_STYLE, windowStyle);
+                SetWindowLongPtr(m_hWindow, GWL_STYLE, windowStyle);
                 
-                LONG exWindowStyle = GetWindowLong(m_window, GWL_EXSTYLE);
+                LONG exWindowStyle = GetWindowLong(m_hWindow, GWL_EXSTYLE);
                 exWindowStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-                SetWindowLongPtr(m_window, GWL_EXSTYLE, exWindowStyle);
+                SetWindowLongPtr(m_hWindow, GWL_EXSTYLE, exWindowStyle);
                 
-                SetWindowPos(m_window, nullptr, 0, 0, 0, 0,
+                SetWindowPos(m_hWindow, nullptr, 0, 0, 0, 0,
                              SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE |
                              SWP_NOZORDER | SWP_NOOWNERZORDER);
             }
@@ -232,7 +233,7 @@ namespace Platform
 
     void PlatformManager::Shutdown()
     {
-        DestroyWindow(m_window);
+        DestroyWindow(m_hWindow);
     }
 
     bool PlatformManager::ShouldQuit() const
@@ -242,14 +243,14 @@ namespace Platform
 
     void PlatformManager::ForceQuit()
     {
-        InterlockedExchange((volatile LONG*) &m_shouldQuit, true);
+        m_shouldQuit = true;
     }
 
-    Vec2 PlatformManager::GetRenderDim() const
+    Vec2 PlatformManager::GetRenderDimensions() const
     {
         Vec2 result;
         RECT windowRect;
-        GetClientRect(m_window, &windowRect);
+        GetClientRect(m_hWindow, &windowRect);
         
         result.Width = (float) (windowRect.right - windowRect.left);
         result.Height = (float) (windowRect.bottom - windowRect.top);
@@ -259,6 +260,6 @@ namespace Platform
 
     WindowHandle PlatformManager::GetWindow() const
     {
-        return m_window;
+        return m_hWindow;
     }
 }

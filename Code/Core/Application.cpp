@@ -16,8 +16,7 @@ namespace Core
 
     Application::~Application()
     {
-        auto& platform = PlatformManager::GetInstance();
-        platform.Shutdown();
+        PlatformManager::GetInstance().Shutdown();
     }
 
     void Application::Run()

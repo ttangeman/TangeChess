@@ -52,6 +52,8 @@ namespace Game
     {
         public:
         
+        GameState() = default;
+        
         // Initializes the GameState and starts a new game.
         void StartGame(PieceColor desiredColor);
         

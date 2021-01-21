@@ -39,6 +39,8 @@ namespace Platform
         public:
         
         static PlatformManager& GetInstance();
+        PlatformManager(const PlatformManager&) = delete;
+        void operator=(const PlatformManager&) = delete;
         
         // Handles messages from the OS. Passes input messages to the InputHandler.
         void HandleSystemMessages();
@@ -53,18 +55,16 @@ namespace Platform
         void ForceQuit();
 
         // Finds the dimensions of the actual window client minus the border.
-        Vec2 GetRenderDim() const;
+        Vec2 GetRenderDimensions() const;
         
-        WindowHandle GetWindowHandle() const;
         WindowHandle GetWindow() const;
         
         private:
 
         // Platform-specific window handle.
-        WindowHandle m_window;
+        WindowHandle m_hWindow;
+        std::atomic<bool> m_shouldQuit;
 
-        volatile bool m_shouldQuit;
-
-        PlatformManager() {}
+        PlatformManager() = default;
     };
 }

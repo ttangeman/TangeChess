@@ -41,6 +41,8 @@ namespace Platform
         Vec2i MousePosition;
 
         static InputHandler& GetInstance();
+        InputHandler(const InputHandler&) = delete;
+        void operator=(const InputHandler&) = delete;
         
         void Initialize(WindowHandle window);
 
@@ -53,12 +55,11 @@ namespace Platform
         private:
 
         std::array<InputState, InputEventCount> m_inputState;
+        WindowHandle m_hWindow;
 
-        WindowHandle m_window;
+        InputHandler() = default;
 
         const InputState& GetEvent(InputEvent event) const;
         InputState& GetEvent(InputEvent event);
-
-        InputHandler() {}
     };
 }

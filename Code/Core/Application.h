@@ -17,6 +17,7 @@ namespace Core
         // Stores the last elapsed time for updating and rendering the application.
         float LastTimeStep;
 
+        Application() = delete;
         Application(const std::string& title, int32 width, int32 height);
         ~Application();
 
@@ -34,6 +35,5 @@ namespace Core
         // The desired update rate for the application. Defaults to 60Hz.
         float m_desiredUpdateRate;
         
-        Application();
     };
 }

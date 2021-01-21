@@ -2,14 +2,14 @@
 
 #include "Core/Common.h"
 #include "Platform/PlatformManager.h"
-#include "Render/IResourceManager.h"
+#include "Render/ResourceManager.h"
 
 // NOTE: All of these functions should be implemented for
 // each graphics API.
 namespace Render
 {
     // Initializes the renderer.
-    void InitializePipeline(std::unique_ptr<IResourceManager>& pResourceManager);
+    void InitializePipeline();
 
     // Shutsdown the renderer.
     void Shutdown();

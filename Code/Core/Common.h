@@ -5,6 +5,8 @@
 #include <array>
 #include <memory>
 #include <string>
+#include <atomic>
+#include <unordered_map>
 
 #include "Debug.h"
 
@@ -40,14 +42,11 @@ union Vec2
 
     float Data[2];
     
-    Vec2(): X(0), Y(0)
-    {
-    }
-    
+    Vec2() = default;
     Vec2(float x, float y) : X(x), Y(y)
     {
     }
-    
+
     Vec2 operator+(Vec2 operand) const
     {
         Vec2 result;
@@ -75,7 +74,7 @@ union Vec2
         this->X -= operand.X;
         this->Y -= operand.Y;
     }
-    
+
     bool operator==(Vec2 operand) const
     {
         return (this->X == operand.X && this->Y == operand.Y);
@@ -96,10 +95,7 @@ union Vec2i
 
     int32 Data[2];
     
-    Vec2i(): X(0), Y(0)
-    {
-    }
-    
+    Vec2i() = default; 
     Vec2i(int32 x, int32 y) : X(x), Y(y)
     {
     }
@@ -152,10 +148,7 @@ union Vec3
     
     float Data[3];
     
-    Vec3(): X(0), Y(0), Z(0)
-    {
-    }
-    
+    Vec3() = default;    
     Vec3(float x, float y, float z) : X(x), Y(y), Z(z)
     {
     }
@@ -214,10 +207,7 @@ union Vec4
     
     float Data[4];
     
-    Vec4(): X(0), Y(0), Z(0), W(0)
-    {
-    }
-    
+    Vec4() = default;
     Vec4(float x, float y, float z, float w) 
         : X(x), Y(y), Z(z), W(w)
     { 

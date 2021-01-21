@@ -14,7 +14,9 @@ namespace Game
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
-        Render::InitializePipeline(m_pResourceManager);
+        Render::InitializePipeline();
+
+        auto& resourceManager = ResourceManager::GetInstance();
 
         m_gameState.StartGame(PieceColor::White); 
     }        

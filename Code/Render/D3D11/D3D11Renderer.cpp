@@ -2,11 +2,12 @@
 
 namespace Render
 {
-    void InitializePipeline(std::unique_ptr<IResourceManager>& pResourceManager)
+    void InitializePipeline()
     {
         auto& platform = Platform::PlatformManager::GetInstance();
-        auto windowHandle = platform.GetWindow();
+        auto hWindow = platform.GetWindow();
 
+        // Initialize D3D swap chain and devices.
         HRESULT result;
         DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 #if 0
@@ -14,7 +15,7 @@ namespace Render
         swapChainDesc.BufferCount = BackBufferCount;
         swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.OutputWindow = windowHandle;
+        swapChainDesc.OutputWindow = hWindow;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         // NOTE: Multisampling cannot be utilized with flip fullscreen. 
         swapChainDesc.SampleDesc.Count = 1;
@@ -30,7 +31,7 @@ namespace Render
         swapChainDesc.BufferCount = BackBufferCount;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        swapChainDesc.OutputWindow = windowHandle;
+        swapChainDesc.OutputWindow = hWindow;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
         swapChainDesc.SampleDesc.Count = 4;
         swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -50,13 +51,44 @@ namespace Render
                                                nullptr, &g_pDeviceContext);
         CheckResult(result);
         
-        // Initialize the ResourceManager interface to the correct
-        // type of ResourceManager.
-        pResourceManager = std::make_unique<D3D11ResourceManager>();
-
         // Clear the back buffer and adjust the view port.
         ClearRenderTarget();
-        SetViewport(platform.GetRenderDim());
+        SetViewport(platform.GetRenderDimensions());
+
+        // Initialize texture sampler.
+        ID3D11SamplerState* pDefaultSampler;
+        D3D11_SAMPLER_DESC samplerDesc = {};
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.MipLODBias = 0.0f;
+        samplerDesc.MaxAnisotropy = 1;
+        samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        samplerDesc.MinLOD = 0;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        
+        result = g_pDevice->CreateSamplerState(&samplerDesc, &pDefaultSampler);
+        CheckResult(result);
+        
+        g_pDeviceContext->PSSetSamplers(0, 1, &pDefaultSampler);
+        
+        ID3D11BlendState* pBlendState;
+        D3D11_BLEND_DESC blendDesc = {};
+        blendDesc.RenderTarget[0].BlendEnable = true;
+        blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+        blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+        blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+        
+        g_pDevice->CreateBlendState(&blendDesc, &pBlendState);
+        g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
+
+        // Initailize the ResourceManager so it does not get lazily initailized.
+        ResourceManager::GetInstance();
     }
     
     void ShutdownPipeline()

@@ -4,11 +4,13 @@
 #include "Core/Common.h"
 #include "Core/Application.h"
 #include "Render/Renderer.h"
-#include "Render/IResourceManager.h"
+#include "Render/RenderObject.h"
+#include "Render/ResourceManager.h"
 #include "GameState.h"
 
 #include "Core/Application.cpp"
 #include "Render/D3D11/D3D11Renderer.cpp"
+#include "Render/D3D11/D3D11RenderObject.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "GameState.cpp"
 
@@ -20,6 +22,7 @@ namespace Game
     {
         public:
             
+        Chess() = delete;
         Chess(const std::string& title, int32 width, int32 height); 
         ~Chess();
 
@@ -28,9 +31,6 @@ namespace Game
         
         private:
 
-        std::unique_ptr<IResourceManager> m_pResourceManager;
         GameState m_gameState;
-        
-        Chess();
     };
 }

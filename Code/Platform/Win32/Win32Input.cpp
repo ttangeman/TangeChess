@@ -4,14 +4,13 @@ namespace Platform
 {
     InputHandler& InputHandler::GetInstance()
     {
-        // NOTE: This is allegedly thread-safe in C++11!
         static InputHandler instance;
         return instance;
     }
 
     void InputHandler::Initialize(WindowHandle window)
     {
-        m_window = window;
+        m_hWindow = window;
     }
 
     bool InputHandler::IsCurrentlyPressed(InputEvent event) const 
@@ -59,10 +58,10 @@ namespace Platform
         // Gets the mouse position relative to the screen.
         GetCursorPos(&cursorPosition);
         // This maps the mouse position into the window's dimensions.
-        ScreenToClient(m_window, &cursorPosition);
+        ScreenToClient(m_hWindow, &cursorPosition);
         
         RECT clientRect;
-        GetClientRect(m_window, &clientRect);
+        GetClientRect(m_hWindow, &clientRect);
         auto clientHeight = clientRect.bottom - clientRect.top;
 
         // Flip the Y to match D3D11's pixel coordinate space.
