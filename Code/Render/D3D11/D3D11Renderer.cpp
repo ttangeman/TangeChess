@@ -2,32 +2,9 @@
 
 namespace Render
 {
-    Mesh::Mesh(uint64 id, ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIndexBuffer)
-        : Id(id), pVertexBuffer(pVertexBuffer), pIndexBuffer(pIndexBuffer)
-    {
-    }
-
-    Mesh::~Mesh()
-    {
-        SafeRelease(pVertexBuffer);
-        SafeRelease(pIndexBuffer);
-    }   
-
-    Shader::~Shader()
-    {
-        SafeRelease(pVertexShader);
-        SafeRelease(pPixelShader);
-        SafeRelease(pInputLayout);
-    }
-
-    Texture::Texture(uint64 id, ID3D11ShaderResourceView* pTextureView)
+    Texture::Texture(uint32 id, ID3D11ShaderResourceView* pTextureView)
         : Id(id), pTextureView(pTextureView)
     {
-    }
-    
-    Texture::~Texture()
-    {
-        SafeRelease(pTextureView);
     }
 
     void InitializePipeline()
@@ -82,7 +59,7 @@ namespace Render
         // Clear the back buffer and adjust the view port.
         ClearRenderTarget();
         SetViewport(platform.GetRenderDimensions());
-
+        /*
         // Initialize texture sampler.
         ID3D11SamplerState* pDefaultSampler;
         D3D11_SAMPLER_DESC samplerDesc = {};
@@ -114,7 +91,7 @@ namespace Render
         
         g_pDevice->CreateBlendState(&blendDesc, &pBlendState);
         g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
-
+        */
         // Initailize the ResourceManager so it does not get lazily initailized.
         ResourceManager::GetInstance();
     }
@@ -152,7 +129,7 @@ namespace Render
     {
         auto& resourceManager = ResourceManager::GetInstance();
         auto hShader = resourceManager.GetShaderHandle(shaderName);
-        const Shader& shader = resourceManager.GetShader(hShader);
+        const Shader& shader = resourceManager.LookupShader(hShader);
         
         g_pDeviceContext->VSSetShader(shader.pVertexShader, nullptr, 0);
         g_pDeviceContext->PSSetShader(shader.pPixelShader, nullptr, 0);

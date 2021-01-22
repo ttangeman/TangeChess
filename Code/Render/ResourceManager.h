@@ -11,30 +11,34 @@ namespace Render
 
         static ResourceManager& GetInstance();
         ResourceManager();
+        ~ResourceManager();
         ResourceManager operator=(const ResourceManager&) = delete;
         ResourceManager(const ResourceManager&) = delete;
 
         // Registers a mesh with the GPU under the provided name.
-        void SubmitMesh(const std::string& meshName, const std::vector<Vertex>& mesh);
+        void SubmitMesh(const std::string& meshName, const void* pVertexData, 
+                        usize vertexCount, usize vertexSize);
         
         // Retrieves the mesh via the mesh name.
         Handle<Mesh> GetMeshHandle(const std::string& meshName) const;
         
         // Retrieves the mesh via the handle.
-        const Mesh& GetMesh(Handle<Mesh> hMesh);
+        const Mesh& LookupMesh(Handle<Mesh> hMesh) const;
+        Mesh& GetMesh(Handle<Mesh> hMesh);
         
         bool MeshExists(const std::string& meshName) const;
 
         // Registers a pre-compiled shader under the provided name.
         void SubmitShader(const std::string& shaderName,
-                          const std::string& vertexShaderCode, 
-                          const std::string& pixelShaderCode);
+                          const void* pVertexShaderData, usize vertexShaderSize, 
+                          const void* pPixelShaderData, usize pixelShaderSize);
 
         // Retrieves the texture handle via the texture name.
         Handle<Shader> GetShaderHandle(const std::string& shaderName) const;
 
         // Retrieves the shader via the handle.
-        const Shader& GetShader(Handle<Shader> hShader) const;
+        const Shader& LookupShader(Handle<Shader> hShader) const;
+        Shader& GetShader(Handle<Shader> hShader);
         
         bool ShaderExists(const std::string& shaderName) const;
         
@@ -46,7 +50,8 @@ namespace Render
         Handle<Texture> GetTextureHandle(const std::string& textureName) const;
 
         // Retrieves the texture via the handle.
-        const Texture& GetTexture(Handle<Texture> hTexture) const;
+        const Texture& LookupTexture(Handle<Texture> hTexture) const;
+        Texture& GetTexture(Handle<Texture> hTexture);
         
         bool TextureExists(const std::string& textureName) const;
 
@@ -58,15 +63,15 @@ namespace Render
         // GPU resources.
 
         // NOTE: The uid's for handles cannot be 0.
-        uint64 m_meshAccumulator = 1;
+        uint32 m_meshAccumulator = 1;
         std::vector<Mesh> m_meshes;
         std::unordered_map<std::string, Handle<Mesh>> m_hMeshTable;
 
-        uint64 m_shaderAccumulator = 1;
+        uint32 m_shaderAccumulator = 1;
         std::vector<Shader> m_shaders;
         std::unordered_map<std::string, Handle<Shader>> m_hShaderTable;
 
-        uint64 m_textureAccumulator = 1;
+        uint32 m_textureAccumulator = 1;
         std::vector<Texture> m_textures;
         std::unordered_map<std::string, Handle<Texture>> m_hTextureTable;
     };

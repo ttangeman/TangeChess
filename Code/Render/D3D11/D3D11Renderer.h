@@ -35,34 +35,36 @@ namespace Render
     {
         Vertex Vertices[6];
     };
-    
+
     struct Mesh
     {
-        uint64 Id;
+        uint32 Id;
+        // See DeviceContext::IASetVertexBuffers for more info on these integers.
+        uint32 VertexBufferSlot;
+        uint32 VertexBufferCount;
+        uint32 VertexBufferStride; // This can be an array.
+        uint32 VertexBufferOffset; // This can be an array.
+        // See DeviceContext::Draw for more info on these integers.
+        uint32 VertexCount;
+        uint32 StartVertexLocation;
         ID3D11Buffer* pVertexBuffer;
         ID3D11Buffer* pIndexBuffer;
-        
-        Mesh(uint64 id, ID3D11Buffer* pVertexBuffer, ID3D11Buffer *pIndexbuffer);
-        ~Mesh();
     };
     
     struct Shader
     {
-        uint64 Id;
+        uint32 Id;
         ID3D11VertexShader* pVertexShader;
         ID3D11PixelShader* pPixelShader;
         ID3D11InputLayout* pInputLayout;
-
-        ~Shader(); 
     };
     
     struct Texture
     {
-        uint64 Id;
+        uint32 Id;
         ID3D11ShaderResourceView* pTextureView;
         
-        Texture(uint64 id, ID3D11ShaderResourceView* pTextureView);
-        ~Texture();
+        Texture(uint32 id, ID3D11ShaderResourceView* pTextureView);
     };
     
 }

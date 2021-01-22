@@ -17,29 +17,56 @@ namespace Render
         m_shaders.reserve(8);
         m_textures.reserve(32);
     }
+
+    ResourceManager::~ResourceManager()
+    {
+        for (auto& mesh : m_meshes)
+        {
+            SafeRelease(mesh.pVertexBuffer);
+            SafeRelease(mesh.pIndexBuffer);
+        }
+
+        for (auto& shader : m_shaders)
+        {
+            SafeRelease(shader.pVertexShader);
+            SafeRelease(shader.pPixelShader);
+            SafeRelease(shader.pInputLayout);
+        }
+
+        for (auto& texture : m_textures)
+        {
+            SafeRelease(texture.pTextureView);
+        }
+    }
     
-    void ResourceManager::SubmitMesh(const std::string& meshName, 
-                                     const std::vector<Vertex>& vertices)
+    void ResourceManager::SubmitMesh(const std::string& meshName, const void* pVertexData, 
+                                     usize vertexCount, usize vertexSize)
     {
         // Create the vertex buffer.
         ID3D11Buffer* pVertexBuffer;
         D3D11_BUFFER_DESC bufferDesc = {};
-        bufferDesc.ByteWidth = vertices.size();
+        bufferDesc.ByteWidth = vertexCount * vertexSize;
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         // TODO: Configuration for these.
         //bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
         //bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         
-        D3D11_SUBRESOURCE_DATA data = {vertices.data(), 0, 0};
+        D3D11_SUBRESOURCE_DATA data = {pVertexData, 0, 0};
         
         HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
         CheckResult(result);
         
-        m_meshes.emplace_back(Mesh(m_meshAccumulator, pVertexBuffer, nullptr));
+        Mesh mesh = {};
+        mesh.Id = m_meshAccumulator++;
+        mesh.pVertexBuffer = pVertexBuffer;
+        mesh.VertexBufferCount = 1;
+        mesh.VertexBufferStride = vertexSize;
+        mesh.VertexCount = vertexCount;
+
+        m_meshes.emplace_back(mesh);
         m_hMeshTable.emplace(
-            std::make_pair(meshName, Handle<Mesh>(m_meshAccumulator, m_meshes.size() - 1))
+            std::make_pair(meshName, Handle<Mesh>(mesh.Id, m_meshes.size() - 1))
         );
-        m_meshAccumulator++;
     }
     
     Handle<Mesh> ResourceManager::GetMeshHandle(const std::string& meshName) const
@@ -47,9 +74,17 @@ namespace Render
         return m_hMeshTable.at(meshName);
     }
     
-    const Mesh& ResourceManager::GetMesh(Handle<Mesh> hMesh)
+    const Mesh& ResourceManager::LookupMesh(Handle<Mesh> hMesh) const
     {
         const auto& mesh = m_meshes.at(hMesh.GetIndex());
+        // Assert that we are not referencing a stale handle.
+        Assert(mesh.Id == hMesh.GetId());
+        return mesh;
+    }
+
+    Mesh& ResourceManager::GetMesh(Handle<Mesh> hMesh)
+    {
+        auto& mesh = m_meshes.at(hMesh.GetIndex());
         // Assert that we are not referencing a stale handle.
         Assert(mesh.Id == hMesh.GetId());
         return mesh;
@@ -67,8 +102,9 @@ namespace Render
     }
 
     void ResourceManager::SubmitShader(const std::string& shaderName,
-                                       const std::string& vertexShaderByteCode, 
-                                       const std::string& pixelShaderByteCode)
+                                       const void* pVertexShaderData, usize vertexShaderSize, 
+                                       const void* pPixelShaderData, usize pixelShaderSize)
+
     {
         Shader shader = {};
         
@@ -79,18 +115,19 @@ namespace Render
             {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
         };       
 
-        g_pDevice->CreateVertexShader(vertexShaderByteCode.c_str(), 
-                                      vertexShaderByteCode.length(), 
-                                      nullptr, &shader.pVertexShader);
+        HRESULT result = g_pDevice->CreateVertexShader(pVertexShaderData, vertexShaderSize, 
+                                                       nullptr, &shader.pVertexShader);
+        CheckResult(result);
 
         // TODO: Probably don't need to create this every time...
-        g_pDevice->CreateInputLayout(inputElementDesc, ArrayLength(inputElementDesc),
-                                     vertexShaderByteCode.c_str(), vertexShaderByteCode.length(),
-                                     &shader.pInputLayout);
+        result = g_pDevice->CreateInputLayout(inputElementDesc, ArrayLength(inputElementDesc),
+                                              pVertexShaderData, vertexShaderSize,
+                                              &shader.pInputLayout);
+        CheckResult(result);
 
-        g_pDevice->CreatePixelShader(pixelShaderByteCode.c_str(), 
-                                     pixelShaderByteCode.length(), 
-                                     nullptr, &shader.pPixelShader);
+        result = g_pDevice->CreatePixelShader(pPixelShaderData, pixelShaderSize, 
+                                              nullptr, &shader.pPixelShader);
+        CheckResult(result);
 
         shader.Id = m_shaderAccumulator++;
         m_shaders.emplace_back(shader);
@@ -105,9 +142,17 @@ namespace Render
         return m_hShaderTable.at(shaderName);
     }
 
-    const Shader& ResourceManager::GetShader(Handle<Shader> hShader) const
+    const Shader& ResourceManager::LookupShader(Handle<Shader> hShader) const
     {
         const auto& shader = m_shaders.at(hShader.GetIndex());
+        // Assert that we are not referencing a stale handle.
+        Assert(shader.Id == hShader.GetId());
+        return shader;
+    }
+
+    Shader& ResourceManager::GetShader(Handle<Shader> hShader)
+    {
+        auto& shader = m_shaders.at(hShader.GetIndex());
         // Assert that we are not referencing a stale handle.
         Assert(shader.Id == hShader.GetId());
         return shader;
@@ -175,9 +220,17 @@ namespace Render
         return m_hTextureTable.at(textureName);
     }
 
-    const Texture& ResourceManager::GetTexture(Handle<Texture> hTexture) const
+    const Texture& ResourceManager::LookupTexture(Handle<Texture> hTexture) const
     {
         const auto& texture = m_textures.at(hTexture.GetIndex());
+        // Assert that we are not referencing a stale handle.
+        Assert(texture.Id == hTexture.GetId());
+        return texture;
+    }
+
+    Texture& ResourceManager::GetTexture(Handle<Texture> hTexture)
+    {
+        auto& texture = m_textures.at(hTexture.GetIndex());
         // Assert that we are not referencing a stale handle.
         Assert(texture.Id == hTexture.GetId());
         return texture;

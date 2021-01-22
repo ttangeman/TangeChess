@@ -16,6 +16,7 @@
 
 namespace Game 
 {
+    using namespace Platform;
     using namespace Render;
 
     class Chess : public Core::Application

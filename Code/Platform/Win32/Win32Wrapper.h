@@ -5,16 +5,17 @@
 #include "Core/Common.h"
 
 // NOTE: The wrapper must define a type alias to the appropiate
-// type for a window handle!
+// type for a window handle and file handle!
 typedef HWND WindowHandle;
+typedef HANDLE FileHandle;
 
 namespace Platform 
 {
     void* AllocateMemory(usize size) 
     {
         void* pResult = VirtualAlloc(nullptr, size, 
-                                    MEM_COMMIT|MEM_RESERVE, 
-                                    PAGE_READWRITE);
+                                     MEM_COMMIT|MEM_RESERVE, 
+                                     PAGE_READWRITE);
         Assert(pResult);
         return pResult;
     }
@@ -40,7 +41,8 @@ namespace Platform
     
     void FreeMemory(void* pMemory) 
     {
-        VirtualFree(pMemory, 0, MEM_RELEASE);
+        if (pMemory)
+            VirtualFree(pMemory, 0, MEM_RELEASE);
     }
     
     uint32 GetAllocationGranularity() 
@@ -49,7 +51,14 @@ namespace Platform
         GetSystemInfo(&info);
         return info.dwPageSize;
     }
-    
+
+    uint64 GetFileSize(FileHandle hFile)
+    {
+        LARGE_INTEGER fileSize;
+        ::GetFileSizeEx(hFile, &fileSize);
+        return (uint64)fileSize.QuadPart;
+    }
+
     uint32 CreateThread(void* pEntryPoint, void* args, usize desiredStackSize) 
     {
         DWORD threadId;

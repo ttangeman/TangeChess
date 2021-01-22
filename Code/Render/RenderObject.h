@@ -16,6 +16,8 @@ namespace Render
         void AttachTexture(const std::string& textureName);
         void AttachMaterial();
 
+        void Draw() const;
+
         private:
 
         Handle<Mesh> m_hMesh;

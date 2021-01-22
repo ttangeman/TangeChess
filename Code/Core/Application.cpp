@@ -4,7 +4,9 @@ namespace Core
 {
     Application::Application(const std::string& title, int32 width, int32 height)
     {
+        // Initialize common singletons.
         auto& platform = PlatformManager::GetInstance();
+        auto& fileManager = FileManager::GetInstance();
         
         if (platform.InitializeAndCreateWindow(title.c_str(), width, height, true, true))
         {

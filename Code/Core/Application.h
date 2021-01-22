@@ -4,6 +4,7 @@
 #include "Platform/PlatformWrapper.h"
 
 #include "Platform/Win32/Win32Manager.cpp"
+#include "Platform/Win32/Win32FileManager.cpp"
 #include "Platform/Win32/Win32Input.cpp"
 
 namespace Core
