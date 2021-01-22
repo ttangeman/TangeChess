@@ -66,8 +66,6 @@ namespace Render
         uint32 Id;
         // GPU relevant data.
         ID3D11ShaderResourceView* pTextureView;
-        
-        Texture(uint32 id, ID3D11ShaderResourceView* pTextureView);
     };
     
 }

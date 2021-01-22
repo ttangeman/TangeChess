@@ -8,32 +8,23 @@ namespace Render
         static ResourceManager instance;
         return instance;
     }
-    
-    ResourceManager::ResourceManager()
-    {
-        // One might expect a lot of meshes, textures, and shaders to be submitted,
-        // so it is worth reserving space for them.
-        m_meshes.reserve(64);
-        m_shaders.reserve(8);
-        m_textures.reserve(32);
-    }
 
     ResourceManager::~ResourceManager()
     {
-        for (auto& mesh : m_meshes)
+        for (auto& mesh : MeshLocator.Elements)
         {
             SAFE_RELEASE(mesh.pVertexBuffer);
             SAFE_RELEASE(mesh.pIndexBuffer);
         }
 
-        for (auto& shader : m_shaders)
+        for (auto& shader : ShaderLocator.Elements)
         {
             SAFE_RELEASE(shader.pVertexShader);
             SAFE_RELEASE(shader.pPixelShader);
             SAFE_RELEASE(shader.pInputLayout);
         }
 
-        for (auto& texture : m_textures)
+        for (auto& texture : TextureLocator.Elements)
         {
             SAFE_RELEASE(texture.pTextureView);
         }
@@ -57,54 +48,17 @@ namespace Render
         CHECK_RESULT(result);
         
         Mesh mesh = {};
-        mesh.Id = m_meshAccumulator++;
         mesh.pVertexBuffer = pVertexBuffer;
         mesh.VertexBufferCount = 1;
         mesh.VertexBufferStride = vertexSize;
         mesh.VertexCount = vertexCount;
 
-        m_meshes.emplace_back(mesh);
-        m_hMeshTable.emplace(
-            std::make_pair(meshName, Handle<Mesh>(mesh.Id, m_meshes.size() - 1))
-        );
-    }
-    
-    Handle<Mesh> ResourceManager::GetMeshHandle(const std::string& meshName) const
-    {
-        return m_hMeshTable.at(meshName);
-    }
-    
-    const Mesh& ResourceManager::LookupMesh(Handle<Mesh> hMesh) const
-    {
-        const auto& mesh = m_meshes.at(hMesh.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(mesh.Id == hMesh.GetId());
-        return mesh;
-    }
-
-    Mesh& ResourceManager::GetMesh(Handle<Mesh> hMesh)
-    {
-        auto& mesh = m_meshes.at(hMesh.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(mesh.Id == hMesh.GetId());
-        return mesh;
-    }
-    
-    bool ResourceManager::MeshExists(const std::string& meshName) const
-    {
-        // C++20 has a .contains() but my C/C++ extension in VSCode can't find it.
-        // (Even though it compiles). 
-        //return m_hShaderTable.contains(shaderName);
-        
-        // Less elegant alternative.
-        auto query = m_hMeshTable.find(meshName);
-        return (query != m_hMeshTable.end()) ? true : false;
+        MeshLocator.PushElement(meshName, &mesh);
     }
 
     void ResourceManager::SubmitShader(const std::string& shaderName,
                                        const void* pVertexShaderData, usize vertexShaderSize, 
                                        const void* pPixelShaderData, usize pixelShaderSize)
-
     {
         Shader shader = {};
         
@@ -129,44 +83,7 @@ namespace Render
                                               nullptr, &shader.pPixelShader);
         CHECK_RESULT(result);
 
-        shader.Id = m_shaderAccumulator++;
-        m_shaders.emplace_back(shader);
-        m_hShaderTable.emplace(
-            std::make_pair(shaderName, Handle<Shader>(shader.Id, m_shaders.size() - 1))
-        );
-
-    }
-    
-    Handle<Shader> ResourceManager::GetShaderHandle(const std::string& shaderName) const
-    {
-        return m_hShaderTable.at(shaderName);
-    }
-
-    const Shader& ResourceManager::LookupShader(Handle<Shader> hShader) const
-    {
-        const auto& shader = m_shaders.at(hShader.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(shader.Id == hShader.GetId());
-        return shader;
-    }
-
-    Shader& ResourceManager::GetShader(Handle<Shader> hShader)
-    {
-        auto& shader = m_shaders.at(hShader.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(shader.Id == hShader.GetId());
-        return shader;
-    }
-    
-    bool ResourceManager::ShaderExists(const std::string& shaderName) const
-    {
-        // C++20 has a .contains() but my C/C++ extension in VSCode can't find it.
-        // (Even though it compiles). 
-        //return m_hShaderTable.contains(shaderName);
-        
-        // Less elegant alternative.
-        auto query = m_hShaderTable.find(shaderName);
-        return (query != m_hShaderTable.end()) ? true : false;
+        ShaderLocator.PushElement(shaderName, &shader);
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
@@ -208,42 +125,9 @@ namespace Render
         CHECK_RESULT(result);
         g_pDeviceContext->GenerateMips(pTextureView);
         
-        m_textures.emplace_back(Texture(m_textureAccumulator, pTextureView));
-        m_hTextureTable.emplace(
-            std::make_pair(textureName, Handle<Texture>(m_textureAccumulator, m_textures.size() - 1))
-        );
-        m_textureAccumulator++;
-    }
+        Texture texture;
+        texture.pTextureView = pTextureView;
 
-    Handle<Texture> ResourceManager::GetTextureHandle(const std::string& textureName) const
-    {
-        return m_hTextureTable.at(textureName);
-    }
-
-    const Texture& ResourceManager::LookupTexture(Handle<Texture> hTexture) const
-    {
-        const auto& texture = m_textures.at(hTexture.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(texture.Id == hTexture.GetId());
-        return texture;
-    }
-
-    Texture& ResourceManager::GetTexture(Handle<Texture> hTexture)
-    {
-        auto& texture = m_textures.at(hTexture.GetIndex());
-        // Assert that we are not referencing a stale handle.
-        ASSERT(texture.Id == hTexture.GetId());
-        return texture;
-    }
-
-    bool ResourceManager::TextureExists(const std::string& textureName) const
-    {
-        // C++20 has a .contains() but my C/C++ extension in VSCode can't find it.
-        // (Even though it compiles). 
-        //return m_hTextureTable.contains(textureName);
-        
-        // Less elegant alternative.
-        auto query = m_hTextureTable.find(textureName);
-        return (query != m_hTextureTable.end()) ? true : false;
+        TextureLocator.PushElement(textureName, &texture);
     }
 }

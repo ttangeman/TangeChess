@@ -2,11 +2,6 @@
 
 namespace Render
 {
-    Texture::Texture(uint32 id, ID3D11ShaderResourceView* pTextureView)
-        : Id(id), pTextureView(pTextureView)
-    {
-    }
-
     void InitializePipeline()
     {
         auto& platform = Platform::PlatformManager::GetInstance();
@@ -128,8 +123,8 @@ namespace Render
     void SetShader(const std::string& shaderName)
     {
         auto& resourceManager = ResourceManager::GetInstance();
-        auto hShader = resourceManager.GetShaderHandle(shaderName);
-        const Shader& shader = resourceManager.LookupShader(hShader);
+        auto hShader = resourceManager.ShaderLocator.GetElementHandle(shaderName);
+        const Shader& shader = resourceManager.ShaderLocator.LookupElement(hShader);
         
         g_pDeviceContext->VSSetShader(shader.pVertexShader, nullptr, 0);
         g_pDeviceContext->PSSetShader(shader.pPixelShader, nullptr, 0);

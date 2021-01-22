@@ -1,6 +1,6 @@
 #include "Chess.h"
 
-AppEntryPoint()
+MAIN_ENTRY_POINT()
 {
     auto* pChess = new Game::Chess("Chess", 600, 600); 
     pChess->Run();

@@ -5,17 +5,18 @@ namespace Render
 {
     void RenderObject::AttachMesh(const std::string& meshName)
     {
-        m_hMesh = ResourceManager::GetInstance().GetMeshHandle(meshName);
+        m_hMesh = ResourceManager::GetInstance().MeshLocator.GetElementHandle(meshName);
     }
 
     void RenderObject::AttachTexture(const std::string& textureName)
     {
-        m_hTexture = ResourceManager::GetInstance().GetTextureHandle(textureName);
+        m_hTexture = ResourceManager::GetInstance().TextureLocator.GetElementHandle(textureName);
     }
 
     void RenderObject::Draw() const
     {
-        const Mesh& mesh = ResourceManager::GetInstance().LookupMesh(m_hMesh);
+        const auto& resourceManager = ResourceManager::GetInstance();
+        const Mesh& mesh = resourceManager.MeshLocator.LookupElement(m_hMesh);
 
         g_pDeviceContext->IASetVertexBuffers(mesh.VertexBufferSlot, mesh.VertexBufferCount, 
                                              &mesh.pVertexBuffer, &mesh.VertexBufferStride, 
