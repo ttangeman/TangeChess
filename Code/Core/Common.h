@@ -20,8 +20,8 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef size_t usize;
 
-#define AbsoluteValue(x) ((x)<0 ? -(x) : (x))
-#define ArrayLength(array) (sizeof(array) / sizeof(array[0]))
+#define ABS_VALUE(x) ((x)<0 ? -(x) : (x))
+#define ARRAY_LENGTH(array) (sizeof(array) / sizeof(array[0]))
 
 union Vec2 
 {

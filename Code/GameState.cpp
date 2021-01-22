@@ -156,13 +156,13 @@ namespace Game
     
     Piece GameState::LookupPiece(PieceId id) const 
     {
-        Assert(id != 0);
+        ASSERT(id != 0);
         return m_pieceData.at(id - 1);
     }
 
     Piece& GameState::GetPiece(PieceId id) 
     {
-        Assert(id != 0);
+        ASSERT(id != 0);
         return m_pieceData.at(id - 1);
     }
     

@@ -67,7 +67,7 @@ namespace Platform
         // Flip the Y to match D3D11's pixel coordinate space.
         // (Bottom-up instead of top-down).
         // TODO: Couldn't this just be a - instead of an abs?
-        cursorPosition.y = AbsoluteValue(cursorPosition.y - clientHeight);
+        cursorPosition.y = ABS_VALUE(cursorPosition.y - clientHeight);
         MousePosition = Vec2i(cursorPosition.x, cursorPosition.y);
     }
 

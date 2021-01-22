@@ -15,7 +15,7 @@ namespace Render
 
     void RenderObject::Draw() const
     {
-        Mesh mesh = ResourceManager::GetInstance().LookupMesh(m_hMesh);
+        const Mesh& mesh = ResourceManager::GetInstance().LookupMesh(m_hMesh);
 
         g_pDeviceContext->IASetVertexBuffers(mesh.VertexBufferSlot, mesh.VertexBufferCount, 
                                              &mesh.pVertexBuffer, &mesh.VertexBufferStride, 

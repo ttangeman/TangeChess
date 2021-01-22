@@ -7,8 +7,8 @@
 #include <dxgi.h>
 #include <DirectXMath.h>
 
-#define CheckResult(result) Assert(!(result));
-#define SafeRelease(object) if (object) {object->Release();}
+#define CHECK_RESULT(result) ASSERT(!(result));
+#define SAFE_RELEASE(object) if (object) {object->Release();}
 
 namespace Render
 {
@@ -47,6 +47,7 @@ namespace Render
         // See DeviceContext::Draw for more info on these integers.
         uint32 VertexCount;
         uint32 StartVertexLocation;
+        // GPU relevant data.
         ID3D11Buffer* pVertexBuffer;
         ID3D11Buffer* pIndexBuffer;
     };
@@ -54,6 +55,7 @@ namespace Render
     struct Shader
     {
         uint32 Id;
+        // GPU relevant data.
         ID3D11VertexShader* pVertexShader;
         ID3D11PixelShader* pPixelShader;
         ID3D11InputLayout* pInputLayout;
@@ -62,6 +64,7 @@ namespace Render
     struct Texture
     {
         uint32 Id;
+        // GPU relevant data.
         ID3D11ShaderResourceView* pTextureView;
         
         Texture(uint32 id, ID3D11ShaderResourceView* pTextureView);

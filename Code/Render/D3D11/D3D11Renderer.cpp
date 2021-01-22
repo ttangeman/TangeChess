@@ -54,7 +54,7 @@ namespace Render
                                                0, &featureLevel, 1, D3D11_SDK_VERSION, 
                                                &swapChainDesc, &g_pSwapChain, &g_pDevice, 
                                                nullptr, &g_pDeviceContext);
-        CheckResult(result);
+        CHECK_RESULT(result);
         
         // Clear the back buffer and adjust the view port.
         ClearRenderTarget();
@@ -74,7 +74,7 @@ namespace Render
         samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
         
         result = g_pDevice->CreateSamplerState(&samplerDesc, &pDefaultSampler);
-        CheckResult(result);
+        CHECK_RESULT(result);
         
         g_pDeviceContext->PSSetSamplers(0, 1, &pDefaultSampler);
         
@@ -100,10 +100,10 @@ namespace Render
     {
         // NOTE: To avoid thread contention, go windowed before releasing the swap chain.
         g_pSwapChain->SetFullscreenState(false, nullptr);
-        SafeRelease(g_pRenderTarget);
-        SafeRelease(g_pDeviceContext);
-        SafeRelease(g_pDevice);
-        SafeRelease(g_pSwapChain);
+        SAFE_RELEASE(g_pRenderTarget);
+        SAFE_RELEASE(g_pDeviceContext);
+        SAFE_RELEASE(g_pDevice);
+        SAFE_RELEASE(g_pSwapChain);
     }
 
     void PresentFrame()
@@ -113,10 +113,10 @@ namespace Render
         if (result == DXGI_ERROR_DEVICE_REMOVED) 
         {
             result = g_pDevice->GetDeviceRemovedReason();
-            CheckResult(result);
+            CHECK_RESULT(result);
         }
 
-        CheckResult(result);
+        CHECK_RESULT(result);
         g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTarget, nullptr);
     }
 
@@ -196,7 +196,7 @@ namespace Render
     void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight)
     {
         g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
-        SafeRelease(g_pRenderTarget);
+        SAFE_RELEASE(g_pRenderTarget);
         g_pSwapChain->ResizeBuffers(0, desiredWidth, desiredHeight, DXGI_FORMAT_UNKNOWN, 0);
 
         ClearRenderTarget();
@@ -217,11 +217,11 @@ namespace Render
         ID3D11Texture2D* pBackBuffer;
         
         result = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-        CheckResult(result);
+        CHECK_RESULT(result);
         
         result = g_pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_pRenderTarget);
-        SafeRelease(pBackBuffer);
-        CheckResult(result);
+        SAFE_RELEASE(pBackBuffer);
+        CHECK_RESULT(result);
         
         g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTarget, nullptr);//depth_stencil_view);
     }

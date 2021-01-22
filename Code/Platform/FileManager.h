@@ -11,6 +11,7 @@ namespace Platform
         usize Size;
     };
 
+    // TODO: Is a class even needed for this?
     class FileManager
     {
         public:

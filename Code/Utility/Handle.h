@@ -14,7 +14,7 @@ class Handle
     Handle(uint32 id, uint32 index)
         : m_uid(id), m_index(index)
     {
-        Assert(id != 0);
+        ASSERT(id != 0);
     }
     
     uint32 GetId() const

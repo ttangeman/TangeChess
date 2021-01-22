@@ -16,7 +16,7 @@ namespace Platform
         void* pResult = VirtualAlloc(nullptr, size, 
                                      MEM_COMMIT|MEM_RESERVE, 
                                      PAGE_READWRITE);
-        Assert(pResult);
+        ASSERT(pResult);
         return pResult;
     }
     
@@ -25,7 +25,7 @@ namespace Platform
         void* pResult = VirtualAlloc(pBaseAddress, size, 
                                     MEM_COMMIT|MEM_RESERVE, 
                                     PAGE_READWRITE);
-        Assert(pResult);
+        ASSERT(pResult);
         return pResult;
     }
     

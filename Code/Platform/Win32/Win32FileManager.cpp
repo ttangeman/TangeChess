@@ -14,7 +14,7 @@ namespace Platform
                                    nullptr, OPEN_EXISTING, 0, nullptr);
 
         // Opening a non-existent file is a runtime assertion, for now.                                
-        Assert(hFile != INVALID_HANDLE_VALUE);
+        ASSERT(hFile != INVALID_HANDLE_VALUE);
         if (hFile)
         {
             FileData fileData;
@@ -23,7 +23,7 @@ namespace Platform
 
             DWORD bytesRead = 0;
             ReadFile(hFile, fileData.pData.get(), fileData.Size, &bytesRead, nullptr);
-            Assert(bytesRead == fileData.Size);
+            ASSERT(bytesRead == fileData.Size);
 
             CloseHandle(hFile);
             return fileData;

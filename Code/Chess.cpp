@@ -11,7 +11,7 @@ AppEntryPoint()
 
 namespace Game
 {
-    RenderObject robj;
+    RenderObject triangleObject;
 
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
@@ -35,8 +35,8 @@ namespace Game
             {Vec3(-0.5f, -0.5f, 0.0f), Vec4(0, 0, 1, 1), Vec2()},
         };
         
-        resourceManager.SubmitMesh("Triangle", triangleData, ArrayLength(triangleData), sizeof(Vertex));
-        robj.AttachMesh("Triangle");
+        resourceManager.SubmitMesh("Triangle", triangleData, ARRAY_LENGTH(triangleData), sizeof(Vertex));
+        triangleObject.AttachMesh("Triangle");
 
         m_gameState.StartGame(PieceColor::White); 
     }        
@@ -55,7 +55,7 @@ namespace Game
     {
         Render::FullClear(Vec4(0.2f, 0.2f, 0.2f, 1.0f));
         Render::SetShader("DefaultShader");
-        robj.Draw();
+        triangleObject.Draw();
         Render::PresentFrame();
     }
 }

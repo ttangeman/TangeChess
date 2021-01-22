@@ -7,17 +7,17 @@
 #endif
 
 #if ASSERTIONS_ENABLED
-#define DebugCrash() if (1) { int* _x = 0; *_x = 0;}
-#define InvalidCodePath() DebugCrash();
-#define NotYetImplemented() DebugCrash();
-#define Assert(expr) \
+#define DEBUG_CRASH() if (1) { int* _x = 0; *_x = 0;}
+#define INVALID_CODE_PATH() DEBUG_CRASH();
+#define NOT_YET_IMPLEMENTED() DEBUG_CRASH();
+#define ASSERT(expr) \
 if (expr) { \
 } else { \
-DebugCrash(); \
+DEBUG_CRASH(); \
 }
 #else
-#define DebugCrash()
-#define Assert(expr)
-#define InvalidCodePath()
-#define NotYetImplemented()
+#define DEBUG_CRASH()
+#define ASSERT(expr)
+#define INVALID_CODE_PATH()
+#define NOT_YET_IMPLEMENTED()
 #endif

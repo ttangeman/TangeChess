@@ -22,20 +22,20 @@ namespace Render
     {
         for (auto& mesh : m_meshes)
         {
-            SafeRelease(mesh.pVertexBuffer);
-            SafeRelease(mesh.pIndexBuffer);
+            SAFE_RELEASE(mesh.pVertexBuffer);
+            SAFE_RELEASE(mesh.pIndexBuffer);
         }
 
         for (auto& shader : m_shaders)
         {
-            SafeRelease(shader.pVertexShader);
-            SafeRelease(shader.pPixelShader);
-            SafeRelease(shader.pInputLayout);
+            SAFE_RELEASE(shader.pVertexShader);
+            SAFE_RELEASE(shader.pPixelShader);
+            SAFE_RELEASE(shader.pInputLayout);
         }
 
         for (auto& texture : m_textures)
         {
-            SafeRelease(texture.pTextureView);
+            SAFE_RELEASE(texture.pTextureView);
         }
     }
     
@@ -54,7 +54,7 @@ namespace Render
         D3D11_SUBRESOURCE_DATA data = {pVertexData, 0, 0};
         
         HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
-        CheckResult(result);
+        CHECK_RESULT(result);
         
         Mesh mesh = {};
         mesh.Id = m_meshAccumulator++;
@@ -78,7 +78,7 @@ namespace Render
     {
         const auto& mesh = m_meshes.at(hMesh.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(mesh.Id == hMesh.GetId());
+        ASSERT(mesh.Id == hMesh.GetId());
         return mesh;
     }
 
@@ -86,7 +86,7 @@ namespace Render
     {
         auto& mesh = m_meshes.at(hMesh.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(mesh.Id == hMesh.GetId());
+        ASSERT(mesh.Id == hMesh.GetId());
         return mesh;
     }
     
@@ -117,17 +117,17 @@ namespace Render
 
         HRESULT result = g_pDevice->CreateVertexShader(pVertexShaderData, vertexShaderSize, 
                                                        nullptr, &shader.pVertexShader);
-        CheckResult(result);
+        CHECK_RESULT(result);
 
         // TODO: Probably don't need to create this every time...
-        result = g_pDevice->CreateInputLayout(inputElementDesc, ArrayLength(inputElementDesc),
+        result = g_pDevice->CreateInputLayout(inputElementDesc, ARRAY_LENGTH(inputElementDesc),
                                               pVertexShaderData, vertexShaderSize,
                                               &shader.pInputLayout);
-        CheckResult(result);
+        CHECK_RESULT(result);
 
         result = g_pDevice->CreatePixelShader(pPixelShaderData, pixelShaderSize, 
                                               nullptr, &shader.pPixelShader);
-        CheckResult(result);
+        CHECK_RESULT(result);
 
         shader.Id = m_shaderAccumulator++;
         m_shaders.emplace_back(shader);
@@ -146,7 +146,7 @@ namespace Render
     {
         const auto& shader = m_shaders.at(hShader.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(shader.Id == hShader.GetId());
+        ASSERT(shader.Id == hShader.GetId());
         return shader;
     }
 
@@ -154,7 +154,7 @@ namespace Render
     {
         auto& shader = m_shaders.at(hShader.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(shader.Id == hShader.GetId());
+        ASSERT(shader.Id == hShader.GetId());
         return shader;
     }
     
@@ -181,7 +181,7 @@ namespace Render
         textureDesc.Height = height;
         textureDesc.ArraySize = 1;
         // NOTE: Only standard RGBA bitmaps and Monochrome bitmaps are supported.
-        Assert(bytesPerPixel == 4 || bytesPerPixel == 1);
+        ASSERT(bytesPerPixel == 4 || bytesPerPixel == 1);
         textureDesc.Format = (bytesPerPixel == 4) ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_A8_UNORM;
         textureDesc.SampleDesc.Count = 1;
         textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
@@ -192,7 +192,7 @@ namespace Render
         // Load the texture to the GPU.
         ID3D11Texture2D* pTexture;
         HRESULT result = g_pDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture);
-        CheckResult(result);
+        CHECK_RESULT(result);
         g_pDeviceContext->UpdateSubresource(pTexture, 0, nullptr, pPixels, pitch, 0);
         
         // Describe shader resource for the texture view.
@@ -205,7 +205,7 @@ namespace Render
         // Create the texture view.
         ID3D11ShaderResourceView* pTextureView;
         result = g_pDevice->CreateShaderResourceView(pTexture, &srvDesc, &pTextureView);
-        CheckResult(result);
+        CHECK_RESULT(result);
         g_pDeviceContext->GenerateMips(pTextureView);
         
         m_textures.emplace_back(Texture(m_textureAccumulator, pTextureView));
@@ -224,7 +224,7 @@ namespace Render
     {
         const auto& texture = m_textures.at(hTexture.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(texture.Id == hTexture.GetId());
+        ASSERT(texture.Id == hTexture.GetId());
         return texture;
     }
 
@@ -232,7 +232,7 @@ namespace Render
     {
         auto& texture = m_textures.at(hTexture.GetIndex());
         // Assert that we are not referencing a stale handle.
-        Assert(texture.Id == hTexture.GetId());
+        ASSERT(texture.Id == hTexture.GetId());
         return texture;
     }
 

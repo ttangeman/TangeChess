@@ -10,11 +10,11 @@ namespace Platform
         // Assure that we have 1 ms granularity for timing.
         UINT desiredSchedulerGranularityInMs = 1;
         BOOL granularityResult = timeBeginPeriod(desiredSchedulerGranularityInMs) == TIMERR_NOERROR;
-        Assert(granularityResult);
+        ASSERT(granularityResult);
 
         LARGE_INTEGER perfFrequency;
         BOOL queryResult = QueryPerformanceFrequency(&perfFrequency);
-        Assert(queryResult);
+        ASSERT(queryResult);
 
         m_clocksPerSecond = perfFrequency.QuadPart;
     }
