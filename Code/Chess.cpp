@@ -11,8 +11,6 @@ MAIN_ENTRY_POINT()
 
 namespace Game
 {
-    RenderObject triangleObject;
-
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
@@ -21,12 +19,16 @@ namespace Game
         const auto& fileManager = FileManager::GetInstance();
         auto& resourceManager = ResourceManager::GetInstance();
 
-        FileData vertexShaderData = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
-        FileData pixelShaderData = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
+        FileData defaultVertexShaderData = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
+        FileData colorFillPixelShaderData = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
+        FileData texturePixelShaderData = fileManager.ReadEntireFile("Shaders/Textured.ps.cso");
 
-        resourceManager.SubmitShader("DefaultShader", 
-                                     vertexShaderData.pData.get(), vertexShaderData.Size,
-                                     pixelShaderData.pData.get(), pixelShaderData.Size);
+        resourceManager.SubmitShader("ColorFillShader", 
+                                     defaultVertexShaderData.pData.get(), defaultVertexShaderData.Size,
+                                     colorFillPixelShaderData.pData.get(), colorFillPixelShaderData.Size);
+        resourceManager.SubmitShader("TexturedShader",
+                                     defaultVertexShaderData.pData.get(), defaultVertexShaderData.Size,
+                                     texturePixelShaderData.pData.get(), texturePixelShaderData.Size);
 
         Vertex triangleData[] =
         {
@@ -36,7 +38,10 @@ namespace Game
         };
         
         resourceManager.SubmitMesh("Triangle", triangleData, ARRAY_LENGTH(triangleData), sizeof(Vertex));
-        triangleObject.AttachMesh("Triangle");
+
+        m_pTriangle = std::make_unique<RenderObject>();
+        m_pTriangle->AttachMesh("Triangle");
+        m_pTriangle->Scale(Vec3(0.5f, 0.5f, 1));
 
         m_gameState.StartGame(PieceColor::White); 
     }        
@@ -49,13 +54,14 @@ namespace Game
     void Chess::Update()
     {
         
+        m_pTriangle->Update();
     }
 
     void Chess::Render()
     {
         Render::FullClear(Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-        Render::SetShader("DefaultShader");
-        triangleObject.Draw();
+        Render::SetShader("ColorFillShader");
+        m_pTriangle->Draw();
         Render::PresentFrame();
     }
 }

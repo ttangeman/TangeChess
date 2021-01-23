@@ -12,6 +12,8 @@
 
 namespace Render
 {
+    using namespace DirectX;
+
     static const int32 BackBufferCount = 2;
 
     // All of the D3D11 API-specific objects are kept global because
@@ -68,4 +70,17 @@ namespace Render
         ID3D11ShaderResourceView* pTextureView;
     };
     
+    struct TransformData
+    {
+        XMMATRIX World;
+        XMMATRIX View;
+        XMMATRIX Projection;
+    };
+
+    struct Transform
+    {
+        TransformData Data;
+        // GPU relevant data.
+        ID3D11Buffer* pTransformBuffer;
+    };
 }

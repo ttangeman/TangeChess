@@ -54,7 +54,7 @@ namespace Render
         // Clear the back buffer and adjust the view port.
         ClearRenderTarget();
         SetViewport(platform.GetRenderDimensions());
-        /*
+        
         // Initialize texture sampler.
         ID3D11SamplerState* pDefaultSampler;
         D3D11_SAMPLER_DESC samplerDesc = {};
@@ -86,7 +86,7 @@ namespace Render
         
         g_pDevice->CreateBlendState(&blendDesc, &pBlendState);
         g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
-        */
+        
         // Initailize the ResourceManager so it does not get lazily initailized.
         ResourceManager::GetInstance();
     }
@@ -99,6 +99,36 @@ namespace Render
         SAFE_RELEASE(g_pDeviceContext);
         SAFE_RELEASE(g_pDevice);
         SAFE_RELEASE(g_pSwapChain);
+    }
+    
+    Transform CreateTransform()
+    {
+        D3D11_BUFFER_DESC bufferDesc = {};
+        bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        bufferDesc.ByteWidth = sizeof(DirectX::XMMATRIX) * 3;
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        ID3D11Buffer* pTransformBuffer;
+        HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, nullptr, &pTransformBuffer);
+        CHECK_RESULT(result);
+        
+        D3D11_MAPPED_SUBRESOURCE data;
+        result = g_pDeviceContext->Map(pTransformBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+        CHECK_RESULT(result);
+        
+        TransformData* pTransformData = (TransformData*)data.pData;
+        pTransformData->World = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+        pTransformData->View = DirectX::XMMatrixIdentity();
+        pTransformData->Projection = DirectX::XMMatrixIdentity();
+        
+        g_pDeviceContext->Unmap(pTransformBuffer, 0);
+
+        Transform transform = {};
+        transform.Data = *pTransformData;
+        transform.pTransformBuffer = pTransformBuffer;
+        
+        return transform;
     }
 
     void PresentFrame()

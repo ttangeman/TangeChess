@@ -1,8 +1,6 @@
 @echo off
 
-pushd "Code/Shaders"
-rm *.cso
-fxc /T vs_4_0 /nologo /Fo default.vs.cso default.vs.hlsl
-fxc /T ps_4_0 /nologo /Fo fullclear.ps.cso fullclear.ps.hlsl
-fxc /T ps_4_0 /nologo /Fo textured.ps.cso textured.ps.hlsl
-popd
+del *.cso
+fxc /T vs_4_0 /nologo /Fo Default.vs.cso Default.vs.hlsl
+fxc /T ps_4_0 /nologo /Fo FullClear.ps.cso FullClear.ps.hlsl
+fxc /T ps_4_0 /nologo /Fo Textured.ps.cso Textured.ps.hlsl

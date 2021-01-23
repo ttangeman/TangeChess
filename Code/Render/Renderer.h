@@ -12,12 +12,16 @@ namespace Render
     struct Mesh;
     struct Shader;
     struct Texture;
+    struct Transform;
 
     // Initializes the renderer.
     void InitializePipeline();
 
     // Shutsdown the renderer.
     void Shutdown();
+
+    // Creates a transform for a render object.
+    Transform CreateTransform();
     
     // Displays the frame and swaps the back buffer.
     void PresentFrame();
