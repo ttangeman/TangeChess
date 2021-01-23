@@ -23,7 +23,7 @@ namespace Render
         XMMATRIX orthographic = DirectX::XMMatrixOrthographicOffCenterLH(minView.X, maxView.X,
                                                                          minView.Y, maxView.Y,
                                                                          nearZ, farZ);
-        m_pTransform->Data.Projection = XMMatrixTranspose(orthographic);
+        m_pTransform->Data.Projection = orthographic;
     }
 
     void RenderObject::Translate(Vec3 position)
@@ -38,12 +38,14 @@ namespace Render
         m_pTransform->Data.World *= scale;
     }
 
+    #include <math.h>
+    // NOTE: Input units are degrees.
     void RenderObject::Rotate(Vec3 rotation)
     {
-        //XMMATRIX rotationX = XMMatrixRotationX(DEGREES_TO_RADIANS(rotation.X));
-        //XMMATRIX rotationY = XMMatrixRotationY(DEGREES_TO_RADIANS(rotation.Y));
-        //XMMATRIX rotationZ = XMMatrixRotationZ(DEGREES_TO_RADIANS(rotation.Z));
-        //m_pTransform.Data.World *= rotationX * rotationY * rotationZ;
+        XMMATRIX rotationX = DirectX::XMMatrixRotationX(DEGREES_TO_RADIANS(rotation.X));
+        XMMATRIX rotationY = DirectX::XMMatrixRotationY(DEGREES_TO_RADIANS(rotation.Y));
+        XMMATRIX rotationZ = DirectX::XMMatrixRotationZ(DEGREES_TO_RADIANS(rotation.Z));
+        m_pTransform->Data.World *= rotationX * rotationY * rotationZ;
     }
 
     void RenderObject::Update()

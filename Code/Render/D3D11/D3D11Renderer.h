@@ -26,6 +26,7 @@ namespace Render
     static ID3D11DeviceContext* g_pDeviceContext;
     static ID3D11RenderTargetView* g_pRenderTarget;
 
+    #pragma pack(push, 1)
     struct Vertex
     {
         Vec3 Position;
@@ -83,4 +84,5 @@ namespace Render
         // GPU relevant data.
         ID3D11Buffer* pTransformBuffer;
     };
+    #pragma pack(pop)
 }
