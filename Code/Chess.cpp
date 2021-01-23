@@ -11,10 +11,6 @@ MAIN_ENTRY_POINT()
 
 namespace Game
 {
-    Vec3 position;
-    Vec3 scale;
-    Vec3 rotation;
-
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
@@ -40,27 +36,72 @@ namespace Game
         resourceManager.SubmitTexture("PiecesTexture", piecesImage);
         piecesImage.FreePixels();
 
-        Vertex quadData[] =
+        // Due to the lack of having an actual mesh file to load,
+        // all of the quads in the game are hard coded.
+        auto verticesPerQuad = 6;
+        Quad standardQuad =
         {
-            {Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0)},
-            {Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1)},
-            {Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1)},
+            Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
+            Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1),
+            Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
 
-            {Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1)},
-            {Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0)},
-            {Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0)},
+            Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
+            Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0),
+            Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
         };
 
-        resourceManager.SubmitMesh("Quad", quadData, ARRAY_LENGTH(quadData), sizeof(Vertex));
+        resourceManager.SubmitMesh("StandardQuad", standardQuad.Vertices, 
+                                   verticesPerQuad, sizeof(Vertex));
+        
+        m_pRenderObjects = std::make_unique<RenderObject[]>(UniquePieceCount);
+        Quad pieceQuads[UniquePieceCount];
+        const std::string pieceNames[] =
+        {
+            "BlackKing",
+            "BlackQueen",
+            "BlackBishop",
+            "BlackKnight",
+            "BlackRook",
+            "BlackPawn",
+            "WhiteKing",
+            "WhiteQueen",
+            "WhiteBishop",
+            "WhiteKnight",
+            "WhiteRook",
+            "WhiteBishop",
+        };
 
-        m_pQuad = std::make_unique<RenderObject>();
-        m_pQuad->AttachMesh("Quad");
-        m_pQuad->AttachTexture("PiecesTexture");
-        m_pQuad->SetOrthographic(Vec2(0, 0), platform.GetRenderDimensions(), 0.1f, 100.0f);
+        float pieceWidth = 1.0 / (UniquePieceCount / 2);
+        float pieceHeight = 0;
 
-        position = Vec3(300, 300, 0);
-        scale = Vec3(piecesImage.Width / 2.0f, piecesImage.Height / 2.0f, 1);
-        rotation = Vec3();
+        for (auto i  = 0; i < UniquePieceCount; i++)
+        {
+            float minU = pieceWidth * i;
+
+            if (i > (UniquePieceCount / 2))
+            {
+                minU = pieceWidth * (i / (UniquePieceCount / 2));
+                pieceHeight = 0.5;
+            }
+
+            float maxU = minU + pieceWidth;
+            float minV = pieceHeight;
+            float maxV = minV + 0.5;
+
+            pieceQuads[i] = standardQuad;
+            pieceQuads[i].Vertices[0].TexCoord = Vec2(minU, minV);
+            pieceQuads[i].Vertices[1].TexCoord = Vec2(minU, maxV);
+            pieceQuads[i].Vertices[2].TexCoord = Vec2(maxU, maxV);
+            pieceQuads[i].Vertices[3].TexCoord = Vec2(maxU, maxV);
+            pieceQuads[i].Vertices[4].TexCoord = Vec2(maxU, minV);
+            pieceQuads[i].Vertices[5].TexCoord = Vec2(minU, minV);
+
+            resourceManager.SubmitMesh(pieceNames[i], pieceQuads[i].Vertices, 
+                                       verticesPerQuad, sizeof(Vertex));
+            m_pRenderObjects[i].AttachMesh(pieceNames[i]);
+            m_pRenderObjects[i].AttachTexture("PiecesTexture");
+            m_pRenderObjects[i].SetOrthographic(Vec2(), platform.GetRenderDimensions(), 0.1, 100.0);
+        }
 
         m_gameState.StartGame(PieceColor::White);
     }        
@@ -74,24 +115,14 @@ namespace Game
     {
         auto& input = InputHandler::GetInstance();
 
-        if (input.IsCurrentlyPressed(InputEvent::MoveRight))
-        {
-            position.X += 5.0f;
-        }
-
-        if (input.IsCurrentlyPressed(InputEvent::MoveLeft))
-        {
-            position.X -= 5.0f;
-        }
-
-        m_pQuad->Update(position, scale, rotation);
+        m_pRenderObjects[0].Update(Vec3(300, 300, 0), Vec3(300, 300, 1), Vec3());
     }
 
     void Chess::Render()
     {
         Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
         Render::SetShader("TexturedShader");
-        m_pQuad->Draw();
+        m_pRenderObjects[0].Draw();
         Render::PresentFrame();
     }
 }

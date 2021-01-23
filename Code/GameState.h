@@ -7,6 +7,7 @@ namespace Game
     // NOTE: A piece id of 0 is invalid, as 0 is used for marking a square as unoccupied.
     typedef int32 PieceId;
     
+    static const int32 UniquePieceCount = 12;
     static const int32 TotalPieceCount = 32;
     static const int32 RowCount = 8;
     static const int32 ColCount = 8;

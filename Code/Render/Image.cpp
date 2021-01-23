@@ -48,9 +48,9 @@ namespace Render
     
         uint32* pBitmap = (uint32*) pPixels;
     
-        for (uint32 y = 0; y < Height; y++) 
+        for (auto y = 0; y < Height; y++) 
         {
-            for (uint32 x = 0; x < Width; x++) 
+            for (auto x = 0; x < Width; x++) 
             {
                 uint32* pPixel = &pBitmap[x + (y * Width)];
             

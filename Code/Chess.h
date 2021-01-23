@@ -35,6 +35,6 @@ namespace Game
         private:
 
         GameState m_gameState;
-        std::unique_ptr<RenderObject> m_pQuad;
+        std::unique_ptr<RenderObject[]> m_pRenderObjects;
     };
 }
