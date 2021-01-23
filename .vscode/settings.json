@@ -32,6 +32,7 @@
         "cmath": "cpp",
         "coroutine": "cpp",
         "list": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "*.rh": "cpp"
     }
 }

@@ -31,7 +31,6 @@ namespace Render
                           const void* pPixelShaderData, usize pixelShaderSize);
         
         // Submits an image to the GPU as a texture under the provided name.
-        void SubmitTexture(const std::string& textureName, const void* pPixels, 
-                           int32 width, int32 height, int32 pitch, int32 bytesPerPixel);
+        void SubmitTexture(const std::string& textureName, const Image& image);
     };
 }

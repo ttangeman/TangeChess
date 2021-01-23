@@ -9,6 +9,7 @@
 				"/std:c++latest",
 				"/Zi",
 				"/EHsc",
+				"/I ..\\Libraries",
 				"/Fe:",
 				//"${fileDirname}\\${fileBasenameNoExtension}.exe",
 				"${workspaceFolder}\\Build\\Chess.exe",

@@ -87,19 +87,16 @@ namespace Render
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
-    void ResourceManager::SubmitTexture(const std::string& textureName, 
-                                        const void* pPixels, 
-                                        int32 width, int32 height, int32 pitch, 
-                                        int32 bytesPerPixel)
+    void ResourceManager::SubmitTexture(const std::string& textureName, const Image& image)
     {
         // Describe the texture.
         D3D11_TEXTURE2D_DESC textureDesc = {};
-        textureDesc.Width = width;
-        textureDesc.Height = height;
+        textureDesc.Width = image.Width;
+        textureDesc.Height = image.Height;
         textureDesc.ArraySize = 1;
-        // NOTE: Only standard RGBA bitmaps and Monochrome bitmaps are supported.
-        ASSERT(bytesPerPixel == 4 || bytesPerPixel == 1);
-        textureDesc.Format = (bytesPerPixel == 4) ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_A8_UNORM;
+        // NOTE: Only standard RGBA bitmaps and Monochrome bitmaps are currently supported.
+        ASSERT(image.BytesPerPixel == 4 || image.BytesPerPixel == 1);
+        textureDesc.Format = (image.BytesPerPixel == 4) ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_A8_UNORM;
         textureDesc.SampleDesc.Count = 1;
         textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
         //textureDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -110,7 +107,7 @@ namespace Render
         ID3D11Texture2D* pTexture;
         HRESULT result = g_pDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture);
         CHECK_RESULT(result);
-        g_pDeviceContext->UpdateSubresource(pTexture, 0, nullptr, pPixels, pitch, 0);
+        g_pDeviceContext->UpdateSubresource(pTexture, 0, nullptr, image.pPixels, image.Pitch, 0);
         
         // Describe shader resource for the texture view.
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};

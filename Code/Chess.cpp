@@ -11,7 +11,7 @@ MAIN_ENTRY_POINT()
 
 namespace Game
 {
-    Vec3 pos;
+    Vec3 position;
     Vec3 scale;
     Vec3 rotation;
 
@@ -24,43 +24,45 @@ namespace Game
         const auto& fileManager = FileManager::GetInstance();
         auto& resourceManager = ResourceManager::GetInstance();
 
-        FileData defaultVertexShaderData = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
-        FileData colorFillPixelShaderData = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
-        FileData texturePixelShaderData = fileManager.ReadEntireFile("Shaders/Textured.ps.cso");
+        FileData defaultVertexShader = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
+        FileData colorFillPixelShader = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
+        FileData texturePixelShader = fileManager.ReadEntireFile("Shaders/Textured.ps.cso");
 
         resourceManager.SubmitShader("ColorFillShader", 
-                                     defaultVertexShaderData.pData.get(), defaultVertexShaderData.Size,
-                                     colorFillPixelShaderData.pData.get(), colorFillPixelShaderData.Size);
+                                     defaultVertexShader.pData.get(), defaultVertexShader.Size,
+                                     colorFillPixelShader.pData.get(), colorFillPixelShader.Size);
         resourceManager.SubmitShader("TexturedShader",
-                                     defaultVertexShaderData.pData.get(), defaultVertexShaderData.Size,
-                                     texturePixelShaderData.pData.get(), texturePixelShaderData.Size);
+                                     defaultVertexShader.pData.get(), defaultVertexShader.Size,
+                                     texturePixelShader.pData.get(), texturePixelShader.Size);
 
-        FileData piecesTexture = fileManager.ReadEntireFile("Assets/Pieces.bmp");
+        Image piecesImage;
+        piecesImage.LoadBMP("Data/Pieces.bmp");
+        resourceManager.SubmitTexture("PiecesTexture", piecesImage);
+        piecesImage.FreePixels();
 
-        // TODO: BMP loader.
-        
         Vertex quadData[] =
         {
-            {Vec3(-0.5f, -0.5f, 1.0f), Vec4(0, 0, 0, 1), Vec2()},
-            {Vec3(-0.5f, 0.5f, 1.0f), Vec4(0.2, 0.2, 0.2, 1), Vec2()},
-            {Vec3(0.5f, 0.5f, 1.0f), Vec4(0.7, 0.7, 0.7, 1), Vec2()},
+            {Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0)},
+            {Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1)},
+            {Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1)},
 
-            {Vec3(0.5f, 0.5f, 1.0f), Vec4(0.7, 0.7, 0.7, 1), Vec2()},
-            {Vec3(0.5f, -0.5f, 1.0f), Vec4(0.2, 0.2, 0.2, 1), Vec2()},
-            {Vec3(-0.5f, -0.5f, 1.0f), Vec4(0, 0, 0, 1), Vec2()},
+            {Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1)},
+            {Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0)},
+            {Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0)},
         };
 
         resourceManager.SubmitMesh("Quad", quadData, ARRAY_LENGTH(quadData), sizeof(Vertex));
 
         m_pQuad = std::make_unique<RenderObject>();
         m_pQuad->AttachMesh("Quad");
+        m_pQuad->AttachTexture("PiecesTexture");
         m_pQuad->SetOrthographic(Vec2(0, 0), platform.GetRenderDimensions(), 0.1f, 100.0f);
 
-        pos = Vec3(300, 300, 0);
-        scale = Vec3(200, 200, 1);
+        position = Vec3(300, 300, 0);
+        scale = Vec3(piecesImage.Width / 2.0f, piecesImage.Height / 2.0f, 1);
         rotation = Vec3();
 
-        m_gameState.StartGame(PieceColor::White); 
+        m_gameState.StartGame(PieceColor::White);
     }        
     
     Chess::~Chess()
@@ -74,23 +76,21 @@ namespace Game
 
         if (input.IsCurrentlyPressed(InputEvent::MoveRight))
         {
-            pos.X += 5.0f;
+            position.X += 5.0f;
         }
 
         if (input.IsCurrentlyPressed(InputEvent::MoveLeft))
         {
-            pos.X -= 5.0f;
+            position.X -= 5.0f;
         }
-        
-        rotation.Z += 3.0f;
 
-        m_pQuad->Update(pos, scale, rotation);
+        m_pQuad->Update(position, scale, rotation);
     }
 
     void Chess::Render()
     {
         Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
-        Render::SetShader("ColorFillShader");
+        Render::SetShader("TexturedShader");
         m_pQuad->Draw();
         Render::PresentFrame();
     }

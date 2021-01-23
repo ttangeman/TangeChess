@@ -46,6 +46,7 @@ namespace Render
         
         TransformData* pTransformData = (TransformData*)data.pData;
         pTransformData->World = DirectX::XMMatrixTranspose(affineTransform);
+        // TODO: Camera
         pTransformData->View = DirectX::XMMatrixIdentity();
         pTransformData->Projection = DirectX::XMMatrixTranspose(m_pTransform->Projection);
         
