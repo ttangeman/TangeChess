@@ -8,7 +8,7 @@ namespace Platform
         return instance;
     }
 
-    FileData FileManager::ReadEntireFile(const std::string& fileName)
+    FileData FileManager::ReadEntireFile(const std::string& fileName) const
     {
         HANDLE hFile = CreateFileA(fileName.c_str(), GENERIC_READ, 0, 
                                    nullptr, OPEN_EXISTING, 0, nullptr);

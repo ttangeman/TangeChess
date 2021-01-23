@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/HandleLocator.h"
+#include "Utility/ResourceMap.h"
 #include "Render/Renderer.h"
 
 namespace Render
@@ -11,9 +11,9 @@ namespace Render
 
         // Each resource has a handle locator, which maps names to handles which maps
         // to the POD (plain old data).
-        DynamicHandleLocator<Mesh> MeshLocator;
-        DynamicHandleLocator<Shader> ShaderLocator;
-        DynamicHandleLocator<Texture> TextureLocator;
+        ResourceMap<Mesh> MeshLocator;
+        ResourceMap<Shader> ShaderLocator;
+        ResourceMap<Texture> TextureLocator;
 
         static ResourceManager& GetInstance();
         ResourceManager() = default;

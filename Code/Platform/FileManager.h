@@ -19,7 +19,7 @@ namespace Platform
         static FileManager& GetInstance();
 
         // Reads the entire file into the heap and returns the data (a shared pointer and the size).
-        FileData ReadEntireFile(const std::string& fileName);
+        FileData ReadEntireFile(const std::string& fileName) const;
 
         private:
 

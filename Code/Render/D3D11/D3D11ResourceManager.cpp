@@ -11,20 +11,20 @@ namespace Render
 
     ResourceManager::~ResourceManager()
     {
-        for (auto& mesh : MeshLocator.Elements)
+        for (auto& mesh : MeshLocator.Resources)
         {
             SAFE_RELEASE(mesh.pVertexBuffer);
             SAFE_RELEASE(mesh.pIndexBuffer);
         }
 
-        for (auto& shader : ShaderLocator.Elements)
+        for (auto& shader : ShaderLocator.Resources)
         {
             SAFE_RELEASE(shader.pVertexShader);
             SAFE_RELEASE(shader.pPixelShader);
             SAFE_RELEASE(shader.pInputLayout);
         }
 
-        for (auto& texture : TextureLocator.Elements)
+        for (auto& texture : TextureLocator.Resources)
         {
             SAFE_RELEASE(texture.pTextureView);
         }
@@ -53,7 +53,7 @@ namespace Render
         mesh.VertexBufferStride = vertexSize;
         mesh.VertexCount = vertexCount;
 
-        MeshLocator.PushElement(meshName, &mesh);
+        MeshLocator.PushResource(meshName, mesh);
     }
 
     void ResourceManager::SubmitShader(const std::string& shaderName,
@@ -83,7 +83,7 @@ namespace Render
                                               nullptr, &shader.pPixelShader);
         CHECK_RESULT(result);
 
-        ShaderLocator.PushElement(shaderName, &shader);
+        ShaderLocator.PushResource(shaderName, shader);
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
@@ -125,9 +125,9 @@ namespace Render
         CHECK_RESULT(result);
         g_pDeviceContext->GenerateMips(pTextureView);
         
-        Texture texture;
+        Texture texture = {};
         texture.pTextureView = pTextureView;
 
-        TextureLocator.PushElement(textureName, &texture);
+        TextureLocator.PushResource(textureName, texture);
     }
 }

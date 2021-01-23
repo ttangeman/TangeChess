@@ -123,8 +123,8 @@ namespace Render
     void SetShader(const std::string& shaderName)
     {
         auto& resourceManager = ResourceManager::GetInstance();
-        auto hShader = resourceManager.ShaderLocator.GetElementHandle(shaderName);
-        const Shader& shader = resourceManager.ShaderLocator.LookupElement(hShader);
+        auto hShader = resourceManager.ShaderLocator.GetResourceHandle(shaderName);
+        const Shader& shader = resourceManager.ShaderLocator.LookupResource(hShader);
         
         g_pDeviceContext->VSSetShader(shader.pVertexShader, nullptr, 0);
         g_pDeviceContext->PSSetShader(shader.pPixelShader, nullptr, 0);

@@ -18,8 +18,8 @@ namespace Game
     {
         Render::InitializePipeline();
 
+        const auto& fileManager = FileManager::GetInstance();
         auto& resourceManager = ResourceManager::GetInstance();
-        auto& fileManager = FileManager::GetInstance();
 
         FileData vertexShaderData = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
         FileData pixelShaderData = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
