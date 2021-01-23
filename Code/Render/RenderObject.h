@@ -20,14 +20,9 @@ namespace Render
 
         // Changes to orthographic mode.
         void SetOrthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ);
-
-        // Transforms that can be done to the object.
-        void Translate(Vec3 position);
-        void Scale(Vec3 scaling);
-        void Rotate(Vec3 rotation);
-
+        
         // Updates the GPU buffer with the transformed matrices.
-        void Update();
+        void Update(Vec3 position, Vec3 scaling, Vec3 orientation);
 
         // Draw the object.
         void Draw() const;

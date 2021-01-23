@@ -5,6 +5,8 @@ namespace Render
 {
     RenderObject::RenderObject()
     {
+        m_hMesh = {};
+        m_hTexture = {};
         m_pTransform = std::make_unique<Transform>(Render::CreateTransform());
     }
 
@@ -23,42 +25,29 @@ namespace Render
         XMMATRIX orthographic = DirectX::XMMatrixOrthographicOffCenterLH(minView.X, maxView.X,
                                                                          minView.Y, maxView.Y,
                                                                          nearZ, farZ);
-        m_pTransform->Data.Projection = orthographic;
+        m_pTransform->Projection = orthographic;
     }
 
-    void RenderObject::Translate(Vec3 position)
-    {
-        XMMATRIX translation = DirectX::XMMatrixTranslation(position.X, position.Y, position.Z);
-        m_pTransform->Data.World *= translation;
-    }
-
-    void RenderObject::Scale(Vec3 scaling)
+    void RenderObject::Update(Vec3 position, Vec3 scaling, Vec3 rotation)
     {
         XMMATRIX scale = DirectX::XMMatrixScaling(scaling.X, scaling.Y, scaling.Z);
-        m_pTransform->Data.World *= scale;
-    }
-
-    #include <math.h>
-    // NOTE: Input units are degrees.
-    void RenderObject::Rotate(Vec3 rotation)
-    {
         XMMATRIX rotationX = DirectX::XMMatrixRotationX(DEGREES_TO_RADIANS(rotation.X));
         XMMATRIX rotationY = DirectX::XMMatrixRotationY(DEGREES_TO_RADIANS(rotation.Y));
         XMMATRIX rotationZ = DirectX::XMMatrixRotationZ(DEGREES_TO_RADIANS(rotation.Z));
-        m_pTransform->Data.World *= rotationX * rotationY * rotationZ;
-    }
+        XMMATRIX translation = DirectX::XMMatrixTranslation(position.X, position.Y, position.Z);
 
-    void RenderObject::Update()
-    {
+        // NOTE: Order is super important! Rotations should come before translation!
+        XMMATRIX affineTransform = scale * rotationX * rotationY * rotationZ * translation;
+
         D3D11_MAPPED_SUBRESOURCE data;
         HRESULT result = g_pDeviceContext->Map(m_pTransform->pTransformBuffer, 0, 
                                                D3D11_MAP_WRITE_DISCARD, 0, &data);
         CHECK_RESULT(result);
         
         TransformData* pTransformData = (TransformData*)data.pData;
-        pTransformData->World = DirectX::XMMatrixTranspose(m_pTransform->Data.World);
-        pTransformData->View = DirectX::XMMatrixTranspose(m_pTransform->Data.View);
-        pTransformData->Projection = DirectX::XMMatrixTranspose(m_pTransform->Data.Projection);
+        pTransformData->World = DirectX::XMMatrixTranspose(affineTransform);
+        pTransformData->View = DirectX::XMMatrixIdentity();
+        pTransformData->Projection = DirectX::XMMatrixTranspose(m_pTransform->Projection);
         
         g_pDeviceContext->Unmap(m_pTransform->pTransformBuffer, 0);
     }
@@ -77,7 +66,8 @@ namespace Render
 
         if (m_hTexture.IsValid())
         {
-        //g_pDeviceContext->PSSetShaderResources(0, 1, &texture.pTextureView);
+            const auto& texture = ResourceManager::GetInstance().TextureLocator.LookupResource(m_hTexture);
+            g_pDeviceContext->PSSetShaderResources(0, 1, &texture.pTextureView);
         }
 
         g_pDeviceContext->Draw(mesh.VertexCount, mesh.StartVertexLocation);

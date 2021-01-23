@@ -118,14 +118,14 @@ namespace Render
         CHECK_RESULT(result);
         
         TransformData* pTransformData = (TransformData*)data.pData;
-        pTransformData->World = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+        pTransformData->World = DirectX::XMMatrixIdentity();
         pTransformData->View = DirectX::XMMatrixIdentity();
         pTransformData->Projection = DirectX::XMMatrixIdentity();
         
         g_pDeviceContext->Unmap(pTransformBuffer, 0);
 
         Transform transform = {};
-        transform.Data = *pTransformData;
+        transform.Projection = DirectX::XMMatrixIdentity();
         transform.pTransformBuffer = pTransformBuffer;
         
         return transform;

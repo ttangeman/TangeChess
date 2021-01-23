@@ -80,7 +80,8 @@ namespace Render
 
     struct Transform
     {
-        TransformData Data;
+        // NOTE: Only projection needs to be stored.
+        XMMATRIX Projection;
         // GPU relevant data.
         ID3D11Buffer* pTransformBuffer;
     };

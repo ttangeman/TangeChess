@@ -11,6 +11,10 @@ MAIN_ENTRY_POINT()
 
 namespace Game
 {
+    Vec3 pos;
+    Vec3 scale;
+    Vec3 rotation;
+
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
@@ -30,28 +34,31 @@ namespace Game
         resourceManager.SubmitShader("TexturedShader",
                                      defaultVertexShaderData.pData.get(), defaultVertexShaderData.Size,
                                      texturePixelShaderData.pData.get(), texturePixelShaderData.Size);
-        /*
-        Vertex triangleData[] =
+
+        FileData piecesTexture = fileManager.ReadEntireFile("Assets/Pieces.bmp");
+
+        // TODO: BMP loader.
+        
+        Vertex quadData[] =
         {
-            {Vec3(100.0f, 50.0f, 1.0f), Vec4(1, 0, 0, 1), Vec2()},
-            {Vec3(300.0f, 350.0f, 1.0f), Vec4(0, 1, 0, 1), Vec2()},
-            {Vec3(500.0f, 50.0f, 1.0f), Vec4(0, 0, 1, 1), Vec2()},
+            {Vec3(-0.5f, -0.5f, 1.0f), Vec4(0, 0, 0, 1), Vec2()},
+            {Vec3(-0.5f, 0.5f, 1.0f), Vec4(0.2, 0.2, 0.2, 1), Vec2()},
+            {Vec3(0.5f, 0.5f, 1.0f), Vec4(0.7, 0.7, 0.7, 1), Vec2()},
+
+            {Vec3(0.5f, 0.5f, 1.0f), Vec4(0.7, 0.7, 0.7, 1), Vec2()},
+            {Vec3(0.5f, -0.5f, 1.0f), Vec4(0.2, 0.2, 0.2, 1), Vec2()},
+            {Vec3(-0.5f, -0.5f, 1.0f), Vec4(0, 0, 0, 1), Vec2()},
         };
-        */
-       Vertex triangleData[] =
-       {
-           {Vec3(-0.5f, -0.5f, 1.0f), Vec4(1, 0, 0, 1), Vec2()},
-           {Vec3(0.0f, 0.5f, 1.0f), Vec4(0, 1, 0, 1), Vec2()},
-           {Vec3(0.5f, -0.5f, 1.0f), Vec4(0, 0, 1, 1), Vec2()},
-       };
 
-        resourceManager.SubmitMesh("Triangle", triangleData, ARRAY_LENGTH(triangleData), sizeof(Vertex));
+        resourceManager.SubmitMesh("Quad", quadData, ARRAY_LENGTH(quadData), sizeof(Vertex));
 
-        m_pTriangle = std::make_unique<RenderObject>();
-        m_pTriangle->AttachMesh("Triangle");
-        m_pTriangle->SetOrthographic(Vec2(0, 0), platform.GetRenderDimensions(), 0.1f, 100.0f);
-        m_pTriangle->Scale(Vec3(200, 200, 1));
-        m_pTriangle->Translate(Vec3(300, 300, 0));
+        m_pQuad = std::make_unique<RenderObject>();
+        m_pQuad->AttachMesh("Quad");
+        m_pQuad->SetOrthographic(Vec2(0, 0), platform.GetRenderDimensions(), 0.1f, 100.0f);
+
+        pos = Vec3(300, 300, 0);
+        scale = Vec3(200, 200, 1);
+        rotation = Vec3();
 
         m_gameState.StartGame(PieceColor::White); 
     }        
@@ -67,26 +74,24 @@ namespace Game
 
         if (input.IsCurrentlyPressed(InputEvent::MoveRight))
         {
-            m_pTriangle->Translate(Vec3(5.0f, 0, 0));
+            pos.X += 5.0f;
         }
 
         if (input.IsCurrentlyPressed(InputEvent::MoveLeft))
         {
-            m_pTriangle->Translate(Vec3(-5.0f, 0, 0));
+            pos.X -= 5.0f;
         }
         
-        m_pTriangle->Translate(Vec3(-300, -300, 0));
-        m_pTriangle->Rotate(Vec3(0, 0, 3));
-        m_pTriangle->Translate(Vec3(300, 300, 0));
-        
-        m_pTriangle->Update();
+        rotation.Z += 3.0f;
+
+        m_pQuad->Update(pos, scale, rotation);
     }
 
     void Chess::Render()
     {
-        Render::FullClear(Vec4(0.2f, 0.2f, 0.2f, 1.0f));
+        Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
         Render::SetShader("ColorFillShader");
-        m_pTriangle->Draw();
+        m_pQuad->Draw();
         Render::PresentFrame();
     }
 }
