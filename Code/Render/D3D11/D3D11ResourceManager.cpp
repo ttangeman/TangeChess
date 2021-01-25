@@ -87,7 +87,7 @@ namespace Render
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
-    void ResourceManager::SubmitTexture(const std::string& textureName, const Image& image)
+    void ResourceManager::SubmitTexture(const std::string& textureName, const Asset::Image& image)
     {
         // Describe the texture.
         D3D11_TEXTURE2D_DESC textureDesc = {};

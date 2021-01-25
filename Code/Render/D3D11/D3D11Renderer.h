@@ -34,9 +34,13 @@ namespace Render
         Vec2 TexCoord;
     };
     
-    struct Quad
+    class Quad
     {
+        public:
+
         Vertex Vertices[6];
+
+        void SetTexCoords(Vec2 minUV, Vec2 maxUV);
     };
 
     struct Mesh

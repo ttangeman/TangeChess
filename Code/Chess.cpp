@@ -11,6 +11,8 @@ MAIN_ENTRY_POINT()
 
 namespace Game
 {
+    std::unique_ptr<RenderObject> testGlyph;
+
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
@@ -24,21 +26,27 @@ namespace Game
         FileData colorFillPixelShader = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
         FileData texturePixelShader = fileManager.ReadEntireFile("Shaders/Textured.ps.cso");
 
-        resourceManager.SubmitShader("ColorFillShader", 
+        resourceManager.SubmitShader("PixelFill", 
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      colorFillPixelShader.pData.get(), colorFillPixelShader.Size);
-        resourceManager.SubmitShader("TexturedShader",
+        resourceManager.SubmitShader("Textured",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      texturePixelShader.pData.get(), texturePixelShader.Size);
 
-        Image piecesImage;
+        Asset::Image piecesImage;
         piecesImage.LoadBMP("Data/Pieces.bmp");
         resourceManager.SubmitTexture("PiecesTexture", piecesImage);
         piecesImage.FreePixels();
 
+        FileData fontFile = fileManager.ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
+        Asset::FontAtlas fontAtlas;
+        Asset::Image fontAtlasImage = fontAtlas.BuildFont(fontFile, 128);
+        resourceManager.SubmitTexture("FontTexture", fontAtlasImage);
+        fontAtlasImage.FreePixels();
+       
         // Due to the lack of having an actual mesh file to load,
         // all of the quads in the game are hard coded.
-        auto verticesPerQuad = 6;
+        const int32 VerticesPerQuad = 6;
         Quad standardQuad =
         {
             Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
@@ -51,7 +59,19 @@ namespace Game
         };
 
         resourceManager.SubmitMesh("StandardQuad", standardQuad.Vertices, 
-                                   verticesPerQuad, sizeof(Vertex));
+                                   VerticesPerQuad, sizeof(Vertex));
+
+        const auto& a = fontAtlas.LookupGlyphInfo('a');
+
+        Quad fontQuad = standardQuad;
+        fontQuad.SetTexCoords(a.MinUV, a.MaxUV);
+
+        resourceManager.SubmitMesh("TestQuad", fontQuad.Vertices, VerticesPerQuad, sizeof(Vertex));
+
+        testGlyph = std::make_unique<RenderObject>();
+        testGlyph->AttachMesh("TestQuad");
+        testGlyph->AttachTexture("FontTexture");
+        testGlyph->SetOrthographic(Vec2(), platform.GetRenderDimensions(), 0.1, 100.0);
         
         m_pRenderObjects = std::make_unique<RenderObject[]>(UniquePieceCount);
         Quad pieceQuads[UniquePieceCount];
@@ -72,35 +92,26 @@ namespace Game
         };
 
         float pieceWidth = 1.0 / (UniquePieceCount / 2);
-        float pieceHeight = 0;
 
         for (auto i  = 0; i < UniquePieceCount; i++)
         {
-            float minU = pieceWidth * i;
-
-            if (i > (UniquePieceCount / 2))
-            {
-                minU = pieceWidth * (i / (UniquePieceCount / 2));
-                pieceHeight = 0.5;
-            }
-
+            float minU = pieceWidth * (i % 6);
+            float minV = (i < (UniquePieceCount / 2)) ? 0 : 0.5;
             float maxU = minU + pieceWidth;
-            float minV = pieceHeight;
             float maxV = minV + 0.5;
 
             pieceQuads[i] = standardQuad;
-            pieceQuads[i].Vertices[0].TexCoord = Vec2(minU, minV);
-            pieceQuads[i].Vertices[1].TexCoord = Vec2(minU, maxV);
-            pieceQuads[i].Vertices[2].TexCoord = Vec2(maxU, maxV);
-            pieceQuads[i].Vertices[3].TexCoord = Vec2(maxU, maxV);
-            pieceQuads[i].Vertices[4].TexCoord = Vec2(maxU, minV);
-            pieceQuads[i].Vertices[5].TexCoord = Vec2(minU, minV);
+            pieceQuads[i].SetTexCoords(Vec2(minU, minV), Vec2(maxU, maxV));
 
             resourceManager.SubmitMesh(pieceNames[i], pieceQuads[i].Vertices, 
-                                       verticesPerQuad, sizeof(Vertex));
+                                       VerticesPerQuad, sizeof(Vertex));
+                                       
             m_pRenderObjects[i].AttachMesh(pieceNames[i]);
             m_pRenderObjects[i].AttachTexture("PiecesTexture");
-            m_pRenderObjects[i].SetOrthographic(Vec2(), platform.GetRenderDimensions(), 0.1, 100.0);
+            // This projection matrix evenly distributes 8 pieces among a row
+            // given the interval [1, 8] for positions. The 0.5 acts as an offset
+            // from the edge of the screen.
+            m_pRenderObjects[i].SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
         }
 
         m_gameState.StartGame(PieceColor::White);
@@ -115,14 +126,25 @@ namespace Game
     {
         auto& input = InputHandler::GetInstance();
 
-        m_pRenderObjects[0].Update(Vec3(300, 300, 0), Vec3(300, 300, 1), Vec3());
+        for (auto i = 0; i < ColCount; i++)
+        {
+            m_pRenderObjects[i].Update(Vec3(i + 1, 1, 0), Vec3(1, 1, 1), Vec3());
+        }
+
+        testGlyph->Update(Vec3(300, 300, 1), Vec3(50, 50, 0), Vec3());
     }
 
     void Chess::Render()
     {
         Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
-        Render::SetShader("TexturedShader");
-        m_pRenderObjects[0].Draw();
+        Render::SetShader("Textured");
+
+        for (auto i = 0; i < ColCount; i++)
+        {
+            m_pRenderObjects[i].Draw();
+        }
+
+        testGlyph->Draw();
         Render::PresentFrame();
     }
 }

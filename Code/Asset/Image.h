@@ -7,7 +7,7 @@
 #include "Core/Common.h"
 #include "Platform/PlatformWrapper.h"
 
-namespace Render
+namespace Asset
 {
     class Image
     {
@@ -26,8 +26,6 @@ namespace Render
         void FreePixels();
 
         usize GetSize() const;
-
-        private:
 
         // Used for flipping the direction of certain file formats to bottom-down image. 
         // (Such as BMP from top-up to bottom-down).

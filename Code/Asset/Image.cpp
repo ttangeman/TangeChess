@@ -1,6 +1,6 @@
-#include "Render/Image.h"
+#include "Asset/Image.h"
 
-namespace Render
+namespace Asset
 {
     void Image::LoadBMP(const std::string& fileName)
     {
@@ -13,7 +13,7 @@ namespace Render
 
     void Image::FreePixels()
     {
-        stbi_image_free(pPixels);
+        free(pPixels);
     }
 
     usize Image::GetSize() const

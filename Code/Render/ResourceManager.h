@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Asset/Image.h"
 #include "Utility/ResourceMap.h"
 #include "Render/Renderer.h"
 
@@ -31,6 +32,6 @@ namespace Render
                           const void* pPixelShaderData, usize pixelShaderSize);
         
         // Submits an image to the GPU as a texture under the provided name.
-        void SubmitTexture(const std::string& textureName, const Image& image);
+        void SubmitTexture(const std::string& textureName, const Asset::Image& image);
     };
 }

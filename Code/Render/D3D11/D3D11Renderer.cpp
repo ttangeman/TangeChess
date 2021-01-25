@@ -2,6 +2,17 @@
 
 namespace Render
 {
+    void Quad::SetTexCoords(Vec2 minUV, Vec2 maxUV)
+    {
+        Vertices[0].TexCoord = Vec2(minUV.X, minUV.Y);
+        Vertices[1].TexCoord = Vec2(minUV.X, maxUV.Y);
+        Vertices[2].TexCoord = Vec2(maxUV.X, maxUV.Y);
+
+        Vertices[3].TexCoord = Vec2(maxUV.X, maxUV.Y);
+        Vertices[4].TexCoord = Vec2(maxUV.X, minUV.Y);
+        Vertices[5].TexCoord = Vec2(minUV.X, minUV.Y);
+    }
+
     void InitializePipeline()
     {
         auto& platform = Platform::PlatformManager::GetInstance();
