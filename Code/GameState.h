@@ -3,10 +3,7 @@
 #include "Core/Common.h"
 
 namespace Game 
-{
-    // NOTE: A piece id of 0 is invalid, as 0 is used for marking a square as unoccupied.
-    typedef int32 PieceId;
-    
+{   
     static const int32 UniquePieceCount = 12;
     static const int32 TotalPieceCount = 32;
     static const int32 RowCount = 8;
@@ -33,7 +30,7 @@ namespace Game
     
     struct Piece
     {
-        PieceId Id;
+        int32 Id;
         PieceColor Color;
         PieceType Type;
         Vec2i Position;
@@ -46,7 +43,7 @@ namespace Game
     struct PieceMove
     {
         Vec2i destinationSquare;
-        PieceId captureId;
+        int32 captureId;
     };
     
     class GameState
@@ -71,25 +68,25 @@ namespace Game
         bool IsOccupiedSquare(Vec2i square, PieceColor color) const;
         
         // Gets the piece data from the board at the specified square coordinates.
-        PieceId LookupPieceId(Vec2i square) const;
+        int32 LookupPieceId(Vec2i square) const;
         
         // Looks up a piece by id.
-        Piece LookupPiece(PieceId id) const;
+        Piece LookupPiece(int32 id) const;
 
         // Grabs a reference to a piece by id.
-        Piece& GetPiece(PieceId id);
+        Piece& GetPiece(int32 id);
 
         // Finds the set of all valid squares for a particular piece to move to.
-        std::vector<PieceMove> FindValidMoves(PieceId id) const;
+        std::vector<PieceMove> FindValidMoves(int32 id) const;
 
         // Tries to move an active piece to the desired square x and y.
         // Returns true on a successful move.
-        bool MovePiece(PieceId id, Vec2i desiredSquare);
+        bool MovePiece(int32 id, Vec2i desiredSquare);
         
         // This overload uses a precomputed valid move set for the piece.
         // Tries to move an active piece to the desired square x and y. 
         // Returns true on a successful move.
-        bool MovePiece(PieceId id, Vec2i desiredSquare, const std::vector<PieceMove>& validMoveSet);
+        bool MovePiece(int32 id, Vec2i desiredSquare, const std::vector<PieceMove>& validMoveSet);
         
         private:
 
@@ -99,6 +96,6 @@ namespace Game
         // Keeps track of where each piece is on the board. Note that a piece id of
         // 0 means that the square is empty.
         // NOTE: This has to be synchronized alongside Piece::Position.
-        std::array<PieceId, SquareCount> m_boardState;
+        std::array<int32, SquareCount> m_boardState;
     };
 }

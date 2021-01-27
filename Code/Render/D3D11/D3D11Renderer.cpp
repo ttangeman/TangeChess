@@ -2,15 +2,15 @@
 
 namespace Render
 {
-    void Quad::SetTexCoords(Vec2 minUV, Vec2 maxUV)
+    void Quad::SetTexCoords(Vec2 min, Vec2 max)
     {
-        Vertices[0].TexCoord = Vec2(minUV.X, minUV.Y);
-        Vertices[1].TexCoord = Vec2(minUV.X, maxUV.Y);
-        Vertices[2].TexCoord = Vec2(maxUV.X, maxUV.Y);
+        Vertices[0].TexCoord = Vec2(min.U, min.V);
+        Vertices[1].TexCoord = Vec2(min.U, max.V);
+        Vertices[2].TexCoord = Vec2(max.U, max.V);
 
-        Vertices[3].TexCoord = Vec2(maxUV.X, maxUV.Y);
-        Vertices[4].TexCoord = Vec2(maxUV.X, minUV.Y);
-        Vertices[5].TexCoord = Vec2(minUV.X, minUV.Y);
+        Vertices[3].TexCoord = Vec2(max.U, max.V);
+        Vertices[4].TexCoord = Vec2(max.U, min.V);
+        Vertices[5].TexCoord = Vec2(min.U, min.V);
     }
 
     void InitializePipeline()
@@ -97,9 +97,6 @@ namespace Render
         
         g_pDevice->CreateBlendState(&blendDesc, &pBlendState);
         g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
-        
-        // Initailize the ResourceManager so it does not get lazily initailized.
-        ResourceManager::GetInstance();
     }
     
     void ShutdownPipeline()

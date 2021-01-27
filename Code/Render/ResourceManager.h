@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Asset/Image.h"
-#include "Utility/ResourceMap.h"
+#include "Utility/HandleMap.h"
 #include "Render/Renderer.h"
 
 namespace Render
@@ -12,9 +12,9 @@ namespace Render
 
         // Each resource has a handle locator, which maps names to handles which maps
         // to the POD (plain old data).
-        ResourceMap<Mesh> MeshLocator;
-        ResourceMap<Shader> ShaderLocator;
-        ResourceMap<Texture> TextureLocator;
+        HandleMap<Mesh, 8> MeshLocator;
+        HandleMap<Shader, 8> ShaderLocator;
+        HandleMap<Texture, 8> TextureLocator;
 
         static ResourceManager& GetInstance();
         ResourceManager() = default;
@@ -33,5 +33,11 @@ namespace Render
         
         // Submits an image to the GPU as a texture under the provided name.
         void SubmitTexture(const std::string& textureName, const Asset::Image& image);
+
+        // Releases the resource. NOTE: ALL resources get released on shutdown.
+        // This is for runtime releasing needs.
+        void ReleaseMesh(const std::string& meshName);
+        void ReleaseShader(const std::string& shaderName);
+        void ReleaseTexture(const std::string& textureName);
     };
 }

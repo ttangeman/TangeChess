@@ -15,6 +15,7 @@ namespace Render
     using namespace DirectX;
 
     static const int32 BackBufferCount = 2;
+    static const int32 VerticesPerQuad = 6;
 
     // All of the D3D11 API-specific objects are kept global because
     // they are opaque classes anyways and are pretty much just used
@@ -34,11 +35,9 @@ namespace Render
         Vec2 TexCoord;
     };
     
-    class Quad
+    struct Quad
     {
-        public:
-
-        Vertex Vertices[6];
+        Vertex Vertices[VerticesPerQuad];
 
         void SetTexCoords(Vec2 minUV, Vec2 maxUV);
     };
@@ -56,6 +55,8 @@ namespace Render
         uint32 StartVertexLocation;
         // GPU relevant data.
         ID3D11Buffer* pVertexBuffer;
+        // TODO: Switch to indexed vertex buffers.
+        // uint32 IndexCount;
         ID3D11Buffer* pIndexBuffer;
     };
     

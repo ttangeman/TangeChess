@@ -27,7 +27,7 @@ namespace Asset
 
         usize GetSize() const;
 
-        // Used for flipping the direction of certain file formats to bottom-down image. 
+        // Used for flipping the direction of certain file formats to a top-down image. 
         // (Such as BMP from top-up to bottom-down).
         void FlipImage();
 

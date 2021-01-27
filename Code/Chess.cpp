@@ -8,7 +8,7 @@ MAIN_ENTRY_POINT()
 
     return 0;
 }
-
+ 
 namespace Game
 {
     std::unique_ptr<RenderObject> testGlyph;
@@ -16,8 +16,6 @@ namespace Game
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
-        Render::InitializePipeline();
-
         const auto& platform = PlatformManager::GetInstance();
         const auto& fileManager = FileManager::GetInstance();
         auto& resourceManager = ResourceManager::GetInstance();
@@ -40,13 +38,12 @@ namespace Game
 
         FileData fontFile = fileManager.ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
         Asset::FontAtlas fontAtlas;
-        Asset::Image fontAtlasImage = fontAtlas.BuildFont(fontFile, 128);
+        Asset::Image fontAtlasImage = fontAtlas.BuildFont(fontFile);
         resourceManager.SubmitTexture("FontTexture", fontAtlasImage);
         fontAtlasImage.FreePixels();
-       
+        
         // Due to the lack of having an actual mesh file to load,
         // all of the quads in the game are hard coded.
-        const int32 VerticesPerQuad = 6;
         Quad standardQuad =
         {
             Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
@@ -60,11 +57,11 @@ namespace Game
 
         resourceManager.SubmitMesh("StandardQuad", standardQuad.Vertices, 
                                    VerticesPerQuad, sizeof(Vertex));
-
+        
         const auto& a = fontAtlas.LookupGlyphInfo('a');
 
         Quad fontQuad = standardQuad;
-        fontQuad.SetTexCoords(a.MinUV, a.MaxUV);
+        fontQuad.SetTexCoords(a.MinTexCoords, a.MaxTexCoords);
 
         resourceManager.SubmitMesh("TestQuad", fontQuad.Vertices, VerticesPerQuad, sizeof(Vertex));
 
@@ -74,6 +71,7 @@ namespace Game
         testGlyph->SetOrthographic(Vec2(), platform.GetRenderDimensions(), 0.1, 100.0);
         
         m_pRenderObjects = std::make_unique<RenderObject[]>(UniquePieceCount);
+
         Quad pieceQuads[UniquePieceCount];
         const std::string pieceNames[] =
         {
@@ -115,36 +113,40 @@ namespace Game
         }
 
         m_gameState.StartGame(PieceColor::White);
-    }        
-    
-    Chess::~Chess()
-    {
-        Render::ShutdownPipeline();
-    }
 
-    void Chess::Update()
-    {
-        auto& input = InputHandler::GetInstance();
-
+        // Temporary: Draw code here to signify that this stuff should NOT
+        // be done per frame.
         for (auto i = 0; i < ColCount; i++)
         {
             m_pRenderObjects[i].Update(Vec3(i + 1, 1, 0), Vec3(1, 1, 1), Vec3());
         }
 
         testGlyph->Update(Vec3(300, 300, 1), Vec3(50, 50, 0), Vec3());
-    }
 
-    void Chess::Render()
-    {
-        Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
         Render::SetShader("Textured");
+        Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
 
         for (auto i = 0; i < ColCount; i++)
         {
             m_pRenderObjects[i].Draw();
         }
-
         testGlyph->Draw();
+
         Render::PresentFrame();
+    }        
+    
+    Chess::~Chess()
+    {
+
+    }
+
+    void Chess::Update()
+    {
+
+    }
+
+    void Chess::Render()
+    {
+
     }
 }

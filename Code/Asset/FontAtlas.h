@@ -13,13 +13,13 @@ namespace Asset
     struct GlyphInfo
     {
         // Texture coordinates for the glyph in the texture atlas.
-        Vec2 MinUV;
-        Vec2 MaxUV;
+        Vec2 MinTexCoords;
+        Vec2 MaxTexCoords;
         // X and Y bearing.
-        int32 XOffset;
-        int32 YOffset;
+        int32 OffsetX;
+        int32 OffsetY;
         // How far to go for next glyph.
-        int32 XAdvance;
+        int32 AdvanceX;
     };
 
     class FontAtlas
@@ -31,7 +31,7 @@ namespace Asset
         // as a texture (NOTE: it is a monochrome bitmap). Also builds the glyph
         // information which is used to place glyphs correctly and gets the texture
         // coordinates for the glyph.
-        Image BuildFont(const Platform::FileData& fontFile, int32 charSize);
+        Image BuildFont(const Platform::FileData& fontFile, int32 glyphSize = 128);
 
         // Grabs the glyph information for the specififed character.
         const GlyphInfo& LookupGlyphInfo(char character) const;

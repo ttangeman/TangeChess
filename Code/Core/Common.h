@@ -7,6 +7,7 @@
 #include <string>
 #include <atomic>
 #include <unordered_map>
+#include <optional>
 
 #include "Core/Debug.h"
 

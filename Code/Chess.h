@@ -1,21 +1,9 @@
 #pragma once
 
-#include "Core/EntryPoint.h"
-#include "Core/Common.h"
 #include "Core/Application.h"
-#include "Asset/Image.h"
-#include "Asset/FontAtlas.h"
-#include "Render/Renderer.h"
-#include "Render/RenderObject.h"
-#include "Render/ResourceManager.h"
 #include "GameState.h"
 
 #include "Core/Application.cpp"
-#include "Asset/Image.cpp"
-#include "Asset/FontAtlas.cpp"
-#include "Render/D3D11/D3D11Renderer.cpp"
-#include "Render/D3D11/D3D11RenderObject.cpp"
-#include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "GameState.cpp"
 
 namespace Game 

@@ -1,11 +1,24 @@
 #pragma once
 
-#include "Common.h"
+#include "Core/Common.h"
+#include "Core/EntryPoint.h"
 #include "Platform/PlatformWrapper.h"
+// TODO: Better way to include this?
+#include "Render/D3D11/D3D11Renderer.h"
+#include "Render/Renderer.h"
+#include "Render/RenderObject.h"
+#include "Render/ResourceManager.h"
 
+// Unity build (single translation unit) includes.
 #include "Platform/Win32/Win32Manager.cpp"
 #include "Platform/Win32/Win32FileManager.cpp"
 #include "Platform/Win32/Win32Input.cpp"
+#include "Asset/Image.cpp"
+#include "Asset/FontAtlas.cpp"
+#include "Render/D3D11/D3D11Renderer.cpp"
+#include "Render/D3D11/D3D11RenderObject.cpp"
+#include "Render/D3D11/D3D11ResourceManager.cpp"
+#include "World/EntityManager.cpp"
 
 namespace Core
 {
@@ -16,7 +29,7 @@ namespace Core
         public:
         
         // Stores the last elapsed time for updating and rendering the application.
-        float LastTimeStep;
+        float DeltaTime;
 
         Application() = delete;
         Application(const std::string& title, int32 width, int32 height);

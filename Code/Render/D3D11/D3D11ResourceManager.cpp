@@ -127,4 +127,37 @@ namespace Render
 
         TextureLocator.PushResource(textureName, texture);
     }
+    
+    void ResourceManager::ReleaseMesh(const std::string& meshName)
+    {
+        auto hMesh = MeshLocator.GetResourceHandle(meshName);
+        auto& mesh = MeshLocator.GetResource(hMesh);
+
+        SAFE_RELEASE(mesh.pVertexBuffer);
+        SAFE_RELEASE(mesh.pIndexBuffer);
+
+        MeshLocator.ReleaseResource(meshName);
+    }
+
+    void ResourceManager::ReleaseShader(const std::string& shaderName)
+    {
+        auto hShader = ShaderLocator.GetResourceHandle(shaderName);
+        auto& shader = ShaderLocator.GetResource(hShader);
+
+        SAFE_RELEASE(shader.pVertexShader);
+        SAFE_RELEASE(shader.pPixelShader);
+        SAFE_RELEASE(shader.pInputLayout);
+        
+        ShaderLocator.ReleaseResource(shaderName);
+    }
+
+    void ResourceManager::ReleaseTexture(const std::string& textureName)
+    {
+        auto hTexture = TextureLocator.GetResourceHandle(textureName);
+        auto& texture = TextureLocator.GetResource(hTexture);
+
+        SAFE_RELEASE(texture.pTextureView);
+
+        TextureLocator.ReleaseResource(textureName);
+    }
 }

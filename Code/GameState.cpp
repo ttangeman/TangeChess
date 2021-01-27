@@ -145,7 +145,7 @@ namespace Game
         return piece.Color == color;
     }
 
-    PieceId GameState::LookupPieceId(Vec2i square) const
+    int32 GameState::LookupPieceId(Vec2i square) const
     {
         if (IsValidSquare(square))
         {
@@ -154,19 +154,19 @@ namespace Game
         return 0;
     }
     
-    Piece GameState::LookupPiece(PieceId id) const 
+    Piece GameState::LookupPiece(int32 id) const 
     {
         ASSERT(id != 0);
         return m_pieceData.at(id - 1);
     }
 
-    Piece& GameState::GetPiece(PieceId id) 
+    Piece& GameState::GetPiece(int32 id) 
     {
         ASSERT(id != 0);
         return m_pieceData.at(id - 1);
     }
     
-    std::vector<PieceMove> GameState::FindValidMoves(PieceId id) const
+    std::vector<PieceMove> GameState::FindValidMoves(int32 id) const
     {
         std::vector<PieceMove> validMoves;
         validMoves.reserve(16);
@@ -443,7 +443,7 @@ namespace Game
         return validMoves;
     }
     
-    bool GameState::MovePiece(PieceId id, Vec2i desiredSquare)
+    bool GameState::MovePiece(int32 id, Vec2i desiredSquare)
     {
         auto validMoveSet = FindValidMoves(id);
         return MovePiece(id, desiredSquare, validMoveSet);
@@ -453,7 +453,7 @@ namespace Game
     // it is very likely that it will be needed for notifiying that a capture has
     // occured on the network side of things (I would assume). So it will not be
     // refactored out for now.
-    bool GameState::MovePiece(PieceId id, Vec2i desiredSquare, 
+    bool GameState::MovePiece(int32 id, Vec2i desiredSquare, 
                               const std::vector<PieceMove>& validMoveSet)
     {
         for (const auto& it : validMoveSet)
