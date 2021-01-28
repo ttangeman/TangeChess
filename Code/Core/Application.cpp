@@ -4,7 +4,7 @@ namespace Core
 {
     Application::Application(const std::string& title, int32 width, int32 height)
     {
-        auto& platform = PlatformManager::GetInstance(); // Initializes InputHandler.
+        auto& platform = PlatformManager::Get(); // Initializes InputHandler.
         
         if (platform.InitializeAndCreateWindow(title.c_str(), width, height, true, true))
         {
@@ -13,22 +13,27 @@ namespace Core
             m_desiredUpdateRate = 0.0167f;
             
             // Initialize common singletons/subsystems.
-            FileManager::GetInstance();
+            Platform::FileManager::Get();
             // Initialize the renderer and render subsystems.
             Render::InitializePipeline();
-            Render::ResourceManager::GetInstance();
+            Render::ResourceManager::Get();
+
+            // Register common entity components.
+            auto& entityManager = World::EntityManager::Get();
+            entityManager.RegisterComponent<Render::Drawable>();
+            entityManager.RegisterComponent<Render::Transformable>();
         }
     }
 
     Application::~Application()
     {
         Render::ShutdownPipeline();
-        PlatformManager::GetInstance().Shutdown();
+        PlatformManager::Get().Shutdown();
     }
 
     void Application::Run()
     {
-        auto& platform = PlatformManager::GetInstance();
+        auto& platform = PlatformManager::Get();
 
         while (!platform.ShouldQuit())
         {
@@ -38,12 +43,12 @@ namespace Core
             Update();
             Render();
 
-            DeltaTime = m_timer.Stop();
+            LastFrameTime = m_timer.Stop();
 
-            if (DeltaTime < m_desiredUpdateRate)
+            if (LastFrameTime < m_desiredUpdateRate)
             {
                 // Need to convert from seconds to milliseconds.
-                auto sleepTime = (uint64)((m_desiredUpdateRate - DeltaTime) * 1000);
+                auto sleepTime = (uint64)((m_desiredUpdateRate - LastFrameTime) * 1000);
                 
                 if (sleepTime > 0)
                 {

@@ -10,16 +10,9 @@ namespace Game
         return (PieceColor) (1 - (int32)color);
     }
 
-    // Converts a 2D square index into a 1D index for the board state.
-    static int32 IndexBoardState(Vec2i square)
-    {
-        return square.Y * ColCount + square.X; 
-    }
-
     void GameState::StartGame(PieceColor desiredColor)
     {
-        m_boardState.fill(0);
-        m_pieceData.fill({});
+        BoardState.fill({});
         
         auto squareIndex = 0;
         auto pieceIndex = 0;
@@ -30,22 +23,26 @@ namespace Game
             PieceType::Rook, PieceType::Knight, PieceType::Bishop, PieceType::Queen,
             PieceType::King, PieceType::Bishop, PieceType::Knight, PieceType::Rook,
         };
+
+        auto& entityManager = EntityManager::Get();
         
         // Fill the bottom two rows with the desired color.
         while (squareIndex < ColCount)
         {
-            auto id = pieceIndex + 1;
-            auto piecePosition = Vec2i(squareIndex % ColCount, squareIndex / RowCount);
-            
-            m_boardState[squareIndex] = id;
-            m_pieceData[pieceIndex] =
-            {
-                id,
-                desiredColor,
-                standardPieceRow[squareIndex % ColCount],
-                piecePosition,
-                false,
-            };
+            Entity entity = entityManager.RegisterEntity();
+            auto& transform = entityManager.AttachComponent<Transformable>(entity);
+            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+
+            piece.Color = desiredColor;
+            piece.Type = standardPieceRow[squareIndex % ColCount];
+            draw.AttachMesh(GetPieceName(entity));
+            draw.AttachTexture("Texture/Pieces");
+            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
+            transform.Scale = Vec3(1, 1, 0);
+            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            BoardState[squareIndex] = entity;
             
             squareIndex++;
             pieceIndex++;
@@ -53,18 +50,20 @@ namespace Game
         
         while (squareIndex < ColCount * 2)
         {
-            auto id = pieceIndex + 1;
-            auto piecePosition = Vec2i(squareIndex % ColCount, squareIndex / RowCount);
-            
-            m_boardState[squareIndex] = id;
-            m_pieceData[pieceIndex] =
-            {
-                id,
-                desiredColor,
-                PieceType::Pawn,
-                piecePosition,
-                false,
-            };
+            Entity entity = entityManager.RegisterEntity();
+            auto& transform = entityManager.AttachComponent<Transformable>(entity);
+            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+
+            piece.Color = desiredColor;
+            piece.Type = PieceType::Pawn;
+            draw.AttachMesh(GetPieceName(entity));
+            draw.AttachTexture("Texture/Pieces");
+            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
+            transform.Scale = Vec3(1, 1, 0);
+            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            BoardState[squareIndex] = entity;
             
             squareIndex++;
             pieceIndex++;
@@ -77,18 +76,20 @@ namespace Game
         
         while (squareIndex < ColCount * 7)
         {
-            auto id = pieceIndex + 1;
-            auto piecePosition = Vec2i(squareIndex % ColCount, squareIndex / RowCount);
-            
-            m_boardState[squareIndex] = id;
-            m_pieceData[pieceIndex] =
-            {
-                id,
-                oppositeColor,
-                PieceType::Pawn,
-                piecePosition,
-                false,
-            };
+            Entity entity = entityManager.RegisterEntity();
+            auto& transform = entityManager.AttachComponent<Transformable>(entity);
+            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+
+            piece.Color = desiredColor;
+            piece.Type = PieceType::Pawn;
+            draw.AttachMesh(GetPieceName(entity));
+            draw.AttachTexture("Texture/Pieces");
+            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
+            transform.Scale = Vec3(1, 1, 0);
+            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            BoardState[squareIndex] = entity;
             
             squareIndex++;
             pieceIndex++;
@@ -96,18 +97,20 @@ namespace Game
         
         while (squareIndex < ColCount * 8)
         {
-            auto id = pieceIndex + 1;
-            auto piecePosition = Vec2i(squareIndex % ColCount, squareIndex / RowCount);
-            
-            m_boardState[squareIndex] = id;
-            m_pieceData[pieceIndex] =
-            {
-                id,
-                oppositeColor,
-                standardPieceRow[squareIndex % ColCount],
-                piecePosition,
-                false,
-            };
+            Entity entity = entityManager.RegisterEntity();
+            auto& transform = entityManager.AttachComponent<Transformable>(entity);
+            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+
+            piece.Color = desiredColor;
+            piece.Type = standardPieceRow[squareIndex % ColCount];
+            draw.AttachMesh(GetPieceName(entity));
+            draw.AttachTexture("Texture/Pieces");
+            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
+            transform.Scale = Vec3(1, 1, 0);
+            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            BoardState[squareIndex] = entity;
             
             squareIndex++;
             pieceIndex++;
@@ -118,60 +121,57 @@ namespace Game
     {
     }
 
-    bool GameState::IsValidSquare(Vec2i square) const
+    // Converts a 2D square index into a 1D index for the board state.
+    static int32 IndexBoardState(Vec2 square)
+    {
+        return square.Y * ColCount + square.X; 
+    }
+
+    Entity GameState::GetEntity(Vec2 square) const
+    {
+        return BoardState.at(IndexBoardState(square));
+    }
+
+    const std::string& GameState::GetPieceName(Entity entity) const
+    {
+        auto& entityManager = EntityManager::Get();
+        auto piece = entityManager.GetComponent<PieceComponent>(entity);
+        return PieceNames[(int32)piece.Type * (int32)piece.Color];
+    }
+
+    bool GameState::IsValidSquare(Vec2 square) const
     {
         return ((square.X <= 7 && square.X >= 0) &&
                 (square.Y <= 7 && square.Y >= 0)) ?
                 true : false;
     }
     
-    bool GameState::IsOccupiedSquare(Vec2i square) const
+    bool GameState::IsOccupiedSquare(Vec2 square) const
     {
-        // A piece exists at the specified square if the id is > 0.
-        return m_boardState.at(IndexBoardState(square)) > 0;
+        return GetEntity(square).IsValid();
     }
 
-    bool GameState::IsOccupiedSquare(Vec2i square, PieceColor color) const
+    bool GameState::IsOccupiedSquare(Vec2 square, PieceColor color) const
     {
-        auto pieceId = LookupPieceId(square);
+        auto& entityManager = EntityManager::Get();
+        auto entity = GetEntity(square);
+        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
         
-        if (pieceId == 0)
+        if (!entity.IsValid())
         {
             return false;
         }
-        
-        auto piece = LookupPiece(pieceId);
-
         return piece.Color == color;
     }
 
-    int32 GameState::LookupPieceId(Vec2i square) const
-    {
-        if (IsValidSquare(square))
-        {
-            return m_boardState.at(IndexBoardState(square));
-        }
-        return 0;
-    }
-    
-    Piece GameState::LookupPiece(int32 id) const 
-    {
-        ASSERT(id != 0);
-        return m_pieceData.at(id - 1);
-    }
-
-    Piece& GameState::GetPiece(int32 id) 
-    {
-        ASSERT(id != 0);
-        return m_pieceData.at(id - 1);
-    }
-    
-    std::vector<PieceMove> GameState::FindValidMoves(int32 id) const
+    std::vector<PieceMove> GameState::FindValidMoves(Entity entity) const
     {
         std::vector<PieceMove> validMoves;
         validMoves.reserve(16);
         
-        auto piece = LookupPiece(id);
+        auto& entityManager = EntityManager::Get();
+        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
+        auto& transform = entityManager.GetComponent<Transformable>(entity);
         auto oppositeColor = FindOppositeColor(piece.Color);
 
         switch (piece.Type)
@@ -181,10 +181,10 @@ namespace Game
             case PieceType::Pawn:
             {
                 // TODO: Implement en passant and promotion.
-                Vec2i forward = piece.Position + Vec2i(0, 1);
-                Vec2i twoForward = piece.Position + Vec2i(0, 2);
-                Vec2i leftDiagonal = piece.Position + Vec2i(-1, 1);
-                Vec2i rightDiagonal = piece.Position + Vec2i(1, 1);
+                Vec2 forward = transform.Position + Vec2(0, 1);
+                Vec2 twoForward = transform.Position + Vec2(0, 2);
+                Vec2 leftDiagonal = transform.Position + Vec2(-1, 1);
+                Vec2 rightDiagonal = transform.Position + Vec2(1, 1);
 
                 if (!IsOccupiedSquare(forward) && IsValidSquare(forward))
                 {
@@ -199,47 +199,47 @@ namespace Game
                 
                 if (IsValidSquare(leftDiagonal) && IsOccupiedSquare(leftDiagonal, oppositeColor))
                 {
-                    auto captureId = LookupPieceId(leftDiagonal);
-                    validMoves.push_back({leftDiagonal, captureId});
+                    auto capture = GetEntity(leftDiagonal);
+                    validMoves.push_back({leftDiagonal, capture});
                 }
 
                 if (IsValidSquare(rightDiagonal) && IsOccupiedSquare(rightDiagonal, oppositeColor))
                 {
-                    auto captureId = LookupPieceId(rightDiagonal);
-                    validMoves.push_back({rightDiagonal, captureId});
+                    auto capture = GetEntity(rightDiagonal);
+                    validMoves.push_back({rightDiagonal, capture});
                 }
             } break;
             
             case PieceType::King:
             {
                 // TODO: Castle and handle checks.
-                Vec2i possibleMoveSet[] =
+                Vec2 possibleMoveSet[] =
                 {
-                    Vec2i(piece.Position.X, piece.Position.Y + 1),  
-                    Vec2i(piece.Position.X, piece.Position.Y - 1),  
-                    Vec2i(piece.Position.X + 1, piece.Position.Y),  
-                    Vec2i(piece.Position.X - 1, piece.Position.Y),  
+                    Vec2(transform.Position.X, transform.Position.Y + 1),  
+                    Vec2(transform.Position.X, transform.Position.Y - 1),  
+                    Vec2(transform.Position.X + 1, transform.Position.Y),  
+                    Vec2(transform.Position.X - 1, transform.Position.Y),  
 
-                    Vec2i(piece.Position.X + 1, piece.Position.Y + 1),  
-                    Vec2i(piece.Position.X - 1, piece.Position.Y + 1),  
-                    Vec2i(piece.Position.X + 1, piece.Position.Y - 1),  
-                    Vec2i(piece.Position.X - 1, piece.Position.Y - 1),  
+                    Vec2(transform.Position.X + 1, transform.Position.Y + 1),  
+                    Vec2(transform.Position.X - 1, transform.Position.Y + 1),  
+                    Vec2(transform.Position.X + 1, transform.Position.Y - 1),  
+                    Vec2(transform.Position.X - 1, transform.Position.Y - 1),  
                 };             
 
                 for (auto it : possibleMoveSet)
                 {
                     if (IsValidSquare(it))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(it, oppositeColor))
                         {
-                            captureId = LookupPieceId(it);
+                            capture = GetEntity(it);
                         }
                         
                         if (!IsOccupiedSquare(it, piece.Color))
                         {
-                            validMoves.push_back({it, captureId});
+                            validMoves.push_back({it, capture});
                         }
                     }
                 }
@@ -250,77 +250,77 @@ namespace Game
             {
                 case PieceType::Bishop:
                 {
-                    Vec2i topLeftDiagonal = piece.Position + Vec2i(-1, 1);
-                    Vec2i topRightDiagonal = piece.Position + Vec2i(1, 1);
-                    Vec2i bottomLeftDiagonal = piece.Position + Vec2i(-1, -1);
-                    Vec2i bottomRightDiagonal = piece.Position + Vec2i(1, -1);
+                    Vec2 topLeftDiagonal = transform.Position + Vec2(-1, 1);
+                    Vec2 topRightDiagonal = transform.Position + Vec2(1, 1);
+                    Vec2 bottomLeftDiagonal = transform.Position + Vec2(-1, -1);
+                    Vec2 bottomRightDiagonal = transform.Position + Vec2(1, -1);
 
                     while (IsValidSquare(topLeftDiagonal))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(topLeftDiagonal, oppositeColor))
                         {
-                            captureId = LookupPieceId(topLeftDiagonal);
+                            capture = GetEntity(topLeftDiagonal);
                         }
 
                         if (!IsOccupiedSquare(topLeftDiagonal, piece.Color))
                         {
-                            validMoves.push_back({topLeftDiagonal, captureId});
+                            validMoves.push_back({topLeftDiagonal, capture});
                         }
                         
-                        topLeftDiagonal += Vec2i(-1, 1);
+                        topLeftDiagonal += Vec2(-1, 1);
                     }
 
                     while (IsValidSquare(topRightDiagonal))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(topRightDiagonal, oppositeColor))
                         {
-                            captureId = LookupPieceId(topRightDiagonal);
+                            capture = GetEntity(topRightDiagonal);
                         }
 
                         if (!IsOccupiedSquare(topRightDiagonal, piece.Color))
                         {
-                            validMoves.push_back({topRightDiagonal, captureId});
+                            validMoves.push_back({topRightDiagonal, capture});
                         }
 
-                        topRightDiagonal += Vec2i(1, 1);
+                        topRightDiagonal += Vec2(1, 1);
                     }
 
                     while (IsValidSquare(bottomLeftDiagonal))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(bottomLeftDiagonal, oppositeColor))
                         {
-                            captureId = LookupPieceId(bottomLeftDiagonal);
+                            capture = GetEntity(bottomLeftDiagonal);
                         }
 
                         if (!IsOccupiedSquare(bottomLeftDiagonal, piece.Color))
                         {
-                            validMoves.push_back({bottomLeftDiagonal, captureId});
+                            validMoves.push_back({bottomLeftDiagonal, capture});
                         }
 
-                        bottomLeftDiagonal += Vec2i(-1, -1);
+                        bottomLeftDiagonal += Vec2(-1, -1);
                     }
 
                     while (IsValidSquare(bottomRightDiagonal))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(bottomRightDiagonal, oppositeColor))
                         {
-                            captureId = LookupPieceId(bottomRightDiagonal);
+                            capture = GetEntity(bottomRightDiagonal);
                         }
 
                         if (!IsOccupiedSquare(bottomRightDiagonal, piece.Color))
                         {
-                            validMoves.push_back({bottomRightDiagonal, captureId});
+                            validMoves.push_back({bottomRightDiagonal, capture});
                         }
 
-                        bottomRightDiagonal += Vec2i(1, -1);
+                        bottomRightDiagonal += Vec2(1, -1);
                     }
 
                     // HACK: Queens use the above code too!
@@ -329,77 +329,77 @@ namespace Game
                 
                 case PieceType::Rook:
                 {
-                    Vec2i up = piece.Position + Vec2i(0, 1);
-                    Vec2i down = piece.Position + Vec2i(0, -1);
-                    Vec2i right = piece.Position + Vec2i(1, 0);
-                    Vec2i left = piece.Position + Vec2i(-1, 0);
+                    Vec2 up = transform.Position + Vec2(0, 1);
+                    Vec2 down = transform.Position + Vec2(0, -1);
+                    Vec2 right = transform.Position + Vec2(1, 0);
+                    Vec2 left = transform.Position + Vec2(-1, 0);
                     
                     while (IsValidSquare(up))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(up, oppositeColor))
                         {
-                            captureId = LookupPieceId(up);
+                            capture = GetEntity(up);
                         }
 
                         if (!IsOccupiedSquare(up, piece.Color))
                         {
-                            validMoves.push_back({up, captureId});
+                            validMoves.push_back({up, capture});
                         }
                         
-                        up += Vec2i(0, 1);
+                        up += Vec2(0, 1);
                     }
 
                     while (IsValidSquare(down))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(down, oppositeColor))
                         {
-                            captureId = LookupPieceId(down);
+                            capture = GetEntity(down);
                         }
 
                         if (!IsOccupiedSquare(down, piece.Color))
                         {
-                            validMoves.push_back({down, captureId});
+                            validMoves.push_back({down, capture});
                         }
 
-                        down += Vec2i(0, -1);
+                        down += Vec2(0, -1);
                     }
 
                     while (IsValidSquare(right))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(right, oppositeColor))
                         {
-                            captureId = LookupPieceId(right);
+                            capture = GetEntity(right);
                         }
 
                         if (!IsOccupiedSquare(right, piece.Color))
                         {
-                            validMoves.push_back({right, captureId});
+                            validMoves.push_back({right, capture});
                         }
 
-                        right += Vec2i(1, 0);
+                        right += Vec2(1, 0);
                     }
 
                     while (IsValidSquare(left))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(left, oppositeColor))
                         {
-                            captureId = LookupPieceId(left);
+                            capture = GetEntity(left);
                         }
 
                         if (!IsOccupiedSquare(left, piece.Color))
                         {
-                            validMoves.push_back({left, captureId});
+                            validMoves.push_back({left, capture});
                         }
 
-                        left += Vec2i(0, -1);
+                        left += Vec2(0, -1);
                     }
                     
                 } break;
@@ -407,33 +407,33 @@ namespace Game
             
             case PieceType::Knight:
             {
-                Vec2i possibleMoveSet[] = 
+                Vec2 possibleMoveSet[] = 
                 {
-                    Vec2i(piece.Position.X - 1, piece.Position.Y + 2),
-                    Vec2i(piece.Position.X - 2, piece.Position.Y + 1),
-                    Vec2i(piece.Position.X + 1, piece.Position.Y + 2),
-                    Vec2i(piece.Position.X + 2, piece.Position.Y + 1),
+                    Vec2(transform.Position.X - 1, transform.Position.Y + 2),
+                    Vec2(transform.Position.X - 2, transform.Position.Y + 1),
+                    Vec2(transform.Position.X + 1, transform.Position.Y + 2),
+                    Vec2(transform.Position.X + 2, transform.Position.Y + 1),
                     
-                    Vec2i(piece.Position.X - 1, piece.Position.Y - 2),
-                    Vec2i(piece.Position.X - 2, piece.Position.Y - 1),
-                    Vec2i(piece.Position.X + 1, piece.Position.Y - 2),
-                    Vec2i(piece.Position.X + 2, piece.Position.Y - 1),
+                    Vec2(transform.Position.X - 1, transform.Position.Y - 2),
+                    Vec2(transform.Position.X - 2, transform.Position.Y - 1),
+                    Vec2(transform.Position.X + 1, transform.Position.Y - 2),
+                    Vec2(transform.Position.X + 2, transform.Position.Y - 1),
                 };
                 
                 for (auto it : possibleMoveSet)
                 {
                     if (IsValidSquare(it))
                     {
-                        auto captureId = 0;
+                        Entity capture = {};
 
                         if (IsOccupiedSquare(it, oppositeColor))
                         {
-                            captureId = LookupPieceId(it);
+                            capture = GetEntity(it);
                         }
                         
                         if (!IsOccupiedSquare(it, piece.Color))
                         {
-                            validMoves.push_back({it, captureId});
+                            validMoves.push_back({it, capture});
                         }
                     }
                 }
@@ -443,29 +443,32 @@ namespace Game
         return validMoves;
     }
     
-    bool GameState::MovePiece(int32 id, Vec2i desiredSquare)
+    bool GameState::MovePiece(Entity entity, Vec2 desiredSquare)
     {
-        auto validMoveSet = FindValidMoves(id);
-        return MovePiece(id, desiredSquare, validMoveSet);
+        auto validMoveSet = FindValidMoves(entity);
+        return MovePiece(entity, desiredSquare, validMoveSet);
     }
 
     // TODO: Currently the captureId is not used from PieceMove, but
     // it is very likely that it will be needed for notifiying that a capture has
     // occured on the network side of things (I would assume). So it will not be
     // refactored out for now.
-    bool GameState::MovePiece(int32 id, Vec2i desiredSquare, 
+    bool GameState::MovePiece(Entity entity, Vec2 desiredSquare, 
                               const std::vector<PieceMove>& validMoveSet)
     {
+        auto& entityManager = EntityManager::Get();
+
         for (const auto& it : validMoveSet)
         {
             // The desired square is valid if it is in the valid set!
             if (it.destinationSquare == desiredSquare)
             {
-                Piece& piece = GetPiece(id);
-                piece.Position = desiredSquare;
-
-                m_boardState[IndexBoardState(piece.Position)] = 0;
-                m_boardState[IndexBoardState(desiredSquare)] = id;
+                auto& transform = entityManager.GetComponent<Transformable>(entity);
+                
+                // NOTE: Need to synchronize the two positions!
+                transform.Position = desiredSquare;
+                BoardState[IndexBoardState(transform.Position)] = {};
+                BoardState[IndexBoardState(desiredSquare)] = entity;
                 
                 return true;
             }

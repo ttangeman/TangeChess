@@ -2,36 +2,56 @@
 
 #include "Core/Common.h"
 #include "World/Entity.h"
+#include "World/IComponent.h"
 
 namespace World
 {
+    // NOTE: Prefer to use handles. Typically, the methods that do not take
+    // handles require a linear search to find the entity.
     class EntityManager
     {
         public:
 
-        static EntityManager& GetInstance();
+        static const int32 MaxEntityCount = 128;
 
-        // Provides an entity with a unique id and registers it.
-        void RegisterEntity(Entity& entity);
+        static EntityManager& Get();
 
-        // Removes the entity from the registry.
-        void DestroyEntity(int32 id);
+        EntityManager() = default;
+        EntityManager operator=(const EntityManager&) = delete;
+        EntityManager(const EntityManager&) = delete;
 
-        std::optional<Entity> LookupEntity(Handle<Entity> hEntity) const;
-        Entity& GetEntity(Handle<Entity> hEntity);
+        // Provides an entity with an unique id.
+        Entity RegisterEntity();
 
-        // NOTE: These have to do a linear search to find the entity!
-        // Prefer to use handles.
-        std::optional<Entity> LookupEntity(int32 id) const;
-        Entity& GetEntity(int32 id);
+        void DestroyEntity(Entity& entity);
+
+        template <typename T>
+        void RegisterComponent();
+
+        template <typename T>
+        T& AttachComponent(Entity entity);
+
+        template <typename T>
+        T& GetComponent(Entity entity);
+
+        template <typename T>
+        bool HasComponent(Entity entity) const;
 
         private:
 
-        // Using for assigning unique ids to enitties. Cannot be 0 as that
+        // Used for assigning unique ids to enitties. Cannot be 0 as that
         // is the "invalid" entitiy.
-        int32 m_accumulator = 1;
+        int32 m_entityAccumulator = 1;
 
-        // Stores all entities (TODO: Change to chunks).
-        std::array<Entity, 1024> m_entities;
+        // Used for assigning unqiue ids to component types.
+        int32 m_componentAccumulator = 0;
+
+        // HACK: Need a pointer to the ComponentSystem because
+        // abstract classes cannot be abstantianted. Need an abstract class
+        // in the first place because I cannot store the different types
+        // of IComponentArray<T>.
+        // NOTE: Must not shrink/delete elements in order to 
+        // maintain stable indices for component types.
+        std::vector<std::unique_ptr<IComponentSystem>> m_componentSystems;
     };
 }

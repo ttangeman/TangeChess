@@ -2,52 +2,61 @@
 
 namespace World
 {
-    void EntityManager::RegisterEntity(Entity& entity)
+    EntityManager& EntityManager::Get()
     {
-        entity.Id = m_accumulator++;
+        static EntityManager instance;
+        return instance;
     }
 
-    std::optional<Entity> EntityManager::LookupEntity(Handle<Entity> hEntity) const
+    Entity EntityManager::RegisterEntity()
     {
-        auto& entity = m_entities.at(hEntity.Index);
-        if (entity.Id == hEntity.Uid)
-        {
-            return entity;
-        }
-        return std::nullopt;
-    }
-
-    Entity& EntityManager::GetEntity(Handle<Entity> hEntity)
-    {
-        auto& entity = m_entities.at(hEntity.Index);
-        // Handle mismatch if false.
-        ASSERT(entity.Id == hEntity.Uid);
+        Entity entity = {};
+        entity.Id = m_entityAccumulator++;
+        entity.Index = entity.Id - 1;
+        ASSERT(entity.Id < MaxEntityCount);
         return entity;
     }
 
-    std::optional<Entity> EntityManager::LookupEntity(int32 id) const
+    void EntityManager::DestroyEntity(Entity& entity)
     {
-        for (auto& it : m_entities)
+        for (auto& it : m_componentSystems)
         {
-            if (it.Id == id)
-            {
-                return it;
-            }
+            it->DestroyEntity(entity);
         }
-        return std::nullopt;
+        entity = {};
     }
 
-    Entity& EntityManager::GetEntity(int32 id)
+    template <typename T>
+    void EntityManager::RegisterComponent()
     {
-        for (auto& it : m_entities)
-        {
-            if (it.Id == id)
-            {
-                return it;
-            }
-        }
-        // Couldn't find the entity!
-        INVALID_CODE_PATH();
-        return m_entities[0];
+        ComponentArray<T, MaxEntityCount> componentArray;
+        T::ComponentIndex = m_componentAccumulator++;
+
+        auto pComponentSystem = std::make_unique<ComponentArray<T, MaxEntityCount>>(componentArray);
+        m_componentSystems.push_back(std::move(pComponentSystem));
+    }
+
+    template <typename T>
+    T& EntityManager::AttachComponent(Entity entity)
+    {
+        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
+        component->Entity = entity;
+        return *component;
+    }
+
+    template <typename T>
+    T& EntityManager::GetComponent(Entity entity)
+    {
+        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
+        // Make sure we are not referencing a entity that's not attached/stale.
+        ASSERT(component->Entity == entity);
+        return *component;
+    }
+
+    template <typename T>
+    bool EntityManager::HasComponent(Entity entity) const
+    {
+        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
+        return component->Entity == entity;
     }
 }

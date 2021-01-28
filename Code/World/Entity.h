@@ -1,32 +1,27 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Render/RenderObject.h"
 
 namespace World
 {
-    using Render::RenderObject;
-    
-    class Entity
+    union Entity
     {
-        public:
-
-        int32 Id;
-        Vec3 Position;
-        Vec3 Orientation;
-        Vec3 Scale;
-
-        virtual void OnUpdate()
+        struct
         {
+            // Cannot be 0.
+            int16 Id;
+            int16 Index;
+        };
+        int32 Packed;
+
+        bool operator==(const Entity& operand) const
+        {
+            return (this->Packed == operand.Packed);
         }
 
-        virtual void OnRender()
+        bool IsValid() const
         {
-
+            return Id != 0;
         }
-
-        private:
-
-        Handle<RenderObject> m_renderObject;
     };
 }

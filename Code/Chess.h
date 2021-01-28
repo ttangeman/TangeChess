@@ -25,8 +25,5 @@ namespace Game
         private:
 
         GameState m_gameState;
-        // TODO: Push these to the render queue, rather than maintaining an array of these
-        // in the game state.
-        std::unique_ptr<RenderObject[]> m_pRenderObjects;
     };
 }

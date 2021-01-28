@@ -12,16 +12,16 @@ namespace Render
 
         // Each resource has a handle locator, which maps names to handles which maps
         // to the POD (plain old data).
-        HandleMap<Mesh, 8> MeshLocator;
+        HandleMap<Mesh, 32> MeshLocator;
         HandleMap<Shader, 8> ShaderLocator;
         HandleMap<Texture, 8> TextureLocator;
 
-        static ResourceManager& GetInstance();
+        static ResourceManager& Get();
         ResourceManager() = default;
         ~ResourceManager();
         ResourceManager operator=(const ResourceManager&) = delete;
         ResourceManager(const ResourceManager&) = delete;
-    
+
         // Registers a mesh with the GPU under the provided name.
         void SubmitMesh(const std::string& meshName, const void* pVertexData, 
                         usize vertexCount, usize vertexSize);

@@ -3,7 +3,7 @@
 
 namespace Render
 {
-    ResourceManager& ResourceManager::GetInstance()
+    ResourceManager& ResourceManager::Get()
     {
         static ResourceManager instance;
         return instance;

@@ -11,14 +11,12 @@ MAIN_ENTRY_POINT()
  
 namespace Game
 {
-    std::unique_ptr<RenderObject> testGlyph;
-
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
-        const auto& platform = PlatformManager::GetInstance();
-        const auto& fileManager = FileManager::GetInstance();
-        auto& resourceManager = ResourceManager::GetInstance();
+        const auto& platform = PlatformManager::Get();
+        const auto& fileManager = FileManager::Get();
+        auto& resourceManager = ResourceManager::Get();
 
         FileData defaultVertexShader = fileManager.ReadEntireFile("Shaders/Default.vs.cso");
         FileData colorFillPixelShader = fileManager.ReadEntireFile("Shaders/Fullclear.ps.cso");
@@ -33,13 +31,13 @@ namespace Game
 
         Asset::Image piecesImage;
         piecesImage.LoadBMP("Data/Pieces.bmp");
-        resourceManager.SubmitTexture("PiecesTexture", piecesImage);
+        resourceManager.SubmitTexture("Texture/Pieces", piecesImage);
         piecesImage.FreePixels();
 
         FileData fontFile = fileManager.ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
         Asset::FontAtlas fontAtlas;
         Asset::Image fontAtlasImage = fontAtlas.BuildFont(fontFile);
-        resourceManager.SubmitTexture("FontTexture", fontAtlasImage);
+        resourceManager.SubmitTexture("Texture/NotoSans-Bold", fontAtlasImage);
         fontAtlasImage.FreePixels();
         
         // Due to the lack of having an actual mesh file to load,
@@ -58,36 +56,7 @@ namespace Game
         resourceManager.SubmitMesh("StandardQuad", standardQuad.Vertices, 
                                    VerticesPerQuad, sizeof(Vertex));
         
-        const auto& a = fontAtlas.LookupGlyphInfo('a');
-
-        Quad fontQuad = standardQuad;
-        fontQuad.SetTexCoords(a.MinTexCoords, a.MaxTexCoords);
-
-        resourceManager.SubmitMesh("TestQuad", fontQuad.Vertices, VerticesPerQuad, sizeof(Vertex));
-
-        testGlyph = std::make_unique<RenderObject>();
-        testGlyph->AttachMesh("TestQuad");
-        testGlyph->AttachTexture("FontTexture");
-        testGlyph->SetOrthographic(Vec2(), platform.GetRenderDimensions(), 0.1, 100.0);
-        
-        m_pRenderObjects = std::make_unique<RenderObject[]>(UniquePieceCount);
-
         Quad pieceQuads[UniquePieceCount];
-        const std::string pieceNames[] =
-        {
-            "BlackKing",
-            "BlackQueen",
-            "BlackBishop",
-            "BlackKnight",
-            "BlackRook",
-            "BlackPawn",
-            "WhiteKing",
-            "WhiteQueen",
-            "WhiteBishop",
-            "WhiteKnight",
-            "WhiteRook",
-            "WhiteBishop",
-        };
 
         float pieceWidth = 1.0 / (UniquePieceCount / 2);
 
@@ -101,38 +70,13 @@ namespace Game
             pieceQuads[i] = standardQuad;
             pieceQuads[i].SetTexCoords(Vec2(minU, minV), Vec2(maxU, maxV));
 
-            resourceManager.SubmitMesh(pieceNames[i], pieceQuads[i].Vertices, 
+            resourceManager.SubmitMesh(PieceNames[i], pieceQuads[i].Vertices, 
                                        VerticesPerQuad, sizeof(Vertex));
-                                       
-            m_pRenderObjects[i].AttachMesh(pieceNames[i]);
-            m_pRenderObjects[i].AttachTexture("PiecesTexture");
-            // This projection matrix evenly distributes 8 pieces among a row
-            // given the interval [1, 8] for positions. The 0.5 acts as an offset
-            // from the edge of the screen.
-            m_pRenderObjects[i].SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
         }
+        
+        EntityManager::Get().RegisterComponent<PieceComponent>();
 
         m_gameState.StartGame(PieceColor::White);
-
-        // Temporary: Draw code here to signify that this stuff should NOT
-        // be done per frame.
-        for (auto i = 0; i < ColCount; i++)
-        {
-            m_pRenderObjects[i].Update(Vec3(i + 1, 1, 0), Vec3(1, 1, 1), Vec3());
-        }
-
-        testGlyph->Update(Vec3(300, 300, 1), Vec3(50, 50, 0), Vec3());
-
-        Render::SetShader("Textured");
-        Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
-
-        for (auto i = 0; i < ColCount; i++)
-        {
-            m_pRenderObjects[i].Draw();
-        }
-        testGlyph->Draw();
-
-        Render::PresentFrame();
     }        
     
     Chess::~Chess()
@@ -147,6 +91,8 @@ namespace Game
 
     void Chess::Render()
     {
-
+        Render::SetShader("Textured");
+        Render::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
+        Render::PresentFrame();
     }
 }

@@ -31,7 +31,7 @@ namespace Asset
         // as a texture (NOTE: it is a monochrome bitmap). Also builds the glyph
         // information which is used to place glyphs correctly and gets the texture
         // coordinates for the glyph.
-        Image BuildFont(const Platform::FileData& fontFile, int32 glyphSize = 128);
+        Image BuildFont(const Platform::FileData& fontFile, int32 glyphSize = 64);
 
         // Grabs the glyph information for the specififed character.
         const GlyphInfo& LookupGlyphInfo(char character) const;

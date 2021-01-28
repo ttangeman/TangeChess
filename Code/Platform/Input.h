@@ -23,9 +23,6 @@ namespace Platform
         // Always needs to be last
         Count
     };
-    
-    // HACK: So I can use InputEvent::Count to initialize a static array :)
-    static const usize InputEventCount = (const usize)InputEvent::Count;
 
     struct InputState 
     {
@@ -40,7 +37,7 @@ namespace Platform
 
         Vec2i MousePosition;
 
-        static InputHandler& GetInstance();
+        static InputHandler& Get();
         InputHandler(const InputHandler&) = delete;
         void operator=(const InputHandler&) = delete;
         
@@ -54,7 +51,9 @@ namespace Platform
 
         private:
 
-        std::array<InputState, InputEventCount> m_inputState;
+        static const int32 m_inputEventCount = (int32)InputEvent::Count;
+        std::array<InputState, m_inputEventCount> m_inputState;
+        
         WindowHandle m_hWindow;
 
         InputHandler() = default;

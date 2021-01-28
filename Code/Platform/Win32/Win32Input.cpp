@@ -2,7 +2,7 @@
 
 namespace Platform
 {
-    InputHandler& InputHandler::GetInstance()
+    InputHandler& InputHandler::Get()
     {
         static InputHandler instance;
         return instance;

@@ -8,6 +8,7 @@
 #include <atomic>
 #include <unordered_map>
 #include <optional>
+#include <typeinfo>
 
 #include "Core/Debug.h"
 

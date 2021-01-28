@@ -6,7 +6,8 @@
 // TODO: Better way to include this?
 #include "Render/D3D11/D3D11Renderer.h"
 #include "Render/Renderer.h"
-#include "Render/RenderObject.h"
+#include "Render/Transformable.h"
+#include "Render/Drawable.h"
 #include "Render/ResourceManager.h"
 
 // Unity build (single translation unit) includes.
@@ -16,7 +17,8 @@
 #include "Asset/Image.cpp"
 #include "Asset/FontAtlas.cpp"
 #include "Render/D3D11/D3D11Renderer.cpp"
-#include "Render/D3D11/D3D11RenderObject.cpp"
+#include "Render/D3D11/D3D11Transformable.cpp"
+#include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "World/EntityManager.cpp"
 
@@ -29,7 +31,7 @@ namespace Core
         public:
         
         // Stores the last elapsed time for updating and rendering the application.
-        float DeltaTime;
+        float LastFrameTime;
 
         Application() = delete;
         Application(const std::string& title, int32 width, int32 height);

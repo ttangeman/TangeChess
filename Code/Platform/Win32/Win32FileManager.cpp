@@ -2,7 +2,7 @@
 
 namespace Platform
 {
-    FileManager& FileManager::GetInstance()
+    FileManager& FileManager::Get()
     {
         static FileManager instance;
         return instance;

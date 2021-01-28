@@ -38,7 +38,7 @@ namespace Platform
         return calculatedTime;
     }
 
-    PlatformManager& PlatformManager::GetInstance()
+    PlatformManager& PlatformManager::Get()
     {
         static PlatformManager instance;
         return instance;
@@ -119,7 +119,7 @@ namespace Platform
     {
         MSG message;
         
-        auto& input = InputHandler::GetInstance();
+        auto& input = InputHandler::Get();
 
         if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) 
         {
@@ -203,7 +203,7 @@ namespace Platform
         if (m_hWindow) 
         {
             // Initialize input handler.
-            auto& inputHandler = InputHandler::GetInstance();
+            auto& inputHandler = InputHandler::Get();
             inputHandler.Initialize(m_hWindow);
 
             m_shouldQuit = false;

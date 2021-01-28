@@ -15,7 +15,7 @@ namespace Render
 
     void InitializePipeline()
     {
-        auto& platform = Platform::PlatformManager::GetInstance();
+        auto& platform = Platform::PlatformManager::Get();
         auto hWindow = platform.GetWindow();
 
         // Initialize D3D swap chain and devices.
@@ -160,7 +160,7 @@ namespace Render
 
     void SetShader(const std::string& shaderName)
     {
-        auto& resourceManager = ResourceManager::GetInstance();
+        auto& resourceManager = ResourceManager::Get();
         auto hShader = resourceManager.ShaderLocator.GetResourceHandle(shaderName);
         const Shader& shader = resourceManager.ShaderLocator.LookupResource(hShader);
         

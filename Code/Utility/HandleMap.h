@@ -3,7 +3,7 @@
 #include "Core/Common.h"
 #include "Utility/Handle.h"
 
-template <typename T, int32 ResourceCount>
+template <class T, int32 ResourceCount>
 class HandleMap
 {
     public:
@@ -24,7 +24,7 @@ class HandleMap
     {
         resource.Id = m_accumulator++;
 
-        bool found = false;
+        int32 index = -1;
 
         // TODO: Maybe can do better than a linear search. A free list would
         // be faster but would require more memory, for example.
@@ -34,17 +34,18 @@ class HandleMap
             if (it.Id == 0)
             {
                 Resources[i] = resource;
-                found = true;
+                index = i;
+                break;
             }
         }
 
         // In the future, I might want to evict resources that are not used
         // (but this would require some kind of reference counting on the handle).
-        // The array is full if this is false!
-        ASSERT(found);
+        // The array is full if this is -1!
+        ASSERT(index != -1);
 
         hResources.emplace(
-            std::make_pair(resourceName, Handle<T>(resource.Id, Resources.size() - 1))
+            std::make_pair(resourceName, Handle<T>(resource.Id, index))
         );
     }
 

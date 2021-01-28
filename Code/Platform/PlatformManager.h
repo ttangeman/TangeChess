@@ -38,7 +38,7 @@ namespace Platform
     {
         public:
         
-        static PlatformManager& GetInstance();
+        static PlatformManager& Get();
         PlatformManager(const PlatformManager&) = delete;
         void operator=(const PlatformManager&) = delete;
         

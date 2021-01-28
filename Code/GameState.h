@@ -1,17 +1,41 @@
 #pragma once
 
 #include "Core/Common.h"
+#include "World/Entity.h"
+#include "World/EntityManager.h"
+#include "World/IComponent.h"
+#include "Render/Transformable.h"
+#include "Render/Drawable.h"
 
 namespace Game 
 {   
+    using namespace World;
+    using Render::Transformable;
+    using Render::Drawable;
+
     static const int32 UniquePieceCount = 12;
     static const int32 TotalPieceCount = 32;
     static const int32 RowCount = 8;
     static const int32 ColCount = 8;
     static const int32 SquareCount = RowCount * ColCount;
     
-    // NOTE: The order of the pieces in this enum corresponds to the order in which
-    // the pieces in the piece sprite sheet appear!
+    static const std::string PieceNames[] =
+    {
+        "BlackKing",
+        "BlackQueen",
+        "BlackBishop",
+        "BlackKnight",
+        "BlackRook",
+        "BlackPawn",
+        "WhiteKing",
+        "WhiteQueen",
+        "WhiteBishop",
+        "WhiteKnight",
+        "WhiteRook",
+        "WhiteBishop",
+    };
+    
+    // NOTE: This order must match the PieceNames array!
     enum class PieceType
     {
         King,
@@ -22,80 +46,67 @@ namespace Game
         Pawn,
     };
     
+    // Values manually set to 1 and 2 for indexing PieceNames.
     enum class PieceColor
     {
-        White,
-        Black,
+        White = 1,
+        Black = 2,
     };
     
-    struct Piece
+    class PieceComponent : public IComponent
     {
-        int32 Id;
+        public:
+
         PieceColor Color;
         PieceType Type;
-        Vec2i Position;
         bool HasMoved;
     };
 
     // Stores a possible move for a piece.
-    // If the move should cause a capture, then captureId should match the id of the
-    // piece at the destination square. 
+    // If the move should cause a capture, then captureEntity
+    // should be set to the possibly destroyed entity.
     struct PieceMove
     {
-        Vec2i destinationSquare;
-        int32 captureId;
+        Vec2 destinationSquare;
+        Entity captureEntity;
     };
     
     class GameState
     {
         public:
+                
+        // Keeps track of where each piece is on the board. Note that a entity id 
+        // of 0 means that the square is empty.
+        // NOTE: This has to be synchronized alongside the piece position.
+        std::array<Entity, SquareCount> BoardState;
         
         GameState() = default;
         
-        // Initializes the GameState and starts a new game.
         void StartGame(PieceColor desiredColor);
-        
-        // Shutdowns the GameState and ends the current game.
         void EndGame();
         
+        Entity GetEntity(Vec2 square) const;
+
+        const std::string& GetPieceName(Entity entity) const;
+
         // Checks if the coordinates are within the interval [0, 7] in x and y.  
-        bool IsValidSquare(Vec2i square) const;
+        bool IsValidSquare(Vec2 square) const;
 
         // Checks if a square is occupied.
-        bool IsOccupiedSquare(Vec2i square) const;
-
-        // Checks if a square is occupied by the specified color.
-        bool IsOccupiedSquare(Vec2i square, PieceColor color) const;
-        
-        // Gets the piece data from the board at the specified square coordinates.
-        int32 LookupPieceId(Vec2i square) const;
-        
-        // Looks up a piece by id.
-        Piece LookupPiece(int32 id) const;
-
-        // Grabs a reference to a piece by id.
-        Piece& GetPiece(int32 id);
+        bool IsOccupiedSquare(Vec2 square) const;
+        bool IsOccupiedSquare(Vec2 square, PieceColor color) const;
 
         // Finds the set of all valid squares for a particular piece to move to.
-        std::vector<PieceMove> FindValidMoves(int32 id) const;
+        std::vector<PieceMove> FindValidMoves(Entity entity) const;
 
         // Tries to move an active piece to the desired square x and y.
         // Returns true on a successful move.
-        bool MovePiece(int32 id, Vec2i desiredSquare);
+        bool MovePiece(Entity entity, Vec2 desiredSquare);
         
         // This overload uses a precomputed valid move set for the piece.
         // Tries to move an active piece to the desired square x and y. 
         // Returns true on a successful move.
-        bool MovePiece(int32 id, Vec2i desiredSquare, const std::vector<PieceMove>& validMoveSet);
-        
-        private:
-
-        // Stores the data for all possible pieces, whether they are active or not.
-        std::array<Piece, TotalPieceCount> m_pieceData;
-        
-        // Keeps track of where each piece is on the board. Note that a piece id of
-        // 0 means that the square is empty.
-        // NOTE: This has to be synchronized alongside Piece::Position.
-        std::array<int32, SquareCount> m_boardState;
+        bool MovePiece(Entity entity, Vec2 desiredSquare, 
+                       const std::vector<PieceMove>& validMoveSet);
     };
 }
