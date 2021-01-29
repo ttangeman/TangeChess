@@ -7,8 +7,7 @@
 #include <string>
 #include <atomic>
 #include <unordered_map>
-#include <optional>
-#include <typeinfo>
+#include <functional>
 
 #include "Core/Debug.h"
 

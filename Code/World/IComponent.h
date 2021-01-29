@@ -17,10 +17,6 @@ namespace World
 
         // Used for validating entities.
         Entity Entity;
-
-        // TODO: Should all components have these?
-        // virtual void OnUpdate() = 0;
-        // virtual void OnRender() = 0;
     };
 
     struct IComponentSystem
@@ -40,13 +36,13 @@ namespace World
             Components.fill({});
         }
 
-        void* GetComponent(Entity entity)
+        void* GetComponent(Entity entity) override
         {
             return Components.data() + entity.Index;
         }
     
 
-        void DestroyEntity(Entity entity)
+        void DestroyEntity(Entity entity) override
         {
             Components.at(entity.Index).Entity = {};
         }

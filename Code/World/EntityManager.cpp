@@ -26,7 +26,7 @@ namespace World
         entity = {};
     }
 
-    template <typename T>
+    template<typename T>
     void EntityManager::RegisterComponent()
     {
         ComponentArray<T, MaxEntityCount> componentArray;
@@ -36,7 +36,7 @@ namespace World
         m_componentSystems.push_back(std::move(pComponentSystem));
     }
 
-    template <typename T>
+    template<typename T>
     T& EntityManager::AttachComponent(Entity entity)
     {
         T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
@@ -44,7 +44,7 @@ namespace World
         return *component;
     }
 
-    template <typename T>
+    template<typename T>
     T& EntityManager::GetComponent(Entity entity)
     {
         T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
@@ -53,7 +53,7 @@ namespace World
         return *component;
     }
 
-    template <typename T>
+    template<typename T>
     bool EntityManager::HasComponent(Entity entity) const
     {
         T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);

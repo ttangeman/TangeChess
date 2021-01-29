@@ -2,6 +2,7 @@
 
 #include "Core/Common.h"
 #include "Core/EntryPoint.h"
+#include "Core/EventManager.h"
 #include "Platform/PlatformWrapper.h"
 // TODO: Better way to include this?
 #include "Render/D3D11/D3D11Renderer.h"
@@ -11,6 +12,7 @@
 #include "Render/ResourceManager.h"
 
 // Unity build (single translation unit) includes.
+#include "Core/EventManager.cpp"
 #include "Platform/Win32/Win32Manager.cpp"
 #include "Platform/Win32/Win32FileManager.cpp"
 #include "Platform/Win32/Win32Input.cpp"

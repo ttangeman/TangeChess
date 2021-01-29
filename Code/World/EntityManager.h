@@ -25,16 +25,16 @@ namespace World
 
         void DestroyEntity(Entity& entity);
 
-        template <typename T>
+        template<typename T>
         void RegisterComponent();
 
-        template <typename T>
+        template<typename T>
         T& AttachComponent(Entity entity);
 
-        template <typename T>
+        template<typename T>
         T& GetComponent(Entity entity);
 
-        template <typename T>
+        template<typename T>
         bool HasComponent(Entity entity) const;
 
         private:
@@ -46,10 +46,6 @@ namespace World
         // Used for assigning unqiue ids to component types.
         int32 m_componentAccumulator = 0;
 
-        // HACK: Need a pointer to the ComponentSystem because
-        // abstract classes cannot be abstantianted. Need an abstract class
-        // in the first place because I cannot store the different types
-        // of IComponentArray<T>.
         // NOTE: Must not shrink/delete elements in order to 
         // maintain stable indices for component types.
         std::vector<std::unique_ptr<IComponentSystem>> m_componentSystems;

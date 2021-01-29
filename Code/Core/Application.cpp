@@ -13,6 +13,7 @@ namespace Core
             m_desiredUpdateRate = 0.0167f;
             
             // Initialize common singletons/subsystems.
+            Core::EventManager::Get();
             Platform::FileManager::Get();
             // Initialize the renderer and render subsystems.
             Render::InitializePipeline();
