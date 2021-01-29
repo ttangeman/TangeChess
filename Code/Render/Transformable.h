@@ -2,6 +2,8 @@
 
 #include "Render/Renderer.h"
 #include "World/IComponent.h"
+// TODO: This should not be here, but I think there's a circular
+// dependency somewhere.
 #include "Render/D3D11/D3D11Renderer.h"
 
 namespace Render
@@ -9,6 +11,8 @@ namespace Render
     class Transformable : public World::IComponent
     {
         public:
+        
+        inline static int32 ComponentIndex = 0;
         // TODO: Switch to 3D.
         Vec2 Position;
         Vec3 Orientation;

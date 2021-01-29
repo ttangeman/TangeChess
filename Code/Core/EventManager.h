@@ -4,10 +4,9 @@
 
 namespace Core
 {
+    // NOTE: All events need an inline static EventIndex member!
     struct IEvent
     {
-        inline static int32 EventIndex = 0;
-
         virtual ~IEvent()
         {
         }
@@ -37,7 +36,7 @@ namespace Core
         // Registers a callback for an event.
         template<typename T>
         void BindHandler(const std::string& handlerName,
-                                const std::function<void(const IEvent&)>& callback);
+                         const std::function<void(const IEvent&)>& callback);
 
         // Detach a specific event type from a handler name.
         template<typename T>
@@ -47,7 +46,8 @@ namespace Core
         void DetachAllHandlers(const std::string& handlerName);
 
         // Dispatches an event to all subscribed handlers.
-        void Dispatch(const IEvent& event);
+        template<typename T>
+        void Dispatch(const IEvent& payload);
         // TODO: Could have a dispatch for a specific Handler::Name?
 
         private:

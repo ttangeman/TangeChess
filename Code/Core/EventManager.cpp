@@ -12,7 +12,7 @@ namespace Core
     void EventManager::RegisterEvent()
     {
         // Make sure that the event was not already registered.
-        ASSERT(T::EventIndex <= m_eventAccumulator);
+        ASSERT(T::EventIndex == 0);
         T::EventIndex = m_eventAccumulator++;
 
         std::vector<Handler> eventHandler;
@@ -62,12 +62,13 @@ namespace Core
             }
         }
     }
-    
-    void EventManager::Dispatch(const IEvent& event)
+
+    template<typename T>
+    void EventManager::Dispatch(const IEvent& payload)
     {
-        for (auto& it : m_eventHandlers.at(event.EventIndex))
+        for (auto& it : m_eventHandlers.at(T::EventIndex))
         {
-            it.Callback(event);
+            it.Callback(payload);
         }
     }
 }

@@ -30,6 +30,9 @@ namespace World
     void EntityManager::RegisterComponent()
     {
         ComponentArray<T, MaxEntityCount> componentArray;
+        int x = T::ComponentIndex;
+        // Make sure that the event was not already registered.
+        //ASSERT(T::ComponentIndex == 0);
         T::ComponentIndex = m_componentAccumulator++;
 
         auto pComponentSystem = std::make_unique<ComponentArray<T, MaxEntityCount>>(componentArray);

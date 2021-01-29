@@ -11,6 +11,20 @@ MAIN_ENTRY_POINT()
  
 namespace Game
 {
+    struct Test : public Core::IEvent
+    {
+        std::string Msg;
+
+        Test(std::string msg) : Msg(msg)
+        {
+        }
+    };
+
+    struct Foo : public Core::IEvent
+    {
+
+    };
+
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Core::Application(title, width, height)
     {
@@ -73,8 +87,8 @@ namespace Game
             resourceManager.SubmitMesh(PieceNames[i], pieceQuads[i].Vertices, 
                                        VerticesPerQuad, sizeof(Vertex));
         }
-        
-        EntityManager::Get().RegisterComponent<PieceComponent>();
+        auto& entityManager = EntityManager::Get();
+        entityManager.RegisterComponent<PieceComponent>();
 
         m_gameState.StartGame(PieceColor::White);
     }        

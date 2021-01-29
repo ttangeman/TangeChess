@@ -5,16 +5,9 @@
 
 namespace World
 {
-    // NOTE: Special care needs to be taken to not overwrite the ComponentIndex,
-    // so components should only be accessed through the entity manager. (Unfortunately,
-    // the variable cannot be made const and initialized once because it is static).
+    // Every component needs a inline static int32 ComponentIndex!
     struct IComponent
     {
-        // Used for indexing a component with a unique identifier, which
-        // can then be used for indexing a ComponentArray in the entity manager.
-        // NOTE: Set by EntityManager::RegisterComponent.
-        inline static int32 ComponentIndex;
-
         // Used for validating entities.
         Entity Entity;
     };

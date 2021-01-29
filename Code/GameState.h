@@ -57,6 +57,7 @@ namespace Game
     {
         public:
 
+        inline static int32 ComponentIndex = 0;
         PieceColor Color;
         PieceType Type;
         bool HasMoved;

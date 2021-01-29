@@ -13,6 +13,8 @@ namespace Render
     class Drawable : public World::IComponent
     {
         public:
+        
+        inline static int32 ComponentIndex = 0;
             
         Drawable();
 
