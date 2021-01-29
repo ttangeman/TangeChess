@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "World/Entity.h"
-#include "World/EntityManager.h"
-#include "World/IComponent.h"
+#include "Entity/Entity.h"
+#include "Entity/EntityManager.h"
+#include "Entity/IComponent.h"
 #include "Render/Transformable.h"
 #include "Render/Drawable.h"
 
 namespace Game 
 {   
-    using namespace World;
+    using namespace ECS;
     using Render::Transformable;
     using Render::Drawable;
 

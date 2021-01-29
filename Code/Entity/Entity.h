@@ -2,7 +2,7 @@
 
 #include "Core/Common.h"
 
-namespace World
+namespace ECS
 {
     union Entity
     {

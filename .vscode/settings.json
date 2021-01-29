@@ -33,6 +33,7 @@
         "coroutine": "cpp",
         "list": "cpp",
         "unordered_map": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "optional": "cpp"
     }
 }

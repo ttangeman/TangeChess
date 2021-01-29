@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "World/Entity.h"
+#include "Entity/Entity.h"
 
-namespace World
+namespace ECS
 {
     // Every component needs a inline static int32 ComponentIndex!
     struct IComponent

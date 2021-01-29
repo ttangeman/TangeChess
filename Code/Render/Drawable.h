@@ -1,16 +1,16 @@
 #pragma once
 
 #include "Utility/Handle.h"
-#include "World/IComponent.h"
+#include "Entity/IComponent.h"
+#include "Entity/EntityManager.h"
 #include "Render/Renderer.h"
 #include "Render/ResourceManager.h"
 #include "Render/Transformable.h"
-#include "World/EntityManager.h"
 
 namespace Render
 {
     // TODO: View matrix modification (camera?).
-    class Drawable : public World::IComponent
+    class Drawable : public ECS::IComponent
     {
         public:
         

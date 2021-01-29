@@ -4,8 +4,10 @@ namespace Core
 {
     Application::Application(const std::string& title, int32 width, int32 height)
     {
-        auto& platform = PlatformManager::Get(); // Initializes InputHandler.
-        
+        auto& platform = PlatformManager::Get();
+
+        // NOTE: The platform manager initializes the event manager
+        // and registers input events for us.
         if (platform.InitializeAndCreateWindow(title.c_str(), width, height, true, true))
         {
             m_timer = Stopwatch();
@@ -13,14 +15,12 @@ namespace Core
             m_desiredUpdateRate = 0.0167f;
             
             // Initialize common singletons/subsystems.
-            Core::EventManager::Get();
             Platform::FileManager::Get();
-            // Initialize the renderer and render subsystems.
             Render::InitializePipeline();
             Render::ResourceManager::Get();
 
             // Register common entity components.
-            auto& entityManager = World::EntityManager::Get();
+            auto& entityManager = ECS::EntityManager::Get();
             entityManager.RegisterComponent<Render::Drawable>();
             entityManager.RegisterComponent<Render::Transformable>();
         }
@@ -40,7 +40,7 @@ namespace Core
         {
             m_timer.Start();
 
-            platform.HandleSystemMessages();
+            platform.DispatchSystemMessages();
             Update();
             Render();
 

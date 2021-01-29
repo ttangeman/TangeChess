@@ -30,7 +30,7 @@ namespace Render
         // TODO: This should be part of the mesh.
         g_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        auto& entityManager = World::EntityManager::Get();
+        auto& entityManager = ECS::EntityManager::Get();
         if (entityManager.HasComponent<Transformable>(Entity))
         {
             entityManager.GetComponent<Transformable>(Entity).OnRender();

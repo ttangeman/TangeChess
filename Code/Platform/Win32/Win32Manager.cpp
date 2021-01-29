@@ -64,7 +64,7 @@ namespace Platform
         return result;
     }
 
-    static void ProcessWin32KeyboardInput(InputHandler& input, MSG message)
+    static void ProcessWin32KeyboardInput(MSG message)
     {
         // NOTE: We can get repeat count for keyboards if we want it
         // See lParam on WM_KEYDOWN or WM_KEYUP.
@@ -75,51 +75,43 @@ namespace Platform
         //TODO: Handle modifier keys
         bool isDown = message.message == WM_KEYDOWN;
         bool isUp = !isDown;
+
+        auto& eventManager = Core::EventManager::Get();
         
-        switch (keycode) 
+        if (isDown)
         {
-            case 'W': 
-            {
-                input.UpdateInputState(InputEvent::MoveForward, isDown, isUp);
-            } break;
-            
-            case 'A': 
-            {
-                input.UpdateInputState(InputEvent::MoveLeft, isDown, isUp);
-            } break;
-            
-            case 'S': 
-            {
-                input.UpdateInputState(InputEvent::MoveBackward, isDown, isUp);
-            } break;
-            
-            case 'D': 
-            {
-                input.UpdateInputState(InputEvent::MoveRight, isDown, isUp);
-            } break;
-            
-            case 'F': 
-            {
-                input.UpdateInputState(InputEvent::ToggleFullscreen, isDown, isUp);
-            } break;
-            
-            case 'Q': 
-            {
-                input.UpdateInputState(InputEvent::SystemQuit, isDown, isUp);
-            } break;
-            
-            case VK_ESCAPE: 
-            {
-                input.UpdateInputState(InputEvent::ToggleMainMenu, isDown, isUp);
-            } break;
+            eventManager.Dispatch<KeyPressed>(KeyPressed((InputEvent)keycode));
+        }
+
+        if (isUp)
+        {
+            eventManager.Dispatch<KeyReleased>(KeyReleased((InputEvent)keycode));
         }
     }
 
-    void PlatformManager::HandleSystemMessages() 
+    static Vec2i CalculateMousePosition(WindowHandle hWindow)
+    {
+        POINT cursorPosition;
+        // Gets the mouse position relative to the screen.
+        GetCursorPos(&cursorPosition);
+        // This maps the mouse position into the window's dimensions.
+        ScreenToClient(hWindow, &cursorPosition);
+
+        RECT clientRect;
+        GetClientRect(hWindow, &clientRect);
+        auto clientHeight = clientRect.bottom - clientRect.top;
+
+        // Flip the Y to match D3D11's pixel coordinate space.
+        // (Bottom-up instead of top-down).
+        cursorPosition.y = ABS_VALUE(cursorPosition.y - clientHeight);
+        return Vec2i(cursorPosition.x, cursorPosition.y);
+    }
+
+    void PlatformManager::DispatchSystemMessages() 
     {
         MSG message;
-        
-        auto& input = InputHandler::Get();
+
+        auto& eventManager = Core::EventManager::Get();
 
         if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) 
         {
@@ -128,7 +120,7 @@ namespace Platform
                 case WM_KEYDOWN:
                 case WM_KEYUP: 
                 {
-                    ProcessWin32KeyboardInput(input, message);
+                    ProcessWin32KeyboardInput(message);
                 } break;
                 
                 // NOTE: We can capture double clicks and modifiers on clicks
@@ -136,37 +128,38 @@ namespace Platform
                 // more info.
                 case WM_LBUTTONDOWN: 
                 {
-                    input.UpdateInputState(InputEvent::LeftClick, true, false);
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONDOWN: 
                 {
-                    input.UpdateInputState(InputEvent::RightClick, true, false);
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONDOWN: 
                 {
-                    input.UpdateInputState(InputEvent::MiddleClick, true, false);
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::MiddleClick, position));
                 } break;
                 
                 case WM_LBUTTONUP: 
                 {
-                    input.UpdateInputState(InputEvent::LeftClick, false, true);
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONUP: 
                 {
-                    input.UpdateInputState(InputEvent::RightClick, false, true);
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONUP: 
                 {
-                    input.UpdateInputState(InputEvent::MiddleClick, false, true);
-                } break;
-                
-                case WM_MOUSEMOVE: 
-                {
-                    input.UpdateMousePosition();
+                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::MiddleClick, position));
                 } break;
                 
                 case WM_QUIT: 
@@ -187,6 +180,12 @@ namespace Platform
                                                     int32 windowHeight, bool showCursor, 
                                                     bool useWindowBorders)
     {
+        auto& eventManager = Core::EventManager::Get();
+        eventManager.RegisterEvent<KeyPressed>();
+        eventManager.RegisterEvent<KeyReleased>();
+        eventManager.RegisterEvent<MouseClicked>();
+        eventManager.RegisterEvent<MouseReleased>();
+
         HINSTANCE hInstance = GetModuleHandle(0);
         
         WNDCLASSA windowClass = {};
@@ -202,10 +201,6 @@ namespace Platform
         
         if (m_hWindow) 
         {
-            // Initialize input handler.
-            auto& inputHandler = InputHandler::Get();
-            inputHandler.Initialize(m_hWindow);
-
             m_shouldQuit = false;
             
             ShowWindow(m_hWindow, SW_SHOWNORMAL);
@@ -243,7 +238,7 @@ namespace Platform
 
     void PlatformManager::ForceQuit()
     {
-        m_shouldQuit = true;
+       Get().m_shouldQuit = true;
     }
 
     Vec2 PlatformManager::GetRenderDimensions() const

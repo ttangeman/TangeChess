@@ -1,6 +1,6 @@
-#include "World/EntityManager.h"
+#include "Entity/EntityManager.h"
 
-namespace World
+namespace ECS
 {
     EntityManager& EntityManager::Get()
     {

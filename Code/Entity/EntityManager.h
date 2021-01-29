@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "World/Entity.h"
-#include "World/IComponent.h"
+#include "Entity/Entity.h"
+#include "Entity/IComponent.h"
 
-namespace World
+namespace ECS
 {
     // NOTE: Prefer to use handles. Typically, the methods that do not take
     // handles require a linear search to find the entity.

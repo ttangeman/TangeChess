@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Render/Renderer.h"
-#include "World/IComponent.h"
+#include "Entity/IComponent.h"
 // TODO: This should not be here, but I think there's a circular
 // dependency somewhere.
 #include "Render/D3D11/D3D11Renderer.h"
 
 namespace Render
 {
-    class Transformable : public World::IComponent
+    class Transformable : public ECS::IComponent
     {
         public:
         

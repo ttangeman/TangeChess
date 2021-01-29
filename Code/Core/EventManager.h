@@ -29,6 +29,10 @@ namespace Core
 
         static EventManager& Get();
 
+        EventManager() = default;
+        EventManager(const EventManager&) = delete;
+        void operator=(const EventManager&) = delete;
+
         // Registers the event for possible handling.
         template<typename T>
         void RegisterEvent();

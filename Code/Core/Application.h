@@ -15,14 +15,13 @@
 #include "Core/EventManager.cpp"
 #include "Platform/Win32/Win32Manager.cpp"
 #include "Platform/Win32/Win32FileManager.cpp"
-#include "Platform/Win32/Win32Input.cpp"
 #include "Asset/Image.cpp"
 #include "Asset/FontAtlas.cpp"
 #include "Render/D3D11/D3D11Renderer.cpp"
 #include "Render/D3D11/D3D11Transformable.cpp"
 #include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
-#include "World/EntityManager.cpp"
+#include "Entity/EntityManager.cpp"
 
 namespace Core
 {

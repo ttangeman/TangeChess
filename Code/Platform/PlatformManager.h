@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Platform/PlatformWrapper.h"
-#include "Platform/Input.h"
+#include "Core/EventManager.h"
+#include "Platform/InputEvents.h"
 
 // NOTE: These classes should be implemented for the platforms
 // that are supported by the application. For example, Windows
@@ -42,8 +43,9 @@ namespace Platform
         PlatformManager(const PlatformManager&) = delete;
         void operator=(const PlatformManager&) = delete;
         
-        // Handles messages from the OS. Passes input messages to the InputHandler.
-        void HandleSystemMessages();
+        // Dispatches messages from the system to the event manager,
+        // such as keyboard and mouse input.
+        void DispatchSystemMessages();
 
         // Initializes the OS and creates a window.
         bool InitializeAndCreateWindow(const char* windowTitle, int32 windowWidth, int32 windowHeight, 
@@ -52,7 +54,7 @@ namespace Platform
         
         bool ShouldQuit() const;
 
-        void ForceQuit();
+        static void ForceQuit();
 
         // Finds the dimensions of the actual window client minus the border.
         Vec2 GetRenderDimensions() const;
