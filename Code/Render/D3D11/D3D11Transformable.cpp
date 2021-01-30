@@ -1,10 +1,10 @@
 #include "Render/Transformable.h"
 
-namespace Render
+namespace Tange
 {
     Transformable::Transformable()
     {
-        m_transform = Render::CreateTransform();
+        m_transform = CreateTransform();
     }
 
     void Transformable::SetOrthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ)

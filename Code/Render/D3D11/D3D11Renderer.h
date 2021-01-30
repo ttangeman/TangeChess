@@ -10,12 +10,11 @@
 #define CHECK_RESULT(result) ASSERT(!(result));
 #define SAFE_RELEASE(object) if (object) {object->Release();}
 
-namespace Render
+namespace Tange
 {
     using namespace DirectX;
 
     static const int32 BackBufferCount = 2;
-    static const int32 VerticesPerQuad = 6;
 
     // All of the D3D11 API-specific objects are kept global because
     // they are opaque classes anyways and are pretty much just used
@@ -27,7 +26,7 @@ namespace Render
     static ID3D11DeviceContext* g_pDeviceContext;
     static ID3D11RenderTargetView* g_pRenderTarget;
 
-    #pragma pack(push, 1)
+#pragma pack(push, 1)
     struct Vertex
     {
         Vec3 Position;
@@ -37,9 +36,22 @@ namespace Render
     
     struct Quad
     {
-        Vertex Vertices[VerticesPerQuad];
+        static const int32 VerticeCount = 6;
+
+        Vertex Vertices[VerticeCount];
 
         void SetTexCoords(Vec2 minUV, Vec2 maxUV);
+    };
+
+    static const Quad DefaultQuad =
+    {
+        Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
+        Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1),
+        Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
+
+        Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
+        Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0),
+        Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
     };
 
     struct Mesh
@@ -90,5 +102,5 @@ namespace Render
         // GPU relevant data.
         ID3D11Buffer* pTransformBuffer;
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 }

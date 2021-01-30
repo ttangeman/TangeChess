@@ -4,7 +4,7 @@
 #include "Asset/Image.h"
 #include "Platform/FileManager.h"
 
-namespace Asset
+namespace Tange
 {
     #include <freetype/freetype.h>
 
@@ -24,6 +24,10 @@ namespace Asset
 
     class FontAtlas
     {
+        // Used for finding the glyph in the atlas and positioning
+        // the glyph correctly.
+        GlyphInfo m_glyphInfos[GlyphCount];
+        
         public:
 
         // Builds a font atlas for the specificed font.
@@ -31,15 +35,9 @@ namespace Asset
         // as a texture (NOTE: it is a monochrome bitmap). Also builds the glyph
         // information which is used to place glyphs correctly and gets the texture
         // coordinates for the glyph.
-        Image BuildFont(const Platform::FileData& fontFile, int32 glyphSize = 64);
+        Image BuildFont(const FileData& fontFile, int32 glyphSize = 64);
 
         // Grabs the glyph information for the specififed character.
         const GlyphInfo& LookupGlyphInfo(char character) const;
-
-        private:
-
-        // Used for finding the glyph in the atlas and positioning
-        // the glyph correctly.
-        GlyphInfo m_glyphInfos[GlyphCount];
     };
 }

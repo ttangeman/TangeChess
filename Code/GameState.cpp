@@ -1,13 +1,19 @@
 #include "GameState.h"
 
-namespace Game 
+namespace Tange
 {
+    GameState::GameState()
+    {
+        auto &entityManager = EntityManager::Get();
+        entityManager.RegisterComponent<PieceComponent>();
+    }
+
     // Finds the "opposite" color of the specified color.
     // In other words, PieceColor::White returns PieceColor::Black.
     // Only works if the parameter is a valid color!
     static PieceColor FindOppositeColor(PieceColor color)
     {
-        return (PieceColor) (1 - (int32)color);
+        return (PieceColor)(1 - (int32)color);
     }
 
     void GameState::StartGame(PieceColor desiredColor)
@@ -31,13 +37,13 @@ namespace Game
         {
             Entity entity = entityManager.RegisterEntity();
             auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
             auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
-            draw.AttachMesh(GetPieceName(entity));
-            draw.AttachTexture("Texture/Pieces");
+            drawable.AttachMesh(GetPieceName(entity));
+            drawable.AttachTexture("Texture/Pieces");
             transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
             transform.Scale = Vec3(1, 1, 0);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
@@ -52,13 +58,13 @@ namespace Game
         {
             Entity entity = entityManager.RegisterEntity();
             auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
             auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
-            draw.AttachMesh(GetPieceName(entity));
-            draw.AttachTexture("Texture/Pieces");
+            drawable.AttachMesh(GetPieceName(entity));
+            drawable.AttachTexture("Texture/Pieces");
             transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
             transform.Scale = Vec3(1, 1, 0);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
@@ -78,13 +84,13 @@ namespace Game
         {
             Entity entity = entityManager.RegisterEntity();
             auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
             auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
-            draw.AttachMesh(GetPieceName(entity));
-            draw.AttachTexture("Texture/Pieces");
+            drawable.AttachMesh(GetPieceName(entity));
+            drawable.AttachTexture("Texture/Pieces");
             transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
             transform.Scale = Vec3(1, 1, 0);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
@@ -99,13 +105,13 @@ namespace Game
         {
             Entity entity = entityManager.RegisterEntity();
             auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& draw = entityManager.AttachComponent<Drawable>(entity);
+            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
             auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
-            draw.AttachMesh(GetPieceName(entity));
-            draw.AttachTexture("Texture/Pieces");
+            drawable.AttachMesh(GetPieceName(entity));
+            drawable.AttachTexture("Texture/Pieces");
             transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
             transform.Scale = Vec3(1, 1, 0);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
@@ -135,7 +141,7 @@ namespace Game
     const std::string& GameState::GetPieceName(Entity entity) const
     {
         auto& entityManager = EntityManager::Get();
-        auto piece = entityManager.GetComponent<PieceComponent>(entity);
+        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
         return PieceNames[(int32)piece.Type * (int32)piece.Color];
     }
 
@@ -449,16 +455,12 @@ namespace Game
         return MovePiece(entity, desiredSquare, validMoveSet);
     }
 
-    // TODO: Currently the captureId is not used from PieceMove, but
-    // it is very likely that it will be needed for notifiying that a capture has
-    // occured on the network side of things (I would assume). So it will not be
-    // refactored out for now.
     bool GameState::MovePiece(Entity entity, Vec2 desiredSquare, 
                               const std::vector<PieceMove>& validMoveSet)
     {
         auto& entityManager = EntityManager::Get();
 
-        for (const auto& it : validMoveSet)
+        for (auto& it : validMoveSet)
         {
             // The desired square is valid if it is in the valid set!
             if (it.destinationSquare == desiredSquare)
@@ -467,9 +469,16 @@ namespace Game
                 
                 // NOTE: Need to synchronize the two positions!
                 transform.Position = desiredSquare;
+                
+                if (it.captureEntity.IsValid())
+                {
+                    Entity captured = BoardState[IndexBoardState(desiredSquare)];
+                    entityManager.DestroyEntity(captured);
+                }
+
                 BoardState[IndexBoardState(transform.Position)] = {};
                 BoardState[IndexBoardState(desiredSquare)] = entity;
-                
+
                 return true;
             }
         }

@@ -4,12 +4,11 @@
 #include "Utility/HandleMap.h"
 #include "Render/Renderer.h"
 
-namespace Render
+namespace Tange
 {
     class ResourceManager
     {
-        public:
-
+    public:
         // Each resource has a handle locator, which maps names to handles which maps
         // to the POD (plain old data).
         HandleMap<Mesh, 32> MeshLocator;
@@ -17,7 +16,6 @@ namespace Render
         HandleMap<Texture, 8> TextureLocator;
 
         static ResourceManager& Get();
-        ResourceManager() = default;
         ~ResourceManager();
         ResourceManager operator=(const ResourceManager&) = delete;
         ResourceManager(const ResourceManager&) = delete;
@@ -32,12 +30,15 @@ namespace Render
                           const void* pPixelShaderData, usize pixelShaderSize);
         
         // Submits an image to the GPU as a texture under the provided name.
-        void SubmitTexture(const std::string& textureName, const Asset::Image& image);
+        void SubmitTexture(const std::string& textureName, const Image& image);
 
         // Releases the resource. NOTE: ALL resources get released on shutdown.
         // This is for runtime releasing needs.
         void ReleaseMesh(const std::string& meshName);
         void ReleaseShader(const std::string& shaderName);
         void ReleaseTexture(const std::string& textureName);
+
+    private:
+        ResourceManager() = default;
     };
 }

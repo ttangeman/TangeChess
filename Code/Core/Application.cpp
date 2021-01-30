@@ -1,6 +1,6 @@
 #include "Application.h"
 
-namespace Core
+namespace Tange
 {
     Application::Application(const std::string& title, int32 width, int32 height)
     {
@@ -15,20 +15,30 @@ namespace Core
             m_desiredUpdateRate = 0.0167f;
             
             // Initialize common singletons/subsystems.
-            Platform::FileManager::Get();
-            Render::InitializePipeline();
-            Render::ResourceManager::Get();
+            FileManager::Get();
+            
+            // Initialize the renderer.
+            IntializeRendererPipeline();
+            auto &resourceManager = ResourceManager::Get();
 
-            // Register common entity components.
-            auto& entityManager = ECS::EntityManager::Get();
-            entityManager.RegisterComponent<Render::Drawable>();
-            entityManager.RegisterComponent<Render::Transformable>();
+            resourceManager.SubmitMesh("DefaultQuad", DefaultQuad.Vertices,
+                                       Quad::VerticeCount, sizeof(Vertex));
+
+            // Register common entity components and events.
+            auto &entityManager = EntityManager::Get();
+            entityManager.RegisterComponent<Drawable>();
+            entityManager.RegisterComponent<Transformable>();
+            entityManager.RegisterComponent<GuiComponent>();
+
+            auto& eventManager = EventManager::Get();
+            eventManager.RegisterEvent<UpdateEvent>();
+            eventManager.RegisterEvent<RenderEvent>();
         }
     }
 
     Application::~Application()
     {
-        Render::ShutdownPipeline();
+        ShutdownRendererPipeline();
         PlatformManager::Get().Shutdown();
     }
 
@@ -53,7 +63,7 @@ namespace Core
                 
                 if (sleepTime > 0)
                 {
-                    Platform::SleepMs(sleepTime); 
+                    SleepMs(sleepTime); 
                 }
             }
         }

@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Render/Renderer.h"
-#include "Entity/IComponent.h"
+#include "Entity/Component.h"
 // TODO: This should not be here, but I think there's a circular
 // dependency somewhere.
 #include "Render/D3D11/D3D11Renderer.h"
 
-namespace Render
+namespace Tange
 {
-    class Transformable : public ECS::IComponent
+    class Transformable : public Component<Transformable>
     {
-        public:
+        Transform m_transform;
         
-        inline static int32 ComponentIndex = 0;
+    public:
         // TODO: Switch to 3D.
         Vec2 Position;
         Vec3 Orientation;
@@ -27,9 +27,5 @@ namespace Render
         void OnUpdate();
 
         void OnRender() const;
-
-        private:
-
-        Transform m_transform;
     };
 }

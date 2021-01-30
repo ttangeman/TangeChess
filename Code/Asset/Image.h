@@ -7,12 +7,10 @@
 #include "Core/Common.h"
 #include "Platform/PlatformWrapper.h"
 
-namespace Asset
+namespace Tange
 {
-    class Image
+    struct Image
     {
-        public:
-
         uint8* pPixels;
         int32 Width;
         int32 Height;

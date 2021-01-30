@@ -9,7 +9,7 @@
 typedef HWND WindowHandle;
 typedef HANDLE FileHandle;
 
-namespace Platform 
+namespace Tange 
 {
     void* AllocateMemory(usize size) 
     {

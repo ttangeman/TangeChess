@@ -1,6 +1,6 @@
 #include "Platform/FileManager.h"
 
-namespace Platform
+namespace Tange
 {
     FileManager& FileManager::Get()
     {
@@ -8,7 +8,7 @@ namespace Platform
         return instance;
     }
 
-    FileData FileManager::ReadEntireFile(const std::string& fileName) const
+    FileData FileManager::ReadEntireFile(const std::string& fileName)
     {
         HANDLE hFile = CreateFileA(fileName.c_str(), GENERIC_READ, 0, 
                                    nullptr, OPEN_EXISTING, 0, nullptr);
@@ -18,7 +18,7 @@ namespace Platform
         if (hFile)
         {
             FileData fileData;
-            fileData.Size = Platform::GetFileSize(hFile);
+            fileData.Size = GetFileSize(hFile);
             fileData.pData = std::make_shared<char[]>(fileData.Size);
 
             DWORD bytesRead = 0;

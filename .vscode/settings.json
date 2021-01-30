@@ -34,6 +34,7 @@
         "list": "cpp",
         "unordered_map": "cpp",
         "*.rh": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "functional": "cpp"
     }
 }

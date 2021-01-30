@@ -1,6 +1,6 @@
 #include "Render/D3D11/D3D11Renderer.h"
 
-namespace Render
+namespace Tange
 {
     void Quad::SetTexCoords(Vec2 min, Vec2 max)
     {
@@ -13,9 +13,9 @@ namespace Render
         Vertices[5].TexCoord = Vec2(min.U, min.V);
     }
 
-    void InitializePipeline()
+    void IntializeRendererPipeline()
     {
-        auto& platform = Platform::PlatformManager::Get();
+        auto& platform = PlatformManager::Get();
         auto hWindow = platform.GetWindow();
 
         // Initialize D3D swap chain and devices.
@@ -99,7 +99,7 @@ namespace Render
         g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
     }
     
-    void ShutdownPipeline()
+    void ShutdownRendererPipeline()
     {
         // NOTE: To avoid thread contention, go windowed before releasing the swap chain.
         g_pSwapChain->SetFullscreenState(false, nullptr);
@@ -113,7 +113,7 @@ namespace Render
     {
         D3D11_BUFFER_DESC bufferDesc = {};
         bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-        bufferDesc.ByteWidth = sizeof(DirectX::XMMATRIX) * 3;
+        bufferDesc.ByteWidth = sizeof(TransformData);
         bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
@@ -181,6 +181,12 @@ namespace Render
         
         g_pDeviceContext->RSSetViewports(1, &viewport);
     }
+
+    Vec2 GetDrawRegion()
+    {
+        return PlatformManager::Get().GetRenderDimensions();
+    }
+
     void ResizeWindow(float desiredWidth, float desiredHeight)
     {
         BOOL isFullscreen;

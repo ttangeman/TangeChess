@@ -6,8 +6,10 @@
 template <class T, int32 ResourceCount>
 class HandleMap
 {
-    public:
+    // Used for assigning unique id's to resources. Cannot be 0.
+    uint32 m_accumulator = 1;
 
+public:
     std::array<T, ResourceCount> Resources;
     std::unordered_map<std::string, Handle<T>> hResources;
 
@@ -82,9 +84,4 @@ class HandleMap
     {
         return hResources.contains(resourceName);
     }
-
-    private:
-
-    // Used for assigning unique id's to resources. Cannot be 0.
-    uint32 m_accumulator = 1;
 };

@@ -3,16 +3,12 @@
 #include "Core/Common.h"
 #include "Entity/Entity.h"
 #include "Entity/EntityManager.h"
-#include "Entity/IComponent.h"
+#include "Entity/Component.h"
 #include "Render/Transformable.h"
 #include "Render/Drawable.h"
 
-namespace Game 
+namespace Tange
 {   
-    using namespace ECS;
-    using Render::Transformable;
-    using Render::Drawable;
-
     static const int32 UniquePieceCount = 12;
     static const int32 TotalPieceCount = 32;
     static const int32 RowCount = 8;
@@ -53,11 +49,8 @@ namespace Game
         Black = 2,
     };
     
-    class PieceComponent : public IComponent
+    struct PieceComponent : public Component<PieceComponent>
     {
-        public:
-
-        inline static int32 ComponentIndex = 0;
         PieceColor Color;
         PieceType Type;
         bool HasMoved;
@@ -74,14 +67,13 @@ namespace Game
     
     class GameState
     {
-        public:
-                
+    public: 
         // Keeps track of where each piece is on the board. Note that a entity id 
         // of 0 means that the square is empty.
         // NOTE: This has to be synchronized alongside the piece position.
         std::array<Entity, SquareCount> BoardState;
         
-        GameState() = default;
+        GameState();
         
         void StartGame(PieceColor desiredColor);
         void EndGame();

@@ -2,7 +2,7 @@
 
 #include "Core/Common.h"
 
-namespace ECS
+namespace Tange
 {
     union Entity
     {

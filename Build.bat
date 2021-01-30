@@ -15,5 +15,5 @@ SET MainLinkerLibs=-link kernel32.lib user32.lib Winmm.lib d3d11.lib dxgi.lib ..
 IF NOT EXIST %BuildDir% mkdir %BuildDir%
 
 pushd %BuildDir%
-cl -FeChess %CommonCompilerFlags% %IncludePath% %SourceDir%\Chess.cpp %MainLinkerLibs%
+cl -FeChess %CommonCompilerFlags% %IncludePath% %SourceDir%\Main.cpp %MainLinkerLibs%
 popd

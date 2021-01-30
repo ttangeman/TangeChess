@@ -4,64 +4,6 @@
 #define ABS_VALUE(x) ((x)<0 ? -(x) : (x))
 #define DEGREES_TO_RADIANS(degrees) ((degrees) * (PI / 180))
 
-union Vec2 
-{
-    struct 
-    {
-        float X, Y;
-    };
-    
-    struct 
-    {
-        float U, V;
-    };
-    
-    struct 
-    {
-        float Width, Height;
-    };
-
-    float Data[2];
-    
-    Vec2() = default;
-    Vec2(float x, float y) : X(x), Y(y)
-    {
-    }
-
-    Vec2 operator+(Vec2 operand) const
-    {
-        Vec2 result;
-        result.X = this->X + operand.X;
-        result.Y = this->Y + operand.Y;
-        return result;
-    }
-    
-    void operator+=(Vec2 operand)
-    {
-        this->X += operand.X;
-        this->Y += operand.Y;
-    }
-    
-    Vec2 operator-(Vec2 operand) const
-    {
-        Vec2 result;
-        result.X = this->X - operand.X;
-        result.Y = this->Y - operand.Y;
-        return result;
-    }
-
-    void operator-=(Vec2 operand)
-    {
-        this->X -= operand.X;
-        this->Y -= operand.Y;
-    }
-
-    bool operator==(Vec2 operand) const
-    {
-        return (this->X == operand.X && this->Y == operand.Y);
-    }
-};
-
 union Vec2i 
 {
     struct 
@@ -110,6 +52,92 @@ union Vec2i
     }
 
     bool operator==(Vec2i operand) const
+    {
+        return (this->X == operand.X && this->Y == operand.Y);
+    }
+};
+
+union Vec2 
+{
+    struct 
+    {
+        float X, Y;
+    };
+    
+    struct 
+    {
+        float U, V;
+    };
+    
+    struct 
+    {
+        float Width, Height;
+    };
+
+    float Data[2];
+    
+    Vec2() = default;
+    Vec2(float x, float y) : X(x), Y(y)
+    {
+    }
+
+    Vec2 operator+(Vec2 operand) const
+    {
+        Vec2 result;
+        result.X = this->X + operand.X;
+        result.Y = this->Y + operand.Y;
+        return result;
+    }
+    
+    void operator+=(Vec2 operand)
+    {
+        this->X += operand.X;
+        this->Y += operand.Y;
+    }
+
+    Vec2 operator+(Vec2i operand) const
+    {
+        Vec2 result;
+        result.X = this->X + (float)operand.X;
+        result.Y = this->Y + (float)operand.Y;
+        return result;
+    }
+    
+    void operator+=(Vec2i operand)
+    {
+        this->X += (float)operand.X;
+        this->Y += (float)operand.Y;
+    }
+    
+    Vec2 operator-(Vec2 operand) const
+    {
+        Vec2 result;
+        result.X = this->X - operand.X;
+        result.Y = this->Y - operand.Y;
+        return result;
+    }
+
+    void operator-=(Vec2 operand)
+    {
+        this->X -= operand.X;
+        this->Y -= operand.Y;
+    }
+
+    Vec2 operator-(Vec2i operand) const
+    {
+        Vec2 result;
+        result.X = this->X - (float)operand.X;
+        result.Y = this->Y - (float)operand.Y;
+        return result;
+    }
+
+    void operator-=(Vec2i operand)
+    {
+        this->X -= (float)operand.X;
+        this->Y -= (float)operand.Y;
+    }
+
+    bool operator==(Vec2 operand) const
     {
         return (this->X == operand.X && this->Y == operand.Y);
     }
@@ -236,5 +264,43 @@ union Vec4
                 this->Y == operand.Y &&
                 this->Z == operand.Z &&
                 this->W == operand.W);
+    }
+};
+
+struct Rect
+{
+    Vec2 MinCorner;
+    Vec2 MaxCorner;
+
+    Rect() = default;
+    Rect(Vec2 minCorner, Vec2 maxCorner)
+        : MinCorner(minCorner), MaxCorner(maxCorner)
+    {
+    }
+
+    Vec2 operator+(Vec2 offset)
+    {
+        return MinCorner + offset;
+    }
+
+    Vec2 operator-(Vec2 offset)
+    {
+        return MinCorner - offset;
+    }
+
+    void operator+=(Vec2 offset)
+    {
+        MinCorner += offset;
+    }
+
+    void operator-=(Vec2 offset)
+    {
+        MinCorner -= offset;
+    }
+
+    bool operator==(Rect operand) const
+    {
+        return (this->MinCorner == operand.MinCorner &&
+                this->MaxCorner == operand.MaxCorner);
     }
 };

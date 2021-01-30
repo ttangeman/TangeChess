@@ -1,7 +1,7 @@
 #include "Render/ResourceManager.h"
 #include "Render/D3D11/D3D11Renderer.h"
 
-namespace Render
+namespace Tange
 {
     ResourceManager& ResourceManager::Get()
     {
@@ -87,7 +87,7 @@ namespace Render
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
-    void ResourceManager::SubmitTexture(const std::string& textureName, const Asset::Image& image)
+    void ResourceManager::SubmitTexture(const std::string& textureName, const Image& image)
     {
         // Describe the texture.
         D3D11_TEXTURE2D_DESC textureDesc = {};

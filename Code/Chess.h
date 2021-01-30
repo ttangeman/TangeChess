@@ -6,25 +6,19 @@
 #include "Core/Application.cpp"
 #include "GameState.cpp"
 
-namespace Game 
+namespace Tange 
 {
-    using namespace Platform;
-    using namespace Render;
-    using namespace Core;
-
-    class Chess : public Core::Application
+    class Chess : public Application
     {
-        public:
-            
+        GameState m_gameState;
+        GuiObject test;
+
+    public:    
         Chess() = delete;
         Chess(const std::string& title, int32 width, int32 height); 
         ~Chess();
 
-        void Update();
-        void Render();
-        
-        private:
-
-        GameState m_gameState;
+        void Update() override;
+        void Render() override;
     };
 }

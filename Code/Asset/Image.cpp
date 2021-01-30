@@ -1,6 +1,6 @@
 #include "Asset/Image.h"
 
-namespace Asset
+namespace Tange
 {
     void Image::LoadBMP(const std::string& fileName)
     {
@@ -25,7 +25,7 @@ namespace Asset
     {
         usize size = GetSize();
         uint8* pCopy = (uint8*)std::malloc(size);
-        Platform::Copy(pCopy, pPixels, size);
+        std::memcpy(pCopy, pPixels, size);
         
         // Point to the last row in the bitmap.
         usize sourceOffset = (Height - 1) * Pitch;
@@ -34,7 +34,7 @@ namespace Asset
         for (auto y = 0; y < Height; y++) 
         {
             // Swap the bottom and top rows.
-            Platform::Copy(pPixels + destOffset, pCopy + sourceOffset, Pitch);
+            std::memcpy(pPixels + destOffset, pCopy + sourceOffset, Pitch);
             sourceOffset -= Pitch;
             destOffset += Pitch;
         }

@@ -1,11 +1,19 @@
 #include "Entity/EntityManager.h"
 
-namespace ECS
+namespace Tange
 {
     EntityManager& EntityManager::Get()
     {
         static EntityManager instance;
         return instance;
+    }
+
+    EntityManager::~EntityManager()
+    {
+        for (auto pComponent : m_componentSystems)
+        {
+            delete pComponent;
+        }
     }
 
     Entity EntityManager::RegisterEntity()
@@ -19,9 +27,9 @@ namespace ECS
 
     void EntityManager::DestroyEntity(Entity& entity)
     {
-        for (auto& it : m_componentSystems)
+        for (auto pComponent : m_componentSystems)
         {
-            it->DestroyEntity(entity);
+            pComponent->DestroyEntity(entity);
         }
         entity = {};
     }
@@ -29,37 +37,47 @@ namespace ECS
     template<typename T>
     void EntityManager::RegisterComponent()
     {
-        ComponentArray<T, MaxEntityCount> componentArray;
-        int x = T::ComponentIndex;
         // Make sure that the event was not already registered.
-        //ASSERT(T::ComponentIndex == 0);
-        T::ComponentIndex = m_componentAccumulator++;
-
-        auto pComponentSystem = std::make_unique<ComponentArray<T, MaxEntityCount>>(componentArray);
-        m_componentSystems.push_back(std::move(pComponentSystem));
+        ASSERT(!T::IsInitialized());
+        
+        if (!T::IsInitialized())
+        {
+            auto* pComponentArray = new ComponentArray<T, MaxEntityCount>();
+            m_componentSystems.push_back(pComponentArray);
+        }
     }
 
     template<typename T>
     T& EntityManager::AttachComponent(Entity entity)
     {
-        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
-        component->Entity = entity;
-        return *component;
+        auto* pComponents = GetComponentArray<T>();
+        T& component = pComponents->GetComponent(entity);
+        component.Entity = entity;
+        return component;
     }
 
     template<typename T>
     T& EntityManager::GetComponent(Entity entity)
     {
-        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
+        auto* pComponents = GetComponentArray<T>();
+        T& component = pComponents->GetComponent(entity);
         // Make sure we are not referencing a entity that's not attached/stale.
-        ASSERT(component->Entity == entity);
-        return *component;
+        ASSERT(component.Entity == entity);
+        return component;
     }
 
     template<typename T>
-    bool EntityManager::HasComponent(Entity entity) const
+    bool EntityManager::HasComponent(Entity entity)
     {
-        T* component = (T*) m_componentSystems.at(T::ComponentIndex)->GetComponent(entity);
-        return component->Entity == entity;
+        auto* pComponents = GetComponentArray<T>();
+        T& component = pComponents->GetComponent(entity);
+        return component.Entity == entity;
+    }
+
+    template <typename T>
+    ComponentArray<T, EntityManager::MaxEntityCount>* EntityManager::GetComponentArray()
+    {
+        int x = T::GetIndex();
+        return static_cast<ComponentArray<T, MaxEntityCount>*>(m_componentSystems.at(T::GetIndex()));
     }
 }

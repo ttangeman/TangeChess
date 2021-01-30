@@ -1,6 +1,6 @@
 #include "Core/EventManager.h"
 
-namespace Core
+namespace Tange
 {
     EventManager& EventManager::Get()
     {
@@ -12,31 +12,30 @@ namespace Core
     void EventManager::RegisterEvent()
     {
         // Make sure that the event was not already registered.
-        ASSERT(T::EventIndex == 0);
-        T::EventIndex = m_eventAccumulator++;
-
+        ASSERT(!T::IsInitialized());
+        T::Initialize();
         std::vector<Handler> eventHandler;
         m_eventHandlers.push_back(eventHandler);
     }
 
     template<typename T>
-    void EventManager::BindHandler(const std::string& handlerName,
-                                   const std::function<void(const IEvent&)>& callback)
+    void EventManager::BindHandler(int32 id, const std::function<void(const IEvent&)>& callback)
     {
-        auto& handlers = m_eventHandlers.at(T::EventIndex);
-        handlers.emplace_back(Handler(handlerName, callback));
+        ASSERT(T::IsInitialized());
+        auto& handlers = m_eventHandlers.at(T::GetIndex());
+        handlers.emplace_back(Handler(id, callback));
     }
 
     template<typename T>
-    void EventManager::DetachHandler(const std::string& handlerName)
+    void EventManager::DetachHandler(int32 id)
     {
-        auto& handlers = m_eventHandlers.at(T::EventIndex);
+        auto& handlers = m_eventHandlers.at(T::GetIndex());
         bool found = false;
 
         for (auto i = 0; i < handlers.size(); i++)
         {
             auto& it = handlers[i];
-            if (it.Name == handlerName)
+            if (it.Id == id)
             {
                 handlers.erase(handlers.begin() + i);
                 found = true;
@@ -47,14 +46,14 @@ namespace Core
         ASSERT(found);
     }
 
-    void EventManager::DetachAllHandlers(const std::string& handlerName)
+    void EventManager::DetachAllHandlers(int32 id)
     {   
         for (auto& handlers : m_eventHandlers)
         {
             for (auto i = 0; i < handlers.size(); i++)
             {
                 auto& it = handlers[i];
-                if (it.Name == handlerName)
+                if (it.Id == id)
                 {
                     handlers.erase(handlers.begin() + i);
                     break;
@@ -66,9 +65,21 @@ namespace Core
     template<typename T>
     void EventManager::Dispatch(const IEvent& payload)
     {
-        for (auto& it : m_eventHandlers.at(T::EventIndex))
+        for (auto& it : m_eventHandlers.at(T::GetIndex()))
         {
             it.Callback(payload);
+        }
+    }
+
+    template <typename T>
+    void EventManager::DispatchTo(int32 id, const IEvent& payload)
+    {
+        for (auto& it : m_eventHandlers.at(T::GetIndex()))
+        {
+            if (it.Id == id)
+            {
+                it.Callback(payload);
+            }
         }
     }
 }

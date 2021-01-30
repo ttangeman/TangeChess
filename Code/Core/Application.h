@@ -10,6 +10,7 @@
 #include "Render/Transformable.h"
 #include "Render/Drawable.h"
 #include "Render/ResourceManager.h"
+#include "Entity/EntityEvents.h"
 
 // Unity build (single translation unit) includes.
 #include "Core/EventManager.cpp"
@@ -22,15 +23,19 @@
 #include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "Entity/EntityManager.cpp"
+#include "UserInterface/Gui.cpp"
 
-namespace Core
-{
-    using namespace Platform;
-    
+namespace Tange
+{ 
     class Application
-    {
-        public:
+    {        
+        // Timer for finding the elapsed time between updates.
+        Stopwatch m_timer;
         
+        // The desired update rate for the application. Defaults to 60Hz.
+        float m_desiredUpdateRate;
+
+    public:
         // Stores the last elapsed time for updating and rendering the application.
         float LastFrameTime;
 
@@ -42,15 +47,6 @@ namespace Core
         void Run();
         
         virtual void Update() = 0;
-        virtual void Render() = 0;
-
-        private:
-        
-        // Timer for finding the elapsed time between updates.
-        Stopwatch m_timer;
-        
-        // The desired update rate for the application. Defaults to 60Hz.
-        float m_desiredUpdateRate;
-        
+        virtual void Render() = 0;      
     };
 }

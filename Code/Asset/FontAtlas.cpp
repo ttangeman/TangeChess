@@ -1,6 +1,6 @@
 #include "Asset/FontAtlas.h"
 
-namespace Asset
+namespace Tange
 {
     // Helper function to flip a glyph bitmap from a bottom-up
     // to a top-down bitmap. Just a copy of Asset::Image::FlipImage()
@@ -9,7 +9,7 @@ namespace Asset
     {
         usize size = bitmap.width * bitmap.rows;
         uint8* pCopy = (uint8*)std::malloc(size);
-        Platform::Copy(pCopy, bitmap.buffer, size);
+        std::memcpy(pCopy, bitmap.buffer, size);
         
         // Point to the last row in the bitmap.
         usize sourceOffset = (bitmap.rows - 1) * bitmap.pitch;
@@ -18,7 +18,7 @@ namespace Asset
         for (auto y = 0; y < bitmap.rows; y++) 
         {
             // Swap the bottom and top rows.
-            Platform::Copy(bitmap.buffer + destOffset, pCopy + sourceOffset, bitmap.pitch);
+            std::memcpy(bitmap.buffer + destOffset, pCopy + sourceOffset, bitmap.pitch);
             sourceOffset -= bitmap.pitch;
             destOffset += bitmap.pitch;
         }
@@ -28,7 +28,7 @@ namespace Asset
 
     // Based on: https://gist.github.com/baines/b0f9e4be04ba4e6f56cab82eef5008ff
     // Slightly modified to work with top-down bitmaps and to provide 0-1 UV coordinates.
-    Image FontAtlas::BuildFont(const Platform::FileData& fontFile, int32 glyphSize)
+    Image FontAtlas::BuildFont(const FileData& fontFile, int32 glyphSize)
     {
         FT_Library library;
         auto error = FT_Init_FreeType(&library);

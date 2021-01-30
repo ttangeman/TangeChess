@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/EventManager.h"
+#include "Core/IEvent.h"
 
-namespace Platform
+namespace Tange
 {
     // See: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
     enum class InputEvent
@@ -89,9 +89,10 @@ namespace Platform
         KeyF12,
     };
 
-    struct KeyPressed : public Core::IEvent
+    struct KeyPressed : public IEvent
     {
-        inline static int32 EventIndex = 0;
+        EVENT_BOILERPLATE()
+
         InputEvent Key;
 
         KeyPressed(InputEvent event)
@@ -100,9 +101,10 @@ namespace Platform
         }
     };
 
-    struct KeyReleased : public Core::IEvent
+    struct KeyReleased : public IEvent
     {
-        inline static int32 EventIndex = 0;
+        EVENT_BOILERPLATE()
+
         InputEvent Key;
 
         KeyReleased(InputEvent event)
@@ -111,9 +113,10 @@ namespace Platform
         }
     };
 
-    struct MouseClicked : public Core::IEvent
+    struct MouseClicked : public IEvent
     {
-        inline static int32 EventIndex = 0;
+        EVENT_BOILERPLATE()
+
         InputEvent Button;
         Vec2i MousePosition;
 
@@ -123,14 +126,27 @@ namespace Platform
         }
     };
 
-    struct MouseReleased : public Core::IEvent
+    struct MouseReleased : public IEvent
     {
-        inline static int32 EventIndex = 0;
+        EVENT_BOILERPLATE()
+
         InputEvent Button;
         Vec2i MousePosition;
 
         MouseReleased(InputEvent event, Vec2i position)
             : Button(event), MousePosition(position)
+        {
+        }
+    };
+
+    struct MouseMoved : public IEvent
+    {
+        EVENT_BOILERPLATE()
+
+        Vec2i MousePosition;
+
+        MouseMoved(Vec2i position)
+            : MousePosition(position)
         {
         }
     };

@@ -2,7 +2,7 @@
 #include <timeapi.h>
 #include "Platform/PlatformManager.h"
 
-namespace Platform
+namespace Tange
 {
     Stopwatch::Stopwatch()
         : m_currentCount(0)
@@ -76,7 +76,7 @@ namespace Platform
         bool isDown = message.message == WM_KEYDOWN;
         bool isUp = !isDown;
 
-        auto& eventManager = Core::EventManager::Get();
+        auto& eventManager = EventManager::Get();
         
         if (isDown)
         {
@@ -89,20 +89,19 @@ namespace Platform
         }
     }
 
-    static Vec2i CalculateMousePosition(WindowHandle hWindow)
+    Vec2i PlatformManager::CalculateMousePosition() const
     {
         POINT cursorPosition;
         // Gets the mouse position relative to the screen.
         GetCursorPos(&cursorPosition);
         // This maps the mouse position into the window's dimensions.
-        ScreenToClient(hWindow, &cursorPosition);
+        ScreenToClient(m_hWindow, &cursorPosition);
 
         RECT clientRect;
-        GetClientRect(hWindow, &clientRect);
+        GetClientRect(m_hWindow, &clientRect);
         auto clientHeight = clientRect.bottom - clientRect.top;
 
-        // Flip the Y to match D3D11's pixel coordinate space.
-        // (Bottom-up instead of top-down).
+        // Flip the Y to bottom-up instead of top-down.
         cursorPosition.y = ABS_VALUE(cursorPosition.y - clientHeight);
         return Vec2i(cursorPosition.x, cursorPosition.y);
     }
@@ -111,7 +110,7 @@ namespace Platform
     {
         MSG message;
 
-        auto& eventManager = Core::EventManager::Get();
+        auto& eventManager = EventManager::Get();
 
         if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) 
         {
@@ -128,38 +127,44 @@ namespace Platform
                 // more info.
                 case WM_LBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::MiddleClick, position));
                 } break;
                 
                 case WM_LBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition(m_hWindow);
+                    Vec2i position = CalculateMousePosition();
                     eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::MiddleClick, position));
+                } break;
+
+                case WM_MOUSEMOVE:
+                {
+                    Vec2i position = CalculateMousePosition();
+                    eventManager.Dispatch<MouseMoved>(MouseMoved(position));
                 } break;
                 
                 case WM_QUIT: 
@@ -180,11 +185,12 @@ namespace Platform
                                                     int32 windowHeight, bool showCursor, 
                                                     bool useWindowBorders)
     {
-        auto& eventManager = Core::EventManager::Get();
+        auto& eventManager = EventManager::Get();
         eventManager.RegisterEvent<KeyPressed>();
         eventManager.RegisterEvent<KeyReleased>();
         eventManager.RegisterEvent<MouseClicked>();
         eventManager.RegisterEvent<MouseReleased>();
+        eventManager.RegisterEvent<MouseMoved>();
 
         HINSTANCE hInstance = GetModuleHandle(0);
         

@@ -3,7 +3,7 @@
 #include "Core/Common.h"
 #include "Platform/PlatformWrapper.h"
 
-namespace Platform
+namespace Tange
 {
     struct FileData
     {
@@ -14,14 +14,10 @@ namespace Platform
     // TODO: Is a class even needed for this?
     class FileManager
     {
-        public:
-
+    public:
         static FileManager& Get();
 
         // Reads the entire file into the heap and returns the data (a shared pointer and the size).
-        FileData ReadEntireFile(const std::string& fileName) const;
-
-        private:
-
+        static FileData ReadEntireFile(const std::string& fileName);
     };
 }

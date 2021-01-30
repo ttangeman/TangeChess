@@ -1,14 +1,8 @@
 #include "Render/Drawable.h"
 #include "Render/D3D11/D3D11Renderer.h"
 
-namespace Render
+namespace Tange
 {
-    Drawable::Drawable()
-    {
-        m_hMesh = {};
-        m_hTexture = {};
-    }
-
     void Drawable::AttachMesh(const std::string& meshName)
     {
         m_hMesh = ResourceManager::Get().MeshLocator.GetResourceHandle(meshName);
@@ -19,7 +13,7 @@ namespace Render
         m_hTexture = ResourceManager::Get().TextureLocator.GetResourceHandle(textureName);
     }
 
-    void Drawable::Draw() const
+    void Drawable::OnRender() const
     {
         const auto& resourceManager = ResourceManager::Get();
         const Mesh& mesh = resourceManager.MeshLocator.LookupResource(m_hMesh);
@@ -30,7 +24,7 @@ namespace Render
         // TODO: This should be part of the mesh.
         g_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        auto& entityManager = ECS::EntityManager::Get();
+        auto& entityManager = EntityManager::Get();
         if (entityManager.HasComponent<Transformable>(Entity))
         {
             entityManager.GetComponent<Transformable>(Entity).OnRender();

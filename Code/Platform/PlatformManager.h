@@ -11,25 +11,23 @@
 // NOTE: PlatformManager is not an abstract class because there should only
 // ever be one type of PlatformManager at a time.
 
-namespace Platform
+namespace Tange
 {
     class Stopwatch 
     {
-        public:
-        
-        void Start();
-        float Stop() const;
-        
-        Stopwatch();
-
-        private:
-        
         // Used for calculating the time, if needed.
         int64 m_clocksPerSecond;
-        
+
         // Keeps track of the time/clock count.
-        int64 m_currentCount; 
-        
+        int64 m_currentCount;
+
+    public:
+        void Start();
+        float Stop() const;
+    
+        Stopwatch();
+
+    private:
         // Queries the OS for the CPU clocks per second if it is needed
         // for accurate timing, like on Windows.
         int64 QueryClock() const;
@@ -37,11 +35,17 @@ namespace Platform
 
     class PlatformManager 
     {
-        public:
-        
+        // Platform-specific window handle.
+        WindowHandle m_hWindow;
+        std::atomic<bool> m_shouldQuit;
+
+    public:
         static PlatformManager& Get();
         PlatformManager(const PlatformManager&) = delete;
         void operator=(const PlatformManager&) = delete;
+
+        // Finds the mouse position.
+        Vec2i CalculateMousePosition() const;
         
         // Dispatches messages from the system to the event manager,
         // such as keyboard and mouse input.
@@ -61,12 +65,7 @@ namespace Platform
         
         WindowHandle GetWindow() const;
         
-        private:
-
-        // Platform-specific window handle.
-        WindowHandle m_hWindow;
-        std::atomic<bool> m_shouldQuit;
-
+    private:
         PlatformManager() = default;
     };
 }

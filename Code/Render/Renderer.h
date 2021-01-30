@@ -5,7 +5,7 @@
 
 // NOTE: All of these functions should be implemented for
 // each graphics API.
-namespace Render
+namespace Tange
 {
     struct Vertex;
     struct Quad;
@@ -15,7 +15,7 @@ namespace Render
     struct Transform;
 
     // Initializes the renderer.
-    void InitializePipeline();
+    void IntializeRendererPipeline();
 
     // Shutsdown the renderer.
     void Shutdown();
@@ -34,6 +34,9 @@ namespace Render
 
     // Sets the viewport.
     void SetViewport(Vec2 dimensions);
+
+    // Gets the render dimensions of the actual draw area of the window.
+    Vec2 GetDrawRegion();
 
     // Resizes the application.
     void ResizeWindow(float desiredWidth, float desiredHeight); 

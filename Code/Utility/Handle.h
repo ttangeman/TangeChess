@@ -8,11 +8,9 @@
 template <typename T>
 class Handle
 {
-    public:
-
+public:
     // Unique id.
     uint32 Uid;
-
     union
     {
         uint32 Index;

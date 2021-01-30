@@ -1,35 +1,35 @@
 #pragma once
 
 #include "Core/Common.h"
+#include "Core/IEvent.h"
 
-namespace Core
+namespace Tange
 {
-    // NOTE: All events need an inline static EventIndex member!
-    struct IEvent
-    {
-        virtual ~IEvent()
-        {
-        }
-    };
-
     struct Handler
     {
+        // The function to dispatch the event to.
         std::function<void(const IEvent&)> Callback;
-        std::string Name;
 
-        Handler(const std::string& name, std::function<void(const IEvent&)> callback)
-            : Name(name), Callback(callback)
+        // Could be a random id or an entity id, for example.
+        // Either way, the id is used for detaching handlers and 
+        // single dispatches.
+        int32 Id;
+
+        Handler(int32 id, std::function<void(const IEvent&)> callback)
+            : Id(id), Callback(callback)
         {
         }
     };
 
     class EventManager
     {
-        public:
+        // NOTE: Unable to remove from the outer vector in order to maintain
+        // index stability. The inner vector is used as a FIFO queue, so deleting
+        // handlers is allowed.
+        std::vector<std::vector<Handler>> m_eventHandlers;
 
+    public:
         static EventManager& Get();
-
-        EventManager() = default;
         EventManager(const EventManager&) = delete;
         void operator=(const EventManager&) = delete;
 
@@ -39,29 +39,24 @@ namespace Core
 
         // Registers a callback for an event.
         template<typename T>
-        void BindHandler(const std::string& handlerName,
-                         const std::function<void(const IEvent&)>& callback);
+        void BindHandler(int32 id, const std::function<void(const IEvent&)>& callback);
 
         // Detach a specific event type from a handler name.
         template<typename T>
-        void DetachHandler(const std::string& handlerName);
+        void DetachHandler(int32 id);
 
         // Detaches all handlers registered under a name.
-        void DetachAllHandlers(const std::string& handlerName);
+        void DetachAllHandlers(int32 id);
 
         // Dispatches an event to all subscribed handlers.
         template<typename T>
         void Dispatch(const IEvent& payload);
-        // TODO: Could have a dispatch for a specific Handler::Name?
 
-        private:
+        // Does a single dispatch to the id.
+        template<typename T>
+        void DispatchTo(int32 id, const IEvent& payload);
 
-        // Assigns an index to a registered event.
-        int32 m_eventAccumulator = 0;
-
-        // NOTE: Unable to remove from the outer vector in order to maintain
-        // index stability. The inner vector is used as a FIFO queue, so deleting
-        // handlers is allowed.
-        std::vector<std::vector<Handler>> m_eventHandlers;
+    private:
+        EventManager() = default;
     };
 }
