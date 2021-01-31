@@ -108,36 +108,6 @@ namespace Tange
         SAFE_RELEASE(g_pDevice);
         SAFE_RELEASE(g_pSwapChain);
     }
-    
-    Transform CreateTransform()
-    {
-        D3D11_BUFFER_DESC bufferDesc = {};
-        bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-        bufferDesc.ByteWidth = sizeof(TransformData);
-        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-        ID3D11Buffer* pTransformBuffer;
-        HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, nullptr, &pTransformBuffer);
-        CHECK_RESULT(result);
-        
-        D3D11_MAPPED_SUBRESOURCE data;
-        result = g_pDeviceContext->Map(pTransformBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-        CHECK_RESULT(result);
-        
-        TransformData* pTransformData = (TransformData*)data.pData;
-        pTransformData->World = DirectX::XMMatrixIdentity();
-        pTransformData->View = DirectX::XMMatrixIdentity();
-        pTransformData->Projection = DirectX::XMMatrixIdentity();
-        
-        g_pDeviceContext->Unmap(pTransformBuffer, 0);
-
-        Transform transform = {};
-        transform.Projection = DirectX::XMMatrixIdentity();
-        transform.pTransformBuffer = pTransformBuffer;
-        
-        return transform;
-    }
 
     void PresentFrame()
     {

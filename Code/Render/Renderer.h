@@ -13,15 +13,13 @@ namespace Tange
     struct Shader;
     struct Texture;
     struct Transform;
+    class GpuBuffer;
 
     // Initializes the renderer.
     void IntializeRendererPipeline();
 
     // Shutsdown the renderer.
     void Shutdown();
-
-    // Creates a transform for a render object.
-    Transform CreateTransform();
     
     // Displays the frame and swaps the back buffer.
     void PresentFrame();

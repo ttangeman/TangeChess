@@ -2,6 +2,17 @@
 
 namespace Tange
 {
+    Image::~Image()
+    {
+        FreePixels();
+    }
+
+    Image::Image(Image&& other)
+    {
+        std::memcpy(this, &other, sizeof(*this));
+        std::memset(&other, 0, sizeof(*this));
+    }
+
     void Image::LoadBMP(const std::string& fileName)
     {
         pPixels = stbi_load("Data/Pieces.bmp", &Width, &Height, &BytesPerPixel, 0);
@@ -9,11 +20,6 @@ namespace Tange
         // NOTE: BMP's are BGRA and bottom-up images, we want RGBA and top-down.
         FlipImage();
         SwapBGRAToRGBA();
-    }
-
-    void Image::FreePixels()
-    {
-        std::free(pPixels);
     }
 
     usize Image::GetSize() const
@@ -64,6 +70,14 @@ namespace Tange
                         (blue << 16) |
                         (alpha << 24);
             }
+        }
+    }
+    
+    void Image::FreePixels()
+    {
+        if (pPixels)
+        {
+            std::free(pPixels);
         }
     }
 }

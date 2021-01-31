@@ -11,6 +11,10 @@ namespace Tange
     struct IComponentSystem
     {
         virtual void DestroyEntity(Entity entity) = 0;
+
+        virtual ~IComponentSystem()
+        {
+        }
     };
 
     template<typename T, int32 ArraySize>

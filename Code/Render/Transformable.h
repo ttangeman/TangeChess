@@ -26,6 +26,8 @@ namespace Tange
         // Updates the GPU buffer with the transformed matrices.
         void OnUpdate();
 
-        void OnRender() const;
+        void OnRender();
+
+        void SetTransformBuffer(uint32 slot);
     };
 }

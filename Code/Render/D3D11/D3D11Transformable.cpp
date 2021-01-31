@@ -4,7 +4,7 @@ namespace Tange
 {
     Transformable::Transformable()
     {
-        m_transform = CreateTransform();
+        m_transform.pTransformBuffer = std::make_unique<GpuBuffer>(sizeof(TransformData));
     }
 
     void Transformable::SetOrthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ)
@@ -28,22 +28,25 @@ namespace Tange
         // NOTE: Order is super important! Rotations should come before translation!
         XMMATRIX affineTransform = scale * rotationX * rotationY * rotationZ * translation;
 
-        D3D11_MAPPED_SUBRESOURCE data;
-        HRESULT result = g_pDeviceContext->Map(m_transform.pTransformBuffer, 0, 
-                                               D3D11_MAP_WRITE_DISCARD, 0, &data);
-        CHECK_RESULT(result);
-        
-        TransformData* pTransformData = (TransformData*)data.pData;
+        auto* pTransformData = static_cast<TransformData*>(m_transform.pTransformBuffer->MapBuffer());
+
         pTransformData->World = DirectX::XMMatrixTranspose(affineTransform);
         // TODO: Camera
         pTransformData->View = DirectX::XMMatrixIdentity();
         pTransformData->Projection = DirectX::XMMatrixTranspose(m_transform.Projection);
         
-        g_pDeviceContext->Unmap(m_transform.pTransformBuffer, 0);
+        m_transform.pTransformBuffer->Unmap();
     }
 
-    void Transformable::OnRender() const
+    void Transformable::OnRender()
     {
-        g_pDeviceContext->VSSetConstantBuffers(0, 1, &m_transform.pTransformBuffer);
+        // TODO: Maybe have a way to query the renderer for which
+        // slot the buffer should set.
+        SetTransformBuffer(0);
+    }
+
+    void Transformable::SetTransformBuffer(uint32 slot)
+    {
+        m_transform.pTransformBuffer->SetBuffer(BufferBinding::VertexShader, slot);
     }
 }

@@ -4,15 +4,17 @@ namespace Tange
 {
     static void LoadAllShaders()
     {
-        auto &resourceManager = ResourceManager::Get();
+        auto& resourceManager = ResourceManager::Get();
 
         FileData defaultVertexShader = FileManager::ReadEntireFile("Shaders/Default.vs.cso");
         FileData colorFillPixelShader = FileManager::ReadEntireFile("Shaders/Fullclear.ps.cso");
-        FileData texturePixelShader = FileManager::ReadEntireFile("Shaders/Textured.ps.cso");
 
         resourceManager.SubmitShader("PixelFill",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      colorFillPixelShader.pData.get(), colorFillPixelShader.Size);
+
+        FileData texturePixelShader = FileManager::ReadEntireFile("Shaders/Textured.ps.cso");
+
         resourceManager.SubmitShader("Textured",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      texturePixelShader.pData.get(), texturePixelShader.Size);
@@ -20,23 +22,21 @@ namespace Tange
 
     static void LoadAllTextures()
     {
-        auto &resourceManager = ResourceManager::Get();
+        auto& resourceManager = ResourceManager::Get();
 
         Image piecesImage;
         piecesImage.LoadBMP("Data/Pieces.bmp");
         resourceManager.SubmitTexture("Texture/Pieces", piecesImage);
-        piecesImage.FreePixels();
 
         FileData fontFile = FileManager::ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
         FontAtlas fontAtlas;
         Image fontAtlasImage = fontAtlas.BuildFont(fontFile);
         resourceManager.SubmitTexture("Texture/NotoSans-Bold", fontAtlasImage);
-        fontAtlasImage.FreePixels();
     }
 
     static void InitializeChessMeshes()
     {
-        auto &resourceManager = ResourceManager::Get();
+        auto& resourceManager = ResourceManager::Get();
 
         // Due to the lack of having an actual mesh file to load,
         // all of the quads in the game are hard coded.
@@ -63,13 +63,14 @@ namespace Tange
         : Application(title, width, height),
           m_gameState()
     {
-        auto &eventManager = EventManager::Get();
+        m_menu.AddWidget<Panel>(Panel(Vec2(300, 300), Vec2(180, 360), Vec4(0, 0, 0, 0.7)));
 
-        eventManager.BindHandler<KeyPressed>(0, 
-        [](const IEvent &event)
+        auto& eventManager = EventManager::Get();
+        eventManager.BindHandler<KeyReleased>(0, 
+        [this](const IEvent& event)
         {
-            const auto &keyEvent = (const KeyPressed &)event;
-            if (keyEvent.Key == InputEvent::KeyEscape)
+            const auto& keyEvent = (const KeyReleased&)event;
+            if (keyEvent.Key == InputEvent::KeyQ)
             {
                 PlatformManager::ForceQuit();
             }
@@ -78,13 +79,16 @@ namespace Tange
             {
                 ToggleFullscreen();
             }
+
+            if (keyEvent.Key == InputEvent::KeyEscape)
+            {
+                m_menu.ToggleVisibility();
+            }
         });
 
         LoadAllShaders();
         LoadAllTextures();
         InitializeChessMeshes();
-
-        test.AddPanel(Vec2(300, 300), Vec2(100, 100));
 
         m_gameState.StartGame(PieceColor::White);
     }        
@@ -101,7 +105,6 @@ namespace Tange
 
     void Chess::Render()
     {
-        SetShader("PixelFill");
         FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
 
         auto& eventManager = EventManager::Get();

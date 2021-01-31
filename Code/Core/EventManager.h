@@ -50,11 +50,11 @@ namespace Tange
 
         // Dispatches an event to all subscribed handlers.
         template<typename T>
-        void Dispatch(const IEvent& payload);
+        void Dispatch(IEvent&& payload);
 
         // Does a single dispatch to the id.
         template<typename T>
-        void DispatchTo(int32 id, const IEvent& payload);
+        void DispatchTo(int32 id, IEvent&& payload);
 
     private:
         EventManager() = default;

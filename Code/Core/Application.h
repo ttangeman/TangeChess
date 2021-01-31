@@ -23,7 +23,8 @@
 #include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "Entity/EntityManager.cpp"
-#include "UserInterface/Gui.cpp"
+#include "UserInterface/Widgets.cpp"
+#include "UserInterface/Menu.cpp"
 
 namespace Tange
 { 
@@ -41,7 +42,7 @@ namespace Tange
 
         Application() = delete;
         Application(const std::string& title, int32 width, int32 height);
-        ~Application();
+        virtual ~Application();
 
         // Runs the application loop which calls update and render.
         void Run();

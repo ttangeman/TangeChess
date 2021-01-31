@@ -28,7 +28,7 @@ namespace Tange
             auto &entityManager = EntityManager::Get();
             entityManager.RegisterComponent<Drawable>();
             entityManager.RegisterComponent<Transformable>();
-            entityManager.RegisterComponent<GuiComponent>();
+            entityManager.RegisterComponent<MouseInteractable>();
 
             auto& eventManager = EventManager::Get();
             eventManager.RegisterEvent<UpdateEvent>();

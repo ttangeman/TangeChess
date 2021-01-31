@@ -10,21 +10,22 @@
 #define CHECK_RESULT(result) ASSERT(!(result));
 #define SAFE_RELEASE(object) if (object) {object->Release();}
 
+// All of the D3D11 API-specific objects are kept global because
+// they are opaque classes anyways and are pretty much just used
+// to call API functions. However, if multi-threading ever becomes
+// a concern, then more caution should be warranted.
+static IDXGISwapChain* g_pSwapChain;
+static ID3D11Device* g_pDevice;
+static ID3D11DeviceContext* g_pDeviceContext;
+static ID3D11RenderTargetView* g_pRenderTarget;
+
+#include "Render/D3D11/D3D11GpuBuffer.h"
+
 namespace Tange
 {
     using namespace DirectX;
 
     static const int32 BackBufferCount = 2;
-
-    // All of the D3D11 API-specific objects are kept global because
-    // they are opaque classes anyways and are pretty much just used
-    // to call API functions. However, if multi-threading ever becomes
-    // a concern, then more caution should be warranted.
-   
-    static IDXGISwapChain* g_pSwapChain;
-    static ID3D11Device* g_pDevice;
-    static ID3D11DeviceContext* g_pDeviceContext;
-    static ID3D11RenderTargetView* g_pRenderTarget;
 
 #pragma pack(push, 1)
     struct Vertex
@@ -100,7 +101,7 @@ namespace Tange
         // NOTE: Only projection needs to be stored.
         XMMATRIX Projection;
         // GPU relevant data.
-        ID3D11Buffer* pTransformBuffer;
+        std::unique_ptr<GpuBuffer> pTransformBuffer;
     };
 #pragma pack(pop)
 }

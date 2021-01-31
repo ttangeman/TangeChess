@@ -11,7 +11,7 @@ namespace Tange
     class Chess : public Application
     {
         GameState m_gameState;
-        GuiObject test;
+        Menu m_menu;
 
     public:    
         Chess() = delete;

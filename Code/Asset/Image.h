@@ -9,19 +9,21 @@
 
 namespace Tange
 {
-    struct Image
+    class Image
     {
+    public:
         uint8* pPixels;
         int32 Width;
         int32 Height;
         int32 BytesPerPixel;
         int32 Pitch;
 
+        Image() = default;
+        ~Image();
+        Image(Image&& other);
+
         // Loads a Windows bitmap.
         void LoadBMP(const std::string& fileName);
-
-        // Frees the pixel pointer.
-        void FreePixels();
 
         usize GetSize() const;
 
@@ -31,5 +33,9 @@ namespace Tange
 
         // Used for swapping the endianess of pixel colors.
         void SwapBGRAToRGBA();
+
+    private:
+        // Frees the pixel pointer.
+        void FreePixels();
     };
 }

@@ -53,7 +53,7 @@ namespace Tange
         mesh.VertexBufferStride = vertexSize;
         mesh.VertexCount = vertexCount;
 
-        MeshLocator.PushResource(meshName, mesh);
+        MeshLocator.PushResource(meshName, std::move(mesh));
     }
 
     void ResourceManager::SubmitShader(const std::string& shaderName,
@@ -83,7 +83,7 @@ namespace Tange
                                               nullptr, &shader.pPixelShader);
         CHECK_RESULT(result);
 
-        ShaderLocator.PushResource(shaderName, shader);
+        ShaderLocator.PushResource(shaderName, std::move(shader));
     }
     
     // TODO: Smarter texture recognition/texture atlas parameters.
@@ -125,7 +125,7 @@ namespace Tange
         Texture texture = {};
         texture.pTextureView = pTextureView;
 
-        TextureLocator.PushResource(textureName, texture);
+        TextureLocator.PushResource(textureName, std::move(texture));
     }
     
     void ResourceManager::ReleaseMesh(const std::string& meshName)

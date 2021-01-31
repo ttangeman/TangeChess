@@ -3,6 +3,11 @@
 
 namespace Tange
 {
+    Drawable::Drawable()
+    {
+        m_pColorBuffer = std::make_unique<GpuBuffer>(sizeof(Vec4));
+    }
+
     void Drawable::AttachMesh(const std::string& meshName)
     {
         m_hMesh = ResourceManager::Get().MeshLocator.GetResourceHandle(meshName);
@@ -13,7 +18,14 @@ namespace Tange
         m_hTexture = ResourceManager::Get().TextureLocator.GetResourceHandle(textureName);
     }
 
-    void Drawable::OnRender() const
+    void Drawable::SetColor(Vec4 color)
+    {
+        auto* buffer = static_cast<Vec4*>(m_pColorBuffer->MapBuffer());
+        buffer[0] = color;
+        m_pColorBuffer->Unmap();
+    }
+
+    void Drawable::OnRender()
     {
         const auto& resourceManager = ResourceManager::Get();
         const Mesh& mesh = resourceManager.MeshLocator.LookupResource(m_hMesh);
@@ -24,11 +36,7 @@ namespace Tange
         // TODO: This should be part of the mesh.
         g_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        auto& entityManager = EntityManager::Get();
-        if (entityManager.HasComponent<Transformable>(Entity))
-        {
-            entityManager.GetComponent<Transformable>(Entity).OnRender();
-        }
+        m_pColorBuffer->SetBuffer(BufferBinding::PixelShader, 0);
 
         if (m_hTexture.IsValid())
         {

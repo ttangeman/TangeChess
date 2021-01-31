@@ -28,5 +28,8 @@ namespace Tange
     // NOTE: Each event needs the EVENT_BOILERPLATE macro
     struct IEvent
     {
+        virtual ~IEvent()
+        {
+        }
     };
 }

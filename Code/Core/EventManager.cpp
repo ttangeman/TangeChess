@@ -13,37 +13,41 @@ namespace Tange
     {
         // Make sure that the event was not already registered.
         ASSERT(!T::IsInitialized());
-        T::Initialize();
-        std::vector<Handler> eventHandler;
-        m_eventHandlers.push_back(eventHandler);
+
+        if (!T::IsInitialized())
+        {
+            T::Initialize();
+            std::vector<Handler> eventHandler;
+            m_eventHandlers.push_back(eventHandler);
+        }
     }
 
     template<typename T>
     void EventManager::BindHandler(int32 id, const std::function<void(const IEvent&)>& callback)
     {
         ASSERT(T::IsInitialized());
-        auto& handlers = m_eventHandlers.at(T::GetIndex());
-        handlers.emplace_back(Handler(id, callback));
+
+        if (T::IsInitialized())
+        {
+            auto& handlers = m_eventHandlers.at(T::GetIndex());
+            handlers.emplace_back(Handler(id, callback));
+        }
     }
 
     template<typename T>
     void EventManager::DetachHandler(int32 id)
     {
         auto& handlers = m_eventHandlers.at(T::GetIndex());
-        bool found = false;
-
+        
         for (auto i = 0; i < handlers.size(); i++)
         {
             auto& it = handlers[i];
             if (it.Id == id)
             {
                 handlers.erase(handlers.begin() + i);
-                found = true;
                 break;
             }
         }
-
-        ASSERT(found);
     }
 
     void EventManager::DetachAllHandlers(int32 id)
@@ -63,7 +67,7 @@ namespace Tange
     }
 
     template<typename T>
-    void EventManager::Dispatch(const IEvent& payload)
+    void EventManager::Dispatch(IEvent&& payload)
     {
         for (auto& it : m_eventHandlers.at(T::GetIndex()))
         {
@@ -72,7 +76,7 @@ namespace Tange
     }
 
     template <typename T>
-    void EventManager::DispatchTo(int32 id, const IEvent& payload)
+    void EventManager::DispatchTo(int32 id, IEvent&& payload)
     {
         for (auto& it : m_eventHandlers.at(T::GetIndex()))
         {

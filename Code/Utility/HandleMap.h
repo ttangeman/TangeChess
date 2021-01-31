@@ -22,7 +22,7 @@ public:
     // NOTE: T _must_ have an Id field which is modified by this function!
     // Pushes the element into the vector and maps a handle to the data
     // under the element name.
-    void PushResource(const std::string& resourceName, T& resource)
+    void PushResource(const std::string& resourceName, T&& resource)
     {
         resource.Id = m_accumulator++;
 
@@ -55,7 +55,7 @@ public:
     {
         // Clear to zero is considered "free" because the id cannot be
         // zero for resources.
-        Resources.at(GetResourceHandle(resourceName).Index) = {};
+        //Resources.at(GetResourceHandle(resourceName).Index) = {};
         hResources.erase(resourceName);
     }
 
