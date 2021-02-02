@@ -38,11 +38,7 @@ namespace Tange
         return calculatedTime;
     }
 
-    PlatformManager& PlatformManager::Get()
-    {
-        static PlatformManager instance;
-        return instance;
-    }
+    PlatformManager PlatformManager::s_instance;
 
     LRESULT CALLBACK Win32MessagePump(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
     {
@@ -75,30 +71,28 @@ namespace Tange
         //TODO: Handle modifier keys
         bool isDown = message.message == WM_KEYDOWN;
         bool isUp = !isDown;
-
-        auto& eventManager = EventManager::Get();
         
         if (isDown)
         {
-            eventManager.Dispatch<KeyPressed>(KeyPressed((InputEvent)keycode));
+            EventManager::Dispatch<KeyPressed>(KeyPressed((InputEvent)keycode));
         }
 
         if (isUp)
         {
-            eventManager.Dispatch<KeyReleased>(KeyReleased((InputEvent)keycode));
+            EventManager::Dispatch<KeyReleased>(KeyReleased((InputEvent)keycode));
         }
     }
 
-    Vec2i PlatformManager::CalculateMousePosition() const
+    Vec2i PlatformManager::CalculateMousePosition()
     {
         POINT cursorPosition;
         // Gets the mouse position relative to the screen.
         GetCursorPos(&cursorPosition);
         // This maps the mouse position into the window's dimensions.
-        ScreenToClient(m_hWindow, &cursorPosition);
+        ScreenToClient(s_instance.m_hWindow, &cursorPosition);
 
         RECT clientRect;
-        GetClientRect(m_hWindow, &clientRect);
+        GetClientRect(s_instance.m_hWindow, &clientRect);
         auto clientHeight = clientRect.bottom - clientRect.top;
 
         // Flip the Y to bottom-up instead of top-down.
@@ -109,8 +103,6 @@ namespace Tange
     void PlatformManager::DispatchSystemMessages() 
     {
         MSG message;
-
-        auto& eventManager = EventManager::Get();
 
         if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) 
         {
@@ -128,43 +120,43 @@ namespace Tange
                 case WM_LBUTTONDOWN: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::LeftClick, position));
+                    EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONDOWN: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::RightClick, position));
+                    EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONDOWN: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseClicked>(MouseClicked(InputEvent::MiddleClick, position));
+                    EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::MiddleClick, position));
                 } break;
                 
                 case WM_LBUTTONUP: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::LeftClick, position));
+                    EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONUP: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::RightClick, position));
+                    EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONUP: 
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseReleased>(MouseReleased(InputEvent::MiddleClick, position));
+                    EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::MiddleClick, position));
                 } break;
 
                 case WM_MOUSEMOVE:
                 {
                     Vec2i position = CalculateMousePosition();
-                    eventManager.Dispatch<MouseMoved>(MouseMoved(position));
+                    EventManager::Dispatch<MouseMoved>(MouseMoved(position));
                 } break;
                 
                 case WM_QUIT: 
@@ -185,12 +177,11 @@ namespace Tange
                                                     int32 windowHeight, bool showCursor, 
                                                     bool useWindowBorders)
     {
-        auto& eventManager = EventManager::Get();
-        eventManager.RegisterEvent<KeyPressed>();
-        eventManager.RegisterEvent<KeyReleased>();
-        eventManager.RegisterEvent<MouseClicked>();
-        eventManager.RegisterEvent<MouseReleased>();
-        eventManager.RegisterEvent<MouseMoved>();
+        EventManager::RegisterEvent<KeyPressed>();
+        EventManager::RegisterEvent<KeyReleased>();
+        EventManager::RegisterEvent<MouseClicked>();
+        EventManager::RegisterEvent<MouseReleased>();
+        EventManager::RegisterEvent<MouseMoved>();
 
         HINSTANCE hInstance = GetModuleHandle(0);
         
@@ -201,29 +192,29 @@ namespace Tange
         windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
         RegisterClassA(&windowClass);
         
-        m_hWindow = CreateWindowExA(0, windowClass.lpszClassName, pWindowTitle, 
-                                   WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 
-                                   windowWidth, windowHeight, 0, 0, hInstance, 0);
+        s_instance.m_hWindow = CreateWindowExA(0, windowClass.lpszClassName, pWindowTitle, 
+                                               WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 
+                                               windowWidth, windowHeight, 0, 0, hInstance, 0);
         
-        if (m_hWindow) 
+        if (s_instance.m_hWindow) 
         {
-            m_shouldQuit = false;
+            s_instance.m_shouldQuit = false;
             
-            ShowWindow(m_hWindow, SW_SHOWNORMAL);
+            ShowWindow(s_instance.m_hWindow, SW_SHOWNORMAL);
             ShowCursor(showCursor);
             
             if (!useWindowBorders)
             {
                 // Remove the Windows window border
-                LONG windowStyle = GetWindowLong(m_hWindow, GWL_STYLE);
+                LONG windowStyle = GetWindowLong(s_instance.m_hWindow, GWL_STYLE);
                 windowStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-                SetWindowLongPtr(m_hWindow, GWL_STYLE, windowStyle);
+                SetWindowLongPtr(s_instance.m_hWindow, GWL_STYLE, windowStyle);
                 
-                LONG exWindowStyle = GetWindowLong(m_hWindow, GWL_EXSTYLE);
+                LONG exWindowStyle = GetWindowLong(s_instance.m_hWindow, GWL_EXSTYLE);
                 exWindowStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-                SetWindowLongPtr(m_hWindow, GWL_EXSTYLE, exWindowStyle);
+                SetWindowLongPtr(s_instance.m_hWindow, GWL_EXSTYLE, exWindowStyle);
                 
-                SetWindowPos(m_hWindow, nullptr, 0, 0, 0, 0,
+                SetWindowPos(s_instance.m_hWindow, nullptr, 0, 0, 0, 0,
                              SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE |
                              SWP_NOZORDER | SWP_NOOWNERZORDER);
             }
@@ -234,24 +225,24 @@ namespace Tange
 
     void PlatformManager::Shutdown()
     {
-        DestroyWindow(m_hWindow);
+        DestroyWindow(s_instance.m_hWindow);
     }
 
-    bool PlatformManager::ShouldQuit() const
+    bool PlatformManager::ShouldQuit()
     {
-        return m_shouldQuit;
+        return s_instance.m_shouldQuit;
     }
 
     void PlatformManager::ForceQuit()
     {
-       Get().m_shouldQuit = true;
+       s_instance.m_shouldQuit = true;
     }
 
-    Vec2 PlatformManager::GetRenderDimensions() const
+    Vec2 PlatformManager::GetRenderDimensions()
     {
         Vec2 result;
         RECT windowRect;
-        GetClientRect(m_hWindow, &windowRect);
+        GetClientRect(s_instance.m_hWindow, &windowRect);
         
         result.Width = (float) (windowRect.right - windowRect.left);
         result.Height = (float) (windowRect.bottom - windowRect.top);
@@ -259,8 +250,8 @@ namespace Tange
         return result;
     }
 
-    WindowHandle PlatformManager::GetWindow() const
+    WindowHandle PlatformManager::GetWindow()
     {
-        return m_hWindow;
+        return s_instance.m_hWindow;
     }
 }

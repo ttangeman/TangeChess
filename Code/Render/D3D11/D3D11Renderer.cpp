@@ -15,8 +15,7 @@ namespace Tange
 
     void IntializeRendererPipeline()
     {
-        auto& platform = PlatformManager::Get();
-        auto hWindow = platform.GetWindow();
+        auto hWindow = PlatformManager::GetWindow();
 
         // Initialize D3D swap chain and devices.
         HRESULT result;
@@ -64,7 +63,7 @@ namespace Tange
         
         // Clear the back buffer and adjust the view port.
         ClearRenderTarget();
-        SetViewport(platform.GetRenderDimensions());
+        SetViewport(PlatformManager::GetRenderDimensions());
         
         // Initialize texture sampler.
         ID3D11SamplerState* pDefaultSampler;
@@ -130,9 +129,8 @@ namespace Tange
 
     void SetShader(const std::string& shaderName)
     {
-        auto& resourceManager = ResourceManager::Get();
-        auto hShader = resourceManager.ShaderLocator.GetResourceHandle(shaderName);
-        const Shader& shader = resourceManager.ShaderLocator.LookupResource(hShader);
+        auto hShader = ResourceManager::ShaderLocator.GetResourceHandle(shaderName);
+        const Shader& shader = ResourceManager::ShaderLocator.LookupResource(hShader);
         
         g_pDeviceContext->VSSetShader(shader.pVertexShader, nullptr, 0);
         g_pDeviceContext->PSSetShader(shader.pPixelShader, nullptr, 0);
@@ -154,7 +152,7 @@ namespace Tange
 
     Vec2 GetDrawRegion()
     {
-        return PlatformManager::Get().GetRenderDimensions();
+        return PlatformManager::GetRenderDimensions();
     }
 
     void ResizeWindow(float desiredWidth, float desiredHeight)

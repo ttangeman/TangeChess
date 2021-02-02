@@ -19,6 +19,8 @@ namespace Tange
         Vec3 Scale;
 
         Transformable();
+        Transformable(Transformable&& other);
+        Transformable(const Transformable&) = default;
 
         // Changes to orthographic mode.
         void SetOrthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ);

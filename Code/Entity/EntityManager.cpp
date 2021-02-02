@@ -2,15 +2,11 @@
 
 namespace Tange
 {
-    EntityManager& EntityManager::Get()
-    {
-        static EntityManager instance;
-        return instance;
-    }
+    EntityManager EntityManager::s_instance;
 
     EntityManager::~EntityManager()
     {
-        for (auto pComponent : m_componentSystems)
+        for (auto pComponent : s_instance.m_componentSystems)
         {
             delete pComponent;
         }
@@ -19,7 +15,7 @@ namespace Tange
     Entity EntityManager::RegisterEntity()
     {
         Entity entity = {};
-        entity.Id = m_entityAccumulator++;
+        entity.Id = s_instance.m_entityAccumulator++;
         entity.Index = entity.Id - 1;
         ASSERT(entity.Id < MaxEntityCount);
         return entity;
@@ -27,7 +23,7 @@ namespace Tange
 
     void EntityManager::DestroyEntity(Entity& entity)
     {
-        for (auto pComponent : m_componentSystems)
+        for (auto pComponent : s_instance.m_componentSystems)
         {
             pComponent->DestroyEntity(entity);
         }
@@ -43,14 +39,14 @@ namespace Tange
         if (!T::IsInitialized())
         {
             auto* pComponentArray = new ComponentArray<T, MaxEntityCount>();
-            m_componentSystems.push_back(pComponentArray);
+            s_instance.m_componentSystems.push_back(pComponentArray);
         }
     }
 
     template<typename T>
     T& EntityManager::AttachComponent(Entity entity)
     {
-        auto* pComponents = GetComponentArray<T>();
+        auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
         component.Entity = entity;
         return component;
@@ -59,25 +55,24 @@ namespace Tange
     template<typename T>
     T& EntityManager::GetComponent(Entity entity)
     {
-        auto* pComponents = GetComponentArray<T>();
+        auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
         // Make sure we are not referencing a entity that's not attached/stale.
         ASSERT(component.Entity == entity);
         return component;
     }
-
+    
     template<typename T>
     bool EntityManager::HasComponent(Entity entity)
     {
-        auto* pComponents = GetComponentArray<T>();
+        auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
         return component.Entity == entity;
     }
 
     template <typename T>
-    ComponentArray<T, EntityManager::MaxEntityCount>* EntityManager::GetComponentArray()
+    ComponentArray<T, EntityManager::MaxEntityCount>* EntityManager::CastComponentArray()
     {
-        int x = T::GetIndex();
-        return static_cast<ComponentArray<T, MaxEntityCount>*>(m_componentSystems.at(T::GetIndex()));
+        return static_cast<ComponentArray<T, MaxEntityCount>*>(s_instance.m_componentSystems.at(T::GetIndex()));
     }
 }

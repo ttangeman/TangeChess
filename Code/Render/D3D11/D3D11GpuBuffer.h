@@ -15,25 +15,23 @@ namespace Tange
         ID3D11Buffer* m_pBuffer;
 
     public:
+        GpuBuffer() = default;
+
         GpuBuffer(usize bufferSize)
         {
-            D3D11_BUFFER_DESC bufferDesc = {};
-            bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-            bufferDesc.ByteWidth = bufferSize;
-            // TODO: Constant buffers only currently.
-            // Make sure to change SetBuffer to!
-            bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-            bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-            HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, nullptr, &m_pBuffer);
-            CHECK_RESULT(result);
+            CreateBuffer(bufferSize);
         }
 
         ~GpuBuffer()
         {
-            SAFE_RELEASE(m_pBuffer);
+            ReleaseBuffer();
         }
 
+        GpuBuffer(const GpuBuffer& copy)
+        {
+            std::memcpy(this, &copy, sizeof(*this));
+        }
+        
         GpuBuffer(GpuBuffer&& other)
         {
             this->m_pBuffer = other.m_pBuffer;
@@ -70,6 +68,26 @@ namespace Tange
                     g_pDeviceContext->GSSetConstantBuffers(slot, 1, &m_pBuffer);
                 break;
             }
+        }
+
+    private:
+        void CreateBuffer(usize bufferSize)
+        {
+            D3D11_BUFFER_DESC bufferDesc = {};
+            bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+            bufferDesc.ByteWidth = bufferSize;
+            // TODO: Constant buffers only currently.
+            // Make sure to change SetBuffer to!
+            bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+            HRESULT result = g_pDevice->CreateBuffer(&bufferDesc, nullptr, &m_pBuffer);
+            CHECK_RESULT(result);
+        }
+
+        void ReleaseBuffer()
+        {
+            SAFE_RELEASE(m_pBuffer);
         }
     };
 }

@@ -4,11 +4,10 @@ namespace Tange
 {
     Application::Application(const std::string& title, int32 width, int32 height)
     {
-        auto& platform = PlatformManager::Get();
-
         // NOTE: The platform manager initializes the event manager
         // and registers input events for us.
-        if (platform.InitializeAndCreateWindow(title.c_str(), width, height, true, true))
+        if (PlatformManager::InitializeAndCreateWindow(title.c_str(), width, 
+                                                       height, true, true))
         {
             m_timer = Stopwatch();
             // 60 hertz is default.
@@ -19,38 +18,31 @@ namespace Tange
             
             // Initialize the renderer.
             IntializeRendererPipeline();
-            auto &resourceManager = ResourceManager::Get();
+            
+            ResourceManager::SubmitMesh("DefaultQuad", DefaultQuad.Vertices,
+                                        Quad::VerticeCount, sizeof(Vertex));
 
-            resourceManager.SubmitMesh("DefaultQuad", DefaultQuad.Vertices,
-                                       Quad::VerticeCount, sizeof(Vertex));
-
-            // Register common entity components and events.
-            auto &entityManager = EntityManager::Get();
-            entityManager.RegisterComponent<Drawable>();
-            entityManager.RegisterComponent<Transformable>();
-            entityManager.RegisterComponent<MouseInteractable>();
-
-            auto& eventManager = EventManager::Get();
-            eventManager.RegisterEvent<UpdateEvent>();
-            eventManager.RegisterEvent<RenderEvent>();
+            // Register common entity components.
+            EntityManager::RegisterComponent<Drawable>();
+            EntityManager::RegisterComponent<Transformable>();
+            EntityManager::RegisterComponent<Dragable2D>();
+            EntityManager::RegisterComponent<Clickable2D>();
         }
     }
 
     Application::~Application()
     {
         ShutdownRendererPipeline();
-        PlatformManager::Get().Shutdown();
+        PlatformManager::Shutdown();
     }
 
     void Application::Run()
     {
-        auto& platform = PlatformManager::Get();
-
-        while (!platform.ShouldQuit())
+        while (!PlatformManager::ShouldQuit())
         {
             m_timer.Start();
 
-            platform.DispatchSystemMessages();
+            PlatformManager::DispatchSystemMessages();
             Update();
             Render();
 

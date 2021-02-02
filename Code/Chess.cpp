@@ -4,40 +4,34 @@ namespace Tange
 {
     static void LoadAllShaders()
     {
-        auto& resourceManager = ResourceManager::Get();
-
         FileData defaultVertexShader = FileManager::ReadEntireFile("Shaders/Default.vs.cso");
         FileData colorFillPixelShader = FileManager::ReadEntireFile("Shaders/Fullclear.ps.cso");
 
-        resourceManager.SubmitShader("PixelFill",
+        ResourceManager::SubmitShader("PixelFill",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      colorFillPixelShader.pData.get(), colorFillPixelShader.Size);
 
         FileData texturePixelShader = FileManager::ReadEntireFile("Shaders/Textured.ps.cso");
 
-        resourceManager.SubmitShader("Textured",
+        ResourceManager::SubmitShader("Textured",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      texturePixelShader.pData.get(), texturePixelShader.Size);
     }
 
     static void LoadAllTextures()
     {
-        auto& resourceManager = ResourceManager::Get();
-
         Image piecesImage;
         piecesImage.LoadBMP("Data/Pieces.bmp");
-        resourceManager.SubmitTexture("Texture/Pieces", piecesImage);
+        ResourceManager::SubmitTexture("Texture/Pieces", piecesImage);
 
         FileData fontFile = FileManager::ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
         FontAtlas fontAtlas;
         Image fontAtlasImage = fontAtlas.BuildFont(fontFile);
-        resourceManager.SubmitTexture("Texture/NotoSans-Bold", fontAtlasImage);
+        ResourceManager::SubmitTexture("Texture/NotoSans-Bold", fontAtlasImage);
     }
 
     static void InitializeChessMeshes()
     {
-        auto& resourceManager = ResourceManager::Get();
-
         // Due to the lack of having an actual mesh file to load,
         // all of the quads in the game are hard coded.
         Quad pieceQuads[UniquePieceCount];
@@ -54,7 +48,7 @@ namespace Tange
             pieceQuads[i] = DefaultQuad;
             pieceQuads[i].SetTexCoords(Vec2(minU, minV), Vec2(maxU, maxV));
 
-            resourceManager.SubmitMesh(PieceNames[i], pieceQuads[i].Vertices,
+            ResourceManager::SubmitMesh(PieceNames[i], pieceQuads[i].Vertices,
                                        Quad::VerticeCount, sizeof(Vertex));
         }
     }
@@ -63,10 +57,13 @@ namespace Tange
         : Application(title, width, height),
           m_gameState()
     {
-        m_menu.AddWidget<Panel>(Panel(Vec2(300, 300), Vec2(180, 360), Vec4(0, 0, 0, 0.7)));
+        m_menu.AddButton(Vec2(300, 300), Vec2(180, 360), Vec4(0, 0, 0, 0.7),
+                        []()
+                        {
+                            OutputDebugStringA("Button pressed");
+                        });
 
-        auto& eventManager = EventManager::Get();
-        eventManager.BindHandler<KeyReleased>(0, 
+        EventManager::BindHandler<KeyReleased>(0, 
         [this](const IEvent& event)
         {
             const auto& keyEvent = (const KeyReleased&)event;
@@ -99,16 +96,16 @@ namespace Tange
 
     void Chess::Update()
     {
-        auto& eventManager = EventManager::Get();
-        eventManager.Dispatch<UpdateEvent>(UpdateEvent());
+        m_menu.OnUpdate();
     }
 
     void Chess::Render()
     {
         FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
 
-        auto& eventManager = EventManager::Get();
-        eventManager.Dispatch<RenderEvent>(RenderEvent());
+        m_menu.OnRender();
+
+        SetShader("PixelFill");
 
         PresentFrame();
     }

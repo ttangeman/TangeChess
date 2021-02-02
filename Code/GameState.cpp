@@ -4,8 +4,7 @@ namespace Tange
 {
     GameState::GameState()
     {
-        auto &entityManager = EntityManager::Get();
-        entityManager.RegisterComponent<PieceComponent>();
+        EntityManager::RegisterComponent<PieceComponent>();
     }
 
     // Finds the "opposite" color of the specified color.
@@ -30,15 +29,13 @@ namespace Tange
             PieceType::King, PieceType::Bishop, PieceType::Knight, PieceType::Rook,
         };
 
-        auto& entityManager = EntityManager::Get();
-        
         // Fill the bottom two rows with the desired color.
         while (squareIndex < ColCount)
         {
-            Entity entity = entityManager.RegisterEntity();
-            auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
-            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+            Entity entity = EntityManager::RegisterEntity();
+            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
+            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
@@ -56,10 +53,10 @@ namespace Tange
         
         while (squareIndex < ColCount * 2)
         {
-            Entity entity = entityManager.RegisterEntity();
-            auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
-            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+            Entity entity = EntityManager::RegisterEntity();
+            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
+            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
@@ -82,10 +79,10 @@ namespace Tange
         
         while (squareIndex < ColCount * 7)
         {
-            Entity entity = entityManager.RegisterEntity();
-            auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
-            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+            Entity entity = EntityManager::RegisterEntity();
+            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
+            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
@@ -103,10 +100,10 @@ namespace Tange
         
         while (squareIndex < ColCount * 8)
         {
-            Entity entity = entityManager.RegisterEntity();
-            auto& transform = entityManager.AttachComponent<Transformable>(entity);
-            auto& drawable = entityManager.AttachComponent<Drawable>(entity);
-            auto& piece = entityManager.AttachComponent<PieceComponent>(entity);
+            Entity entity = EntityManager::RegisterEntity();
+            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
+            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
@@ -140,8 +137,7 @@ namespace Tange
 
     const std::string& GameState::GetPieceName(Entity entity) const
     {
-        auto& entityManager = EntityManager::Get();
-        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
+        auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
         return PieceNames[(int32)piece.Type * (int32)piece.Color];
     }
 
@@ -159,9 +155,8 @@ namespace Tange
 
     bool GameState::IsOccupiedSquare(Vec2 square, PieceColor color) const
     {
-        auto& entityManager = EntityManager::Get();
         auto entity = GetEntity(square);
-        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
+        auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
         
         if (!entity.IsValid())
         {
@@ -175,9 +170,8 @@ namespace Tange
         std::vector<PieceMove> validMoves;
         validMoves.reserve(16);
         
-        auto& entityManager = EntityManager::Get();
-        auto& piece = entityManager.GetComponent<PieceComponent>(entity);
-        auto& transform = entityManager.GetComponent<Transformable>(entity);
+        auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
+        auto& transform = EntityManager::GetComponent<Transformable>(entity);
         auto oppositeColor = FindOppositeColor(piece.Color);
 
         switch (piece.Type)
@@ -458,14 +452,12 @@ namespace Tange
     bool GameState::MovePiece(Entity entity, Vec2 desiredSquare, 
                               const std::vector<PieceMove>& validMoveSet)
     {
-        auto& entityManager = EntityManager::Get();
-
         for (auto& it : validMoveSet)
         {
             // The desired square is valid if it is in the valid set!
             if (it.destinationSquare == desiredSquare)
             {
-                auto& transform = entityManager.GetComponent<Transformable>(entity);
+                auto& transform = EntityManager::GetComponent<Transformable>(entity);
                 
                 // NOTE: Need to synchronize the two positions!
                 transform.Position = desiredSquare;
@@ -473,7 +465,7 @@ namespace Tange
                 if (it.captureEntity.IsValid())
                 {
                     Entity captured = BoardState[IndexBoardState(desiredSquare)];
-                    entityManager.DestroyEntity(captured);
+                    EntityManager::DestroyEntity(captured);
                 }
 
                 BoardState[IndexBoardState(transform.Position)] = {};

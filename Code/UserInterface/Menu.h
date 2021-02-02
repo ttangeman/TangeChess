@@ -1,20 +1,26 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "UserInterface/Widgets.h"
+#include "Entity/EntityManager.h"
+#include "Render/Drawable.h"
+#include "Render/Transformable.h"
+#include "UserInterface/GuiComponents.h"
 
 namespace Tange
 {
     class Menu
     {
-        std::vector<std::unique_ptr<IWidget>> m_widgets;
+        std::vector<Entity> m_entities;
         bool m_visible = false;
 
     public:
-        template<typename T>
-        void AddWidget(T&& object);
+        void AddPanel(Vec2 position, Vec2 scale, Vec4 color);
+        void AddButton(Vec2 position, Vec2 scale, Vec4 color, 
+                       std::function<void()> callback);
 
-        // Show/hide the menu.
+        void OnUpdate();
+        void OnRender();
+
         void Show();
         void Hide();
         void ToggleVisibility();

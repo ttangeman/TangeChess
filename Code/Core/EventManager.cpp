@@ -2,11 +2,7 @@
 
 namespace Tange
 {
-    EventManager& EventManager::Get()
-    {
-        static EventManager instance;
-        return instance;
-    }
+    EventManager EventManager::s_instance;
 
     template<typename T>
     void EventManager::RegisterEvent()
@@ -18,7 +14,7 @@ namespace Tange
         {
             T::Initialize();
             std::vector<Handler> eventHandler;
-            m_eventHandlers.push_back(eventHandler);
+            s_instance.m_eventHandlers.push_back(eventHandler);
         }
     }
 
@@ -29,7 +25,7 @@ namespace Tange
 
         if (T::IsInitialized())
         {
-            auto& handlers = m_eventHandlers.at(T::GetIndex());
+            auto& handlers = s_instance.m_eventHandlers.at(T::GetIndex());
             handlers.emplace_back(Handler(id, callback));
         }
     }
@@ -37,7 +33,7 @@ namespace Tange
     template<typename T>
     void EventManager::DetachHandler(int32 id)
     {
-        auto& handlers = m_eventHandlers.at(T::GetIndex());
+        auto& handlers = s_instance.m_eventHandlers.at(T::GetIndex());
         
         for (auto i = 0; i < handlers.size(); i++)
         {
@@ -52,7 +48,7 @@ namespace Tange
 
     void EventManager::DetachAllHandlers(int32 id)
     {   
-        for (auto& handlers : m_eventHandlers)
+        for (auto& handlers : s_instance.m_eventHandlers)
         {
             for (auto i = 0; i < handlers.size(); i++)
             {
@@ -69,7 +65,7 @@ namespace Tange
     template<typename T>
     void EventManager::Dispatch(IEvent&& payload)
     {
-        for (auto& it : m_eventHandlers.at(T::GetIndex()))
+        for (auto& it : s_instance.m_eventHandlers.at(T::GetIndex()))
         {
             it.Callback(payload);
         }
@@ -78,7 +74,7 @@ namespace Tange
     template <typename T>
     void EventManager::DispatchTo(int32 id, IEvent&& payload)
     {
-        for (auto& it : m_eventHandlers.at(T::GetIndex()))
+        for (auto& it : s_instance.m_eventHandlers.at(T::GetIndex()))
         {
             if (it.Id == id)
             {

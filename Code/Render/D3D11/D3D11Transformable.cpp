@@ -4,7 +4,13 @@ namespace Tange
 {
     Transformable::Transformable()
     {
-        m_transform.pTransformBuffer = std::make_unique<GpuBuffer>(sizeof(TransformData));
+        m_transform.pTransformBuffer = std::make_shared<GpuBuffer>(sizeof(TransformData));
+    }
+
+    Transformable::Transformable(Transformable&& other)
+    {
+        std::memcpy(this, &other, sizeof(*this));
+        std::memset(&other, 0, sizeof(*this));
     }
 
     void Transformable::SetOrthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ)

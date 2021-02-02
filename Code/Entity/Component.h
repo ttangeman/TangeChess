@@ -38,9 +38,10 @@ namespace Tange
             }
         }
 
-    protected:
-        ~Component()
+        void Release()
         {
+            // Clearing the entity releases the component.
+            Entity = {};
         }
     };
 }

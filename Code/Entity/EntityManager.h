@@ -10,11 +10,13 @@ namespace Tange
 {  
     struct IComponentSystem
     {
-        virtual void DestroyEntity(Entity entity) = 0;
+        IComponentSystem() = default;
 
         virtual ~IComponentSystem()
         {
         }
+
+        virtual void DestroyEntity(Entity entity) = 0;
     };
 
     template<typename T, int32 ArraySize>
@@ -28,15 +30,17 @@ namespace Tange
         {
             return Components.at(entity.Index);
         }
-    
+
         void DestroyEntity(Entity entity) override
         {
-            Components.at(entity.Index).Entity = {};
+            Components.at(entity.Id).Release();
         }
     };
 
     class EntityManager
     {
+        static EntityManager s_instance;
+
         // Used for assigning unique ids to enitties. Cannot be 0 as that
         // is the "invalid" entitiy.
         int32 m_entityAccumulator = 1;
@@ -49,38 +53,38 @@ namespace Tange
     public:
         static const int32 MaxEntityCount = 128;
 
-        static EntityManager& Get();
         ~EntityManager();
         EntityManager operator=(const EntityManager&) = delete;
         EntityManager(const EntityManager&) = delete;
 
         // Provides an entity with an unique id.
-        Entity RegisterEntity();
+        static Entity RegisterEntity();
 
         // Destroys any component references to the entity.
-        void DestroyEntity(Entity& entity);
+        static void DestroyEntity(Entity& entity);
 
         // Registers a component with the entity system.
         template<typename T>
-        void RegisterComponent();
+        static void RegisterComponent();
 
         // Attaches a component to an entity.
         template<typename T>
-        T& AttachComponent(Entity entity);
+        static T& AttachComponent(Entity entity);
 
         // Tries to get a component for an entity.
         // NOTE: If an entity did not have the component then the
         // call will fail and trigger an assertion.
         template<typename T>
-        T& GetComponent(Entity entity);
+        static T& GetComponent(Entity entity);
 
         // Checks to see if an entity has a component.
         template<typename T>
-        bool HasComponent(Entity entity);
+        static bool HasComponent(Entity entity);
 
     private:
+        // Helper for casting to the correct component array type.
         template <typename T>
-        ComponentArray<T, MaxEntityCount>* GetComponentArray();
+        static ComponentArray<T, MaxEntityCount>* CastComponentArray();
 
         EntityManager() = default;
     };

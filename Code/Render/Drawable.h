@@ -14,10 +14,12 @@ namespace Tange
     {
         Handle<Mesh> m_hMesh;
         Handle<Texture> m_hTexture;
-        std::unique_ptr<GpuBuffer> m_pColorBuffer;
+        std::shared_ptr<GpuBuffer> m_pColorBuffer;
 
     public:
         Drawable();
+        Drawable(Drawable&& other);
+        Drawable(const Drawable&) = default;
 
         // Attach resources to the object.
         void AttachMesh(const std::string& meshName);

@@ -101,7 +101,7 @@ namespace Tange
         // NOTE: Only projection needs to be stored.
         XMMATRIX Projection;
         // GPU relevant data.
-        std::unique_ptr<GpuBuffer> pTransformBuffer;
+        std::shared_ptr<GpuBuffer> pTransformBuffer;
     };
 #pragma pack(pop)
 }

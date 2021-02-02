@@ -10,7 +10,6 @@
 #include "Render/Transformable.h"
 #include "Render/Drawable.h"
 #include "Render/ResourceManager.h"
-#include "Entity/EntityEvents.h"
 
 // Unity build (single translation unit) includes.
 #include "Core/EventManager.cpp"
@@ -23,7 +22,6 @@
 #include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "Entity/EntityManager.cpp"
-#include "UserInterface/Widgets.cpp"
 #include "UserInterface/Menu.cpp"
 
 namespace Tange

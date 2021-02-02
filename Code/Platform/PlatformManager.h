@@ -35,35 +35,36 @@ namespace Tange
 
     class PlatformManager 
     {
+        static PlatformManager s_instance;
+
         // Platform-specific window handle.
         WindowHandle m_hWindow;
         std::atomic<bool> m_shouldQuit;
 
     public:
-        static PlatformManager& Get();
         PlatformManager(const PlatformManager&) = delete;
         void operator=(const PlatformManager&) = delete;
 
         // Finds the mouse position.
-        Vec2i CalculateMousePosition() const;
+        static Vec2i CalculateMousePosition();
         
         // Dispatches messages from the system to the event manager,
         // such as keyboard and mouse input.
-        void DispatchSystemMessages();
+        static void DispatchSystemMessages();
 
         // Initializes the OS and creates a window.
-        bool InitializeAndCreateWindow(const char* windowTitle, int32 windowWidth, int32 windowHeight, 
-                                       bool showCursor, bool windowBorders);
-        void Shutdown();
+        static bool InitializeAndCreateWindow(const char* windowTitle, int32 windowWidth, int32 windowHeight, 
+                                              bool showCursor, bool windowBorders);
+        static void Shutdown();
         
-        bool ShouldQuit() const;
+        static bool ShouldQuit();
 
         static void ForceQuit();
 
         // Finds the dimensions of the actual window client minus the border.
-        Vec2 GetRenderDimensions() const;
+        static Vec2 GetRenderDimensions();
         
-        WindowHandle GetWindow() const;
+        static WindowHandle GetWindow();
         
     private:
         PlatformManager() = default;

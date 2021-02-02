@@ -3,11 +3,11 @@
 
 namespace Tange
 {
-    ResourceManager& ResourceManager::Get()
-    {
-        static ResourceManager instance;
-        return instance;
-    }
+    ResourceManager ResourceManager::s_instance;
+    HandleMap<Mesh, 32> ResourceManager::MeshLocator;
+    HandleMap<Shader, 8> ResourceManager::ShaderLocator;
+    HandleMap<Texture, 8> ResourceManager::TextureLocator;
+
 
     ResourceManager::~ResourceManager()
     {
@@ -130,34 +130,34 @@ namespace Tange
     
     void ResourceManager::ReleaseMesh(const std::string& meshName)
     {
-        auto hMesh = MeshLocator.GetResourceHandle(meshName);
-        auto& mesh = MeshLocator.GetResource(hMesh);
+        auto hMesh = s_instance.MeshLocator.GetResourceHandle(meshName);
+        auto& mesh = s_instance.MeshLocator.GetResource(hMesh);
 
         SAFE_RELEASE(mesh.pVertexBuffer);
         SAFE_RELEASE(mesh.pIndexBuffer);
 
-        MeshLocator.ReleaseResource(meshName);
+        s_instance.MeshLocator.ReleaseResource(meshName);
     }
 
     void ResourceManager::ReleaseShader(const std::string& shaderName)
     {
-        auto hShader = ShaderLocator.GetResourceHandle(shaderName);
-        auto& shader = ShaderLocator.GetResource(hShader);
+        auto hShader = s_instance.ShaderLocator.GetResourceHandle(shaderName);
+        auto& shader = s_instance.ShaderLocator.GetResource(hShader);
 
         SAFE_RELEASE(shader.pVertexShader);
         SAFE_RELEASE(shader.pPixelShader);
         SAFE_RELEASE(shader.pInputLayout);
         
-        ShaderLocator.ReleaseResource(shaderName);
+        s_instance.ShaderLocator.ReleaseResource(shaderName);
     }
 
     void ResourceManager::ReleaseTexture(const std::string& textureName)
     {
-        auto hTexture = TextureLocator.GetResourceHandle(textureName);
-        auto& texture = TextureLocator.GetResource(hTexture);
+        auto hTexture = s_instance.TextureLocator.GetResourceHandle(textureName);
+        auto& texture = s_instance.TextureLocator.GetResource(hTexture);
 
         SAFE_RELEASE(texture.pTextureView);
 
-        TextureLocator.ReleaseResource(textureName);
+        s_instance.TextureLocator.ReleaseResource(textureName);
     }
 }

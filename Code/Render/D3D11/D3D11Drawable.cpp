@@ -5,17 +5,23 @@ namespace Tange
 {
     Drawable::Drawable()
     {
-        m_pColorBuffer = std::make_unique<GpuBuffer>(sizeof(Vec4));
+        m_pColorBuffer = std::make_shared<GpuBuffer>(sizeof(Vec4));
+    }
+    
+    Drawable::Drawable(Drawable&& other)
+    {
+        std::memcpy(this, &other, sizeof(*this));
+        std::memset(&other, 0, sizeof(*this));
     }
 
     void Drawable::AttachMesh(const std::string& meshName)
     {
-        m_hMesh = ResourceManager::Get().MeshLocator.GetResourceHandle(meshName);
+        m_hMesh = ResourceManager::MeshLocator.GetResourceHandle(meshName);
     }
 
     void Drawable::AttachTexture(const std::string& textureName)
     {
-        m_hTexture = ResourceManager::Get().TextureLocator.GetResourceHandle(textureName);
+        m_hTexture = ResourceManager::TextureLocator.GetResourceHandle(textureName);
     }
 
     void Drawable::SetColor(Vec4 color)
@@ -27,8 +33,7 @@ namespace Tange
 
     void Drawable::OnRender()
     {
-        const auto& resourceManager = ResourceManager::Get();
-        const Mesh& mesh = resourceManager.MeshLocator.LookupResource(m_hMesh);
+        const Mesh& mesh = ResourceManager::MeshLocator.LookupResource(m_hMesh);
 
         g_pDeviceContext->IASetVertexBuffers(mesh.VertexBufferSlot, mesh.VertexBufferCount, 
                                              &mesh.pVertexBuffer, &mesh.VertexBufferStride, 
@@ -40,7 +45,7 @@ namespace Tange
 
         if (m_hTexture.IsValid())
         {
-            const auto& texture = resourceManager.TextureLocator.LookupResource(m_hTexture);
+            const auto& texture = ResourceManager::TextureLocator.LookupResource(m_hTexture);
             g_pDeviceContext->PSSetShaderResources(0, 1, &texture.pTextureView);
         }
 

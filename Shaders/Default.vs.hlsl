@@ -5,6 +5,11 @@ cbuffer Transforms: register(b0)
 	matrix Projection;
 };
 
+cbuffer Color : register(b1)
+{
+	float4 Color;
+};
+
 struct VertexIn 
 {
 	float4 Position : POSITION;
