@@ -13,20 +13,16 @@ namespace Tange
             // 60 hertz is default.
             m_desiredUpdateRate = 0.0167f;
             
-            // Initialize common singletons/subsystems.
-            FileManager::Get();
-            
             // Initialize the renderer.
             IntializeRendererPipeline();
-            
-            ResourceManager::SubmitMesh("DefaultQuad", DefaultQuad.Vertices,
-                                        Quad::VerticeCount, sizeof(Vertex));
+            ResourceManager::Initialize();
 
             // Register common entity components.
             EntityManager::RegisterComponent<Drawable>();
             EntityManager::RegisterComponent<Transformable>();
             EntityManager::RegisterComponent<Dragable2D>();
             EntityManager::RegisterComponent<Clickable2D>();
+            EntityManager::RegisterComponent<Outline2D>();
         }
     }
 

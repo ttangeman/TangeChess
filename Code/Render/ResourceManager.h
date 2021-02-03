@@ -21,6 +21,9 @@ namespace Tange
         ResourceManager operator=(const ResourceManager&) = delete;
         ResourceManager(const ResourceManager&) = delete;
 
+        // Initializes some default meshes.
+        static void Initialize();
+
         // Registers a mesh with the GPU under the provided name.
         static void SubmitMesh(const std::string& meshName, const void* pVertexData, 
                                usize vertexCount, usize vertexSize);

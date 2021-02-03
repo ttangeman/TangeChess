@@ -77,7 +77,12 @@ union Vec2
     float Data[2];
     
     Vec2() = default;
+    
     Vec2(float x, float y) : X(x), Y(y)
+    {
+    }
+
+    Vec2(float value) : X(value), Y(value)
     {
     }
 

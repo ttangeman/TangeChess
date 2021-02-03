@@ -45,7 +45,7 @@ namespace Tange
             float maxU = minU + pieceWidth;
             float maxV = minV + 0.5;
 
-            pieceQuads[i] = DefaultQuad;
+            pieceQuads[i] = Quad::DefaultQuad();
             pieceQuads[i].SetTexCoords(Vec2(minU, minV), Vec2(maxU, maxV));
 
             ResourceManager::SubmitMesh(PieceNames[i], pieceQuads[i].Vertices,
@@ -57,11 +57,11 @@ namespace Tange
         : Application(title, width, height),
           m_gameState()
     {
-        m_menu.AddButton(Vec2(300, 300), Vec2(180, 360), Vec4(0, 0, 0, 0.7),
-                        []()
-                        {
-                            OutputDebugStringA("Button pressed");
-                        });
+        m_menu.PushButton(Vec2(300, 300), Vec2(180, 360), true,
+        []()
+        {
+            OutputDebugStringA("Button pressed");
+        });
 
         EventManager::BindHandler<KeyReleased>(0, 
         [this](const IEvent& event)

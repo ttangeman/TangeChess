@@ -2,6 +2,22 @@
 
 namespace Tange
 {
+    Quad Quad::DefaultQuad()
+    {
+        Quad DefaultQuad =
+        {
+            Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
+            Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1),
+            Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
+
+            Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
+            Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0),
+            Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
+        };
+
+        return DefaultQuad;
+    }
+
     void Quad::SetTexCoords(Vec2 min, Vec2 max)
     {
         Vertices[0].TexCoord = Vec2(min.U, min.V);

@@ -48,7 +48,7 @@ namespace Tange
     {
         auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
-        component.Entity = entity;
+        component.BoundEntity = entity;
         return component;
     }
 
@@ -58,7 +58,7 @@ namespace Tange
         auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
         // Make sure we are not referencing a entity that's not attached/stale.
-        ASSERT(component.Entity == entity);
+        ASSERT(component.BoundEntity == entity);
         return component;
     }
     
@@ -67,7 +67,7 @@ namespace Tange
     {
         auto* pComponents = CastComponentArray<T>();
         T& component = pComponents->GetComponent(entity);
-        return component.Entity == entity;
+        return component.BoundEntity == entity;
     }
 
     template <typename T>

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Entity/Entity.h"
 #include "Entity/Component.h"
 
 // TODO: Need to add a free list to reuse destroyed entity slots.

@@ -6,6 +6,11 @@
 
 namespace Tange
 {
+    struct Outline2D : public Component<Outline2D>
+    {
+        float Thickness;
+    };
+
     struct Dragable2D : public Component<Dragable2D>
     {
         Rect BoundingBox;
@@ -32,12 +37,12 @@ namespace Tange
         
         void BindMouseMoved()
         {
-            EventManager::BindHandler<MouseMoved>(Entity.Id,
+            EventManager::BindHandler<MouseMoved>(BoundEntity.Id,
             [this](const IEvent &event)
             {
                 const auto& mouseEvent = static_cast<const MouseMoved&>(event);
 
-                auto& transform = EntityManager::GetComponent<Transformable>(Entity);
+                auto& transform = EntityManager::GetComponent<Transformable>(BoundEntity);
                 
                 Vec2i mousePosition = PlatformManager::CalculateMousePosition();
 
@@ -53,7 +58,7 @@ namespace Tange
         
         void BindInputHandlers()
         {
-            EventManager::BindHandler<MouseClicked>(Entity.Id,
+            EventManager::BindHandler<MouseClicked>(BoundEntity.Id,
             [this](const IEvent& event)
             {
                 const auto& mouseEvent = static_cast<const MouseClicked&>(event);
@@ -71,19 +76,19 @@ namespace Tange
                 }
             });
 
-            EventManager::BindHandler<MouseReleased>(Entity.Id,
+            EventManager::BindHandler<MouseReleased>(BoundEntity.Id,
             [this](const IEvent &event) 
             {
                 const auto& mouseEvent = static_cast<const MouseReleased&>(event);
 
                 if (mouseEvent.Button == InputEvent::LeftClick)
                 {
-                    auto& transform = EntityManager::GetComponent<Transformable>(Entity);
+                    auto& transform = EntityManager::GetComponent<Transformable>(BoundEntity);
 
                     // Only need to update the bounding box when the panel is let go.
                     ComputeBoundingBox(transform.Position, transform.Scale);
                     
-                    EventManager::DetachHandler<MouseMoved>(Entity.Id);
+                    EventManager::DetachHandler<MouseMoved>(BoundEntity.Id);
                 }
             });
         }
@@ -115,7 +120,7 @@ namespace Tange
 
         void BindInputHandlers()
         {
-            EventManager::BindHandler<MouseReleased>(Entity.Id,
+            EventManager::BindHandler<MouseReleased>(BoundEntity.Id,
             [this](const IEvent& event)
             {
                 const auto& mouseEvent = static_cast<const MouseReleased&>(event);

@@ -15,8 +15,6 @@ namespace Tange
     class FileManager
     {
     public:
-        static FileManager& Get();
-
         // Reads the entire file into the heap and returns the data (a shared pointer and the size).
         static FileData ReadEntireFile(const std::string& fileName);
     };

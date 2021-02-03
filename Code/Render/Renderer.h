@@ -17,7 +17,7 @@ namespace Tange
 
     // Initializes the renderer.
     void IntializeRendererPipeline();
-
+    
     // Shutsdown the renderer.
     void Shutdown();
     

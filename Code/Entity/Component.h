@@ -18,7 +18,7 @@ namespace Tange
     public:
         // Used for validating entities and binding entity ids
         // to event handlers.
-        Entity Entity;
+        Entity BoundEntity;
 
         static int32 GetIndex()
         {
@@ -41,7 +41,7 @@ namespace Tange
         void Release()
         {
             // Clearing the entity releases the component.
-            Entity = {};
+            BoundEntity = {};
         }
     };
 }

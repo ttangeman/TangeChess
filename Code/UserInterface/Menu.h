@@ -11,12 +11,17 @@ namespace Tange
     class Menu
     {
         std::vector<Entity> m_entities;
+        Vec4 m_baseColor = Vec4(0, 0, 0, 1);
+        Vec4 m_outlineColor = Vec4(1, 1, 1, 1);
         bool m_visible = false;
 
     public:
-        void AddPanel(Vec2 position, Vec2 scale, Vec4 color);
-        void AddButton(Vec2 position, Vec2 scale, Vec4 color, 
-                       std::function<void()> callback);
+        void SetBaseColor(Vec4 color);
+        void SetOutlineColor(Vec4 color);
+
+        void PushRect(Vec2 position, Vec2 scale, bool outline);
+        void PushButton(Vec2 position, Vec2 scale, bool outline,
+                        std::function<void()> callback);
 
         void OnUpdate();
         void OnRender();

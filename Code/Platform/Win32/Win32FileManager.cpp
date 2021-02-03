@@ -2,12 +2,6 @@
 
 namespace Tange
 {
-    FileManager& FileManager::Get()
-    {
-        static FileManager instance;
-        return instance;
-    }
-
     FileData FileManager::ReadEntireFile(const std::string& fileName)
     {
         HANDLE hFile = CreateFileA(fileName.c_str(), GENERIC_READ, 0, 

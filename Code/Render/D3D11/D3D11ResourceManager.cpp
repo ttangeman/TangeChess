@@ -8,7 +8,6 @@ namespace Tange
     HandleMap<Shader, 8> ResourceManager::ShaderLocator;
     HandleMap<Texture, 8> ResourceManager::TextureLocator;
 
-
     ResourceManager::~ResourceManager()
     {
         for (auto& mesh : MeshLocator.Resources)
@@ -28,6 +27,14 @@ namespace Tange
         {
             SAFE_RELEASE(texture.pTextureView);
         }
+    }
+
+    void ResourceManager::Initialize()
+    {
+        Quad defaultQuad = Quad::DefaultQuad();
+
+        SubmitMesh("DefaultQuad", defaultQuad.Vertices,
+                   Quad::VerticeCount, sizeof(Vertex));
     }
     
     void ResourceManager::SubmitMesh(const std::string& meshName, const void* pVertexData, 

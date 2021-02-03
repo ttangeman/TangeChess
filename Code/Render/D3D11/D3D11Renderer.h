@@ -40,19 +40,9 @@ namespace Tange
         static const int32 VerticeCount = 6;
 
         Vertex Vertices[VerticeCount];
-
+        
+        static Quad DefaultQuad();
         void SetTexCoords(Vec2 minUV, Vec2 maxUV);
-    };
-
-    static const Quad DefaultQuad =
-    {
-        Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
-        Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1),
-        Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
-
-        Vec3(0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 1),
-        Vec3(0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(1, 0),
-        Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
     };
 
     struct Mesh
