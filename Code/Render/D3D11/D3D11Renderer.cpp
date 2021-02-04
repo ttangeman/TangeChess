@@ -4,7 +4,7 @@ namespace Tange
 {
     Quad Quad::DefaultQuad()
     {
-        Quad DefaultQuad =
+        Quad defaultQuad =
         {
             Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
             Vec3(-0.5, 0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 1),
@@ -15,7 +15,24 @@ namespace Tange
             Vec3(-0.5, -0.5, 1.0), Vec4(0, 0, 0, 1), Vec2(0, 0),
         };
 
-        return DefaultQuad;
+        return defaultQuad;
+    }
+
+    Quad Quad::CreatePreTransformed(Vec2 minPosition, Vec2 maxPosition, 
+                                    Vec4 color, Vec2 minUV, Vec2 maxUV)
+    {
+        Quad result =
+        {
+            Vec3(minPosition.X, minPosition.Y, 1.0), color, Vec2(minUV.U, minUV.V),
+            Vec3(minPosition.X, maxPosition.Y, 1.0), color, Vec2(minUV.U, maxUV.V),
+            Vec3(maxPosition.X, maxPosition.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
+
+            Vec3(maxPosition.X, maxPosition.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
+            Vec3(maxPosition.X, minPosition.Y, 1.0), color, Vec2(maxUV.U, minUV.V),
+            Vec3(minPosition.X, minPosition.Y, 1.0), color, Vec2(minUV.U, minUV.V),
+        };
+
+        return result;
     }
 
     void Quad::SetTexCoords(Vec2 min, Vec2 max)

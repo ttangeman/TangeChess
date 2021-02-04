@@ -15,6 +15,7 @@ namespace Tange
         // Texture coordinates for the glyph in the texture atlas.
         Vec2 MinTexCoords;
         Vec2 MaxTexCoords;
+        Vec2 GlyphSize;
         // X and Y bearing.
         int32 OffsetX;
         int32 OffsetY;
@@ -29,13 +30,17 @@ namespace Tange
         GlyphInfo m_glyphInfos[GlyphCount];
         
         public:
+        int32 GlyphSize;
+        std::string FontName;
 
         // Builds a font atlas for the specificed font.
         // Returns the image for the atlas, which should be submitted to the GPU
         // as a texture (NOTE: it is a monochrome bitmap). Also builds the glyph
         // information which is used to place glyphs correctly and gets the texture
         // coordinates for the glyph.
-        Image BuildFont(const FileData& fontFile, int32 glyphSize = 64);
+        Image BuildFont(const FileData& fontFile, 
+                        const std::string& fontName, 
+                        int32 glyphSize = 64);
 
         // Grabs the glyph information for the specififed character.
         const GlyphInfo& LookupGlyphInfo(char character) const;

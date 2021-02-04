@@ -11,6 +11,7 @@ namespace Tange
     class Chess : public Application
     {
         GameState m_gameState;
+        FontAtlas m_fontAtlas;
         Menu m_menu;
 
     public:    

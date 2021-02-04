@@ -42,6 +42,9 @@ namespace Tange
         Vertex Vertices[VerticeCount];
         
         static Quad DefaultQuad();
+        static Quad CreatePreTransformed(Vec2 minPosition, Vec2 maxPosition, 
+                                         Vec4 color, Vec2 minUV, Vec2 maxUV);
+
         void SetTexCoords(Vec2 minUV, Vec2 maxUV);
     };
 

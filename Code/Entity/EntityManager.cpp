@@ -9,6 +9,7 @@ namespace Tange
         for (auto pComponent : s_instance.m_componentSystems)
         {
             delete pComponent;
+            pComponent = nullptr;
         }
     }
 

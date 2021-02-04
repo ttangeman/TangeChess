@@ -3,9 +3,83 @@
 #include "Core/Common.h"
 #include "Entity/Component.h"
 #include "Entity/Entity.h"
+#include "Render/ResourceManager.h"
 
 namespace Tange
 {
+    struct Label : public Component<Label>
+    {
+        Entity TextEntity;
+        std::string Text;
+
+        void CreateLabel(const FontAtlas& atlas, const std::string& text, 
+                         Vec2 position, Vec4 color)
+        {
+            Text = text;
+            TextEntity = EntityManager::RegisterEntity();
+
+            Quad* quads = (Quad*)malloc(sizeof(Quad) * text.length());
+
+            float scale = 0.5;
+
+            for (auto i = 0; i < text.length(); i++)
+            {
+                const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
+
+                // NOTE: Y is offset by the glyph height to account for the bitmap being flipped.
+                Vec2 minPosition = Vec2(position.X + glyphInfo.OffsetX * scale, 
+                                        position.Y + (glyphInfo.OffsetY - glyphInfo.GlyphSize.Height) * scale);
+                Vec2 maxPosition = Vec2(minPosition.X + glyphInfo.GlyphSize.Width * scale,
+                                        minPosition.Y + glyphInfo.GlyphSize.Height * scale);
+
+                quads[i] = Quad::CreatePreTransformed(minPosition, maxPosition, color, 
+                                                      glyphInfo.MinTexCoords, 
+                                                      glyphInfo.MaxTexCoords);
+
+                position.X += glyphInfo.AdvanceX * scale;
+            }
+
+            ResourceManager::SubmitMesh(text, quads, 
+                                        Quad::VerticeCount * text.length(), 
+                                        sizeof(Vertex));
+
+            auto& drawable = EntityManager::AttachComponent<Drawable>(TextEntity);
+            drawable.AttachMesh(text);
+            drawable.AttachTexture(atlas.FontName);
+            drawable.SetColor(Vec4(1, 1, 1, 1));
+
+            auto& transform = EntityManager::AttachComponent<Transformable>(TextEntity);
+            transform.Scale = Vec3(1, 1, 1);
+            transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
+
+            free(quads);
+        }
+
+        // NOTE: Must be called explicitly.
+        void Destroy()
+        {
+            if (!Text.empty())
+            {
+                ResourceManager::ReleaseMesh(Text);
+            }
+
+            if (TextEntity.IsValid())
+            {
+                EntityManager::DestroyEntity(TextEntity);
+            }
+        }
+
+        void OnRender()
+        {
+            auto& drawable = EntityManager::GetComponent<Drawable>(TextEntity);
+            auto& transform = EntityManager::GetComponent<Transformable>(TextEntity);
+
+            transform.OnUpdate();
+            transform.OnRender();
+            drawable.OnRender();
+        }
+    };
+
     struct Outline2D : public Component<Outline2D>
     {
         float Thickness;

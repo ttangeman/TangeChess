@@ -28,8 +28,13 @@ namespace Tange
 
     // Based on: https://gist.github.com/baines/b0f9e4be04ba4e6f56cab82eef5008ff
     // Slightly modified to work with top-down bitmaps and to provide 0-1 UV coordinates.
-    Image FontAtlas::BuildFont(const FileData& fontFile, int32 glyphSize)
+    Image FontAtlas::BuildFont(const FileData& fontFile, 
+                               const std::string& fontName, 
+                               int32 glyphSize)
     {
+        GlyphSize = glyphSize;
+        FontName = fontName;
+
         FT_Library library;
         auto error = FT_Init_FreeType(&library);
         ASSERT(!error);
@@ -96,6 +101,7 @@ namespace Tange
             m_glyphInfos[i].MinTexCoords = Vec2(minX / (float)textureWidth, minY / (float)textureHeight);
             m_glyphInfos[i].MaxTexCoords = Vec2(maxX / (float)textureWidth, maxY / (float)textureHeight);
             // These are used for placing the glyph.
+            m_glyphInfos[i].GlyphSize = Vec2(bitmap.width, bitmap.rows);
             m_glyphInfos[i].OffsetX = face->glyph->bitmap_left;
             m_glyphInfos[i].OffsetY = face->glyph->bitmap_top;
             m_glyphInfos[i].AdvanceX = face->glyph->advance.x >> 6;

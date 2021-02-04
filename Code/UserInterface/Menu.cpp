@@ -2,6 +2,24 @@
 
 namespace Tange
 {
+    Menu::Menu(const FontAtlas& atlas)
+        : m_atlas(atlas)
+    {
+    }
+
+    Menu::~Menu()
+    {
+        for (auto entity : m_entities)
+        {
+            if (EntityManager::HasComponent<Label>(entity))
+            {
+                auto& label = EntityManager::GetComponent<Label>(entity);
+                label.Destroy();
+            }
+            EntityManager::DestroyEntity(entity);
+        }
+    }
+
     void Menu::SetBaseColor(Vec4 color)
     {
         m_baseColor = color;
@@ -12,8 +30,12 @@ namespace Tange
         m_outlineColor = color;
     }
 
-    // TODO: Use the same entity for outlines
-    void Menu::PushRect(Vec2 position, Vec2 scale, bool outline)
+    void Menu::SetTextColor(Vec4 color)
+    {
+        m_textColor = color;
+    }
+
+    void Menu::PushPanel(Vec2 position, Vec2 scale, float outlineThickness)
     {
         auto entity = EntityManager::RegisterEntity();
 
@@ -29,17 +51,17 @@ namespace Tange
         auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
         dragable.ComputeBoundingBox(transform.Position, transform.Scale);
 
-        if (outline)
+        if (outlineThickness > 0.0)
         {
             auto& outline2d = EntityManager::AttachComponent<Outline2D>(entity);
-            outline2d.Thickness = 2.0;
+            outline2d.Thickness = outlineThickness;
         }
 
         m_entities.emplace_back(entity);
     }
 
-    void Menu::PushButton(Vec2 position, Vec2 scale, bool outline,
-                          std::function<void()> callback) 
+    void Menu::PushButton(Vec2 position, Vec2 scale, float outlineThickness,
+                          const std::string& text, std::function<void()> callback) 
     {
         auto entity = EntityManager::RegisterEntity();
 
@@ -56,10 +78,19 @@ namespace Tange
         clickable.ComputeBoundingBox(transform.Position, transform.Scale);
         clickable.OnClick = callback;
 
-        if (outline)
+        if (outlineThickness > 0.0)
         {
             auto& outline2d = EntityManager::AttachComponent<Outline2D>(entity);
-            outline2d.Thickness = 2.0;
+            outline2d.Thickness = outlineThickness;
+        }
+
+        if (!text.empty())
+        {
+            auto& label = EntityManager::AttachComponent<Label>(entity);
+            // Align the text from the left of the button.
+            Vec2 textPosition = Vec2(transform.Position.X - transform.Scale.X / 2, 
+                                     transform.Position.Y - transform.Scale.Y / 2);
+            label.CreateLabel(m_atlas, text, textPosition, m_textColor);
         }
 
         m_entities.emplace_back(entity);
@@ -83,6 +114,7 @@ namespace Tange
         {
             for (auto entity : m_entities)
             {
+                SetShader("PixelFill");
                 auto& transform = EntityManager::GetComponent<Transformable>(entity);
                 auto& drawable = EntityManager::GetComponent<Drawable>(entity);
 
@@ -92,7 +124,7 @@ namespace Tange
                 // A tad janky, but the entity is reused to draw outlines.
                 // Ideally, a quad batching system would be used for a single mesh,
                 // but that is currently not implemented and that has issues of its own
-                // (have to modify the mesh instead of using transforms.)
+                // (have to modify the mesh instead of using transforms).
                 if (EntityManager::HasComponent<Outline2D>(entity))
                 {
                     auto& outline2d = EntityManager::GetComponent<Outline2D>(entity);
@@ -132,9 +164,17 @@ namespace Tange
                     transform.OnUpdate();
                     drawable.OnRender();
 
+                    // Reinstate the base state.
                     transform.Position = baseTransform.Position;
                     transform.Scale = baseTransform.Scale;
                     drawable.SetColor(m_baseColor);
+                }
+
+                if (EntityManager::HasComponent<Label>(entity))
+                {
+                    SetShader("Textured");
+                    auto& label = EntityManager::GetComponent<Label>(entity);
+                    label.OnRender();
                 }
             }
         }

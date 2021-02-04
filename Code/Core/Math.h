@@ -309,3 +309,30 @@ struct Rect
                 this->MaxCorner == operand.MaxCorner);
     }
 };
+
+inline float SafeRatioN(float numerator, float divisor, float value) 
+{
+    float result = value;
+    
+    if (divisor != 0.0) 
+    {
+        result = numerator / divisor;
+    }
+
+    return result;
+}
+
+inline float SafeRatio0(float numerator, float divisor) 
+{
+    return SafeRatioN(numerator, divisor, 0);
+}
+
+inline float SafeRatio1(float numerator, float divisor) 
+{
+    return SafeRatioN(numerator, divisor, 1);
+}
+
+inline float SafeInverse(float value) 
+{
+    return SafeRatio0(1.0, value);
+}

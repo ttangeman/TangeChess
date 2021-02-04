@@ -18,16 +18,15 @@ namespace Tange
                                      texturePixelShader.pData.get(), texturePixelShader.Size);
     }
 
-    static void LoadAllTextures()
+    static void LoadAllTextures(FontAtlas& atlas)
     {
         Image piecesImage;
         piecesImage.LoadBMP("Data/Pieces.bmp");
         ResourceManager::SubmitTexture("Texture/Pieces", piecesImage);
 
         FileData fontFile = FileManager::ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
-        FontAtlas fontAtlas;
-        Image fontAtlasImage = fontAtlas.BuildFont(fontFile);
-        ResourceManager::SubmitTexture("Texture/NotoSans-Bold", fontAtlasImage);
+        Image fontAtlasImage = atlas.BuildFont(fontFile, "NotoSans-Bold");
+        ResourceManager::SubmitTexture(atlas.FontName, fontAtlasImage);
     }
 
     static void InitializeChessMeshes()
@@ -55,13 +54,12 @@ namespace Tange
 
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Application(title, width, height),
+          m_menu(m_fontAtlas),
           m_gameState()
     {
-        m_menu.PushButton(Vec2(300, 300), Vec2(180, 360), true,
-        []()
-        {
-            OutputDebugStringA("Button pressed");
-        });
+        LoadAllShaders();
+        LoadAllTextures(m_fontAtlas);
+        InitializeChessMeshes();
 
         EventManager::BindHandler<KeyReleased>(0, 
         [this](const IEvent& event)
@@ -82,10 +80,15 @@ namespace Tange
                 m_menu.ToggleVisibility();
             }
         });
+        
+        m_menu.SetBaseColor(Vec4(0, 0, 0, 0.7));
+        m_menu.SetOutlineColor(Vec4(0.95, 0.89, 0.71, 0.9));
 
-        LoadAllShaders();
-        LoadAllTextures();
-        InitializeChessMeshes();
+        m_menu.PushButton(Vec2(300, 300), Vec2(135, 50), 2.0, "Click me",
+        []()
+        {
+            OutputDebugStringA("Button pressed");
+        });
 
         m_gameState.StartGame(PieceColor::White);
     }        

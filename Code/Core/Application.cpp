@@ -23,6 +23,7 @@ namespace Tange
             EntityManager::RegisterComponent<Dragable2D>();
             EntityManager::RegisterComponent<Clickable2D>();
             EntityManager::RegisterComponent<Outline2D>();
+            EntityManager::RegisterComponent<Label>();
         }
     }
 
