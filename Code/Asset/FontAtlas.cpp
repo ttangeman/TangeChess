@@ -32,7 +32,7 @@ namespace Tange
                                const std::string& fontName, 
                                int32 glyphSize)
     {
-        GlyphSize = glyphSize;
+        GlyphPixelSize = glyphSize;
         FontName = fontName;
 
         FT_Library library;
@@ -101,7 +101,7 @@ namespace Tange
             m_glyphInfos[i].MinTexCoords = Vec2(minX / (float)textureWidth, minY / (float)textureHeight);
             m_glyphInfos[i].MaxTexCoords = Vec2(maxX / (float)textureWidth, maxY / (float)textureHeight);
             // These are used for placing the glyph.
-            m_glyphInfos[i].GlyphSize = Vec2(bitmap.width, bitmap.rows);
+            m_glyphInfos[i].Size = Vec2(bitmap.width, bitmap.rows);
             m_glyphInfos[i].OffsetX = face->glyph->bitmap_left;
             m_glyphInfos[i].OffsetY = face->glyph->bitmap_top;
             m_glyphInfos[i].AdvanceX = face->glyph->advance.x >> 6;

@@ -11,9 +11,9 @@ namespace Tange
     {
         for (auto entity : m_entities)
         {
-            if (EntityManager::HasComponent<Label>(entity))
+            if (EntityManager::HasComponent<Text>(entity))
             {
-                auto& label = EntityManager::GetComponent<Label>(entity);
+                auto& label = EntityManager::GetComponent<Text>(entity);
                 label.Destroy();
             }
             EntityManager::DestroyEntity(entity);
@@ -48,8 +48,8 @@ namespace Tange
         transform.Position = position;
         transform.Scale = Vec3(scale.X, scale.Y, 0);
 
-        auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
-        dragable.ComputeBoundingBox(transform.Position, transform.Scale);
+        //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
+        //dragable.ComputeBoundingBox(transform.Position, transform.Scale);
 
         if (outlineThickness > 0.0)
         {
@@ -86,11 +86,11 @@ namespace Tange
 
         if (!text.empty())
         {
-            auto& label = EntityManager::AttachComponent<Label>(entity);
-            // Align the text from the left of the button.
-            Vec2 textPosition = Vec2(transform.Position.X - transform.Scale.X / 2, 
-                                     transform.Position.Y - transform.Scale.Y / 2);
-            label.CreateLabel(m_atlas, text, textPosition, m_textColor);
+            auto& label = EntityManager::AttachComponent<Text>(entity);
+            // TODO: Programmatically try to center the text.
+            Vec2 textPosition = Vec2(transform.Position.X - transform.Scale.X * 0.25,
+                                     transform.Position.Y - transform.Scale.Y * 0.2);
+            label.CreateText(m_atlas, text, textPosition, m_textColor, 12);
         }
 
         m_entities.emplace_back(entity);
@@ -115,6 +115,7 @@ namespace Tange
             for (auto entity : m_entities)
             {
                 SetShader("PixelFill");
+
                 auto& transform = EntityManager::GetComponent<Transformable>(entity);
                 auto& drawable = EntityManager::GetComponent<Drawable>(entity);
 
@@ -170,10 +171,10 @@ namespace Tange
                     drawable.SetColor(m_baseColor);
                 }
 
-                if (EntityManager::HasComponent<Label>(entity))
+                if (EntityManager::HasComponent<Text>(entity))
                 {
                     SetShader("Textured");
-                    auto& label = EntityManager::GetComponent<Label>(entity);
+                    auto& label = EntityManager::GetComponent<Text>(entity);
                     label.OnRender();
                 }
             }

@@ -31,7 +31,7 @@ namespace Tange
 
     void ResourceManager::Initialize()
     {
-        Quad defaultQuad = Quad::DefaultQuad();
+        Quad defaultQuad = Quad::Default();
 
         SubmitMesh("DefaultQuad", defaultQuad.Vertices,
                    Quad::VerticeCount, sizeof(Vertex));

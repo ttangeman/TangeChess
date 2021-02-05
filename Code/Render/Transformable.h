@@ -14,9 +14,9 @@ namespace Tange
         
     public:
         // TODO: Switch to 3D.
-        Vec2 Position;
-        Vec3 Orientation;
-        Vec3 Scale;
+        Vec2 Position = Vec2(0, 0);
+        Vec3 Orientation = Vec3(0, 0, 0);
+        Vec3 Scale = Vec3(1, 1, 1);
 
         Transformable();
         Transformable(Transformable&& other);

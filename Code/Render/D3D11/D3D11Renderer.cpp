@@ -2,7 +2,7 @@
 
 namespace Tange
 {
-    Quad Quad::DefaultQuad()
+    Quad Quad::Default()
     {
         Quad defaultQuad =
         {
@@ -118,6 +118,7 @@ namespace Tange
         
         ID3D11BlendState* pBlendState;
         D3D11_BLEND_DESC blendDesc = {};
+        //blendDesc.AlphaToCoverageEnable = true;
         blendDesc.RenderTarget[0].BlendEnable = true;
         blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
         blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;

@@ -41,8 +41,7 @@ namespace Tange
             piece.Type = standardPieceRow[squareIndex % ColCount];
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
-            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
-            transform.Scale = Vec3(1, 1, 0);
+            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
             BoardState[squareIndex] = entity;
@@ -62,8 +61,7 @@ namespace Tange
             piece.Type = PieceType::Pawn;
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
-            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
-            transform.Scale = Vec3(1, 1, 0);
+            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
             BoardState[squareIndex] = entity;
@@ -84,12 +82,11 @@ namespace Tange
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
-            piece.Color = desiredColor;
+            piece.Color = FindOppositeColor(desiredColor);
             piece.Type = PieceType::Pawn;
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
-            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
-            transform.Scale = Vec3(1, 1, 0);
+            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
             BoardState[squareIndex] = entity;
@@ -105,12 +102,11 @@ namespace Tange
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
 
-            piece.Color = desiredColor;
+            piece.Color = FindOppositeColor(desiredColor);
             piece.Type = standardPieceRow[squareIndex % ColCount];
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
-            transform.Position = Vec2(squareIndex % ColCount, squareIndex / RowCount);
-            transform.Scale = Vec3(1, 1, 0);
+            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
             BoardState[squareIndex] = entity;
@@ -127,7 +123,7 @@ namespace Tange
     // Converts a 2D square index into a 1D index for the board state.
     static int32 IndexBoardState(Vec2 square)
     {
-        return square.Y * ColCount + square.X; 
+        return (square.Y - 1) * ColCount + (square.X - 1); 
     }
 
     Entity GameState::GetEntity(Vec2 square) const
@@ -138,13 +134,13 @@ namespace Tange
     const std::string& GameState::GetPieceName(Entity entity) const
     {
         auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
-        return PieceNames[(int32)piece.Type * (int32)piece.Color];
+        return PieceNames[(int32)piece.Type + ((int32)piece.Color * 6)];
     }
 
     bool GameState::IsValidSquare(Vec2 square) const
     {
-        return ((square.X <= 7 && square.X >= 0) &&
-                (square.Y <= 7 && square.Y >= 0)) ?
+        return ((square.X <= 8 && square.X >= 1) &&
+                (square.Y <= 8 && square.Y >= 1)) ?
                 true : false;
     }
     

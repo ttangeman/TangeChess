@@ -13,6 +13,7 @@ namespace Tange
         GameState m_gameState;
         FontAtlas m_fontAtlas;
         Menu m_menu;
+        Entity m_boardEntity;
 
     public:    
         Chess() = delete;

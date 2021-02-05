@@ -6,6 +6,9 @@ namespace Tange
     Drawable::Drawable()
     {
         m_pColorBuffer = std::make_shared<GpuBuffer>(sizeof(Vec4));
+
+        // Set the buffer to a sane default.
+        SetColor(Vec4(0, 0, 0, 1));
     }
     
     Drawable::Drawable(Drawable&& other)
@@ -26,8 +29,8 @@ namespace Tange
 
     void Drawable::SetColor(Vec4 color)
     {
-        auto* buffer = static_cast<Vec4*>(m_pColorBuffer->MapBuffer());
-        buffer[0] = color;
+        auto* pBuffer = static_cast<Vec4*>(m_pColorBuffer->MapBuffer());
+        pBuffer[0] = color;
         m_pColorBuffer->Unmap();
     }
 

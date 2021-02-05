@@ -28,7 +28,7 @@ namespace Tange
         "WhiteBishop",
         "WhiteKnight",
         "WhiteRook",
-        "WhiteBishop",
+        "WhitePawn",
     };
     
     // NOTE: This order must match the PieceNames array!
@@ -45,8 +45,8 @@ namespace Tange
     // Values manually set to 1 and 2 for indexing PieceNames.
     enum class PieceColor
     {
-        White = 1,
-        Black = 2,
+        Black,
+        White,
     };
     
     struct PieceComponent : public Component<PieceComponent>

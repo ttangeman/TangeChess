@@ -7,20 +7,21 @@
 
 namespace Tange
 {
-    struct Label : public Component<Label>
+    class Text : public Component<Text>
     {
-        Entity TextEntity;
-        std::string Text;
+        Entity m_textEntity;
+        std::string m_text;
 
-        void CreateLabel(const FontAtlas& atlas, const std::string& text, 
-                         Vec2 position, Vec4 color)
+    public:
+        void CreateText(const FontAtlas& atlas, const std::string& text, 
+                         Vec2 position, Vec4 color, float pixelHeight)
         {
-            Text = text;
-            TextEntity = EntityManager::RegisterEntity();
+            m_text = text;
+            m_textEntity = EntityManager::RegisterEntity();
 
-            Quad* quads = (Quad*)malloc(sizeof(Quad) * text.length());
+            Quad* pQuads = (Quad*)malloc(sizeof(Quad) * text.length());
 
-            float scale = 0.5;
+            float scale = pixelHeight / atlas.GlyphPixelSize;
 
             for (auto i = 0; i < text.length(); i++)
             {
@@ -28,51 +29,50 @@ namespace Tange
 
                 // NOTE: Y is offset by the glyph height to account for the bitmap being flipped.
                 Vec2 minPosition = Vec2(position.X + glyphInfo.OffsetX * scale, 
-                                        position.Y + (glyphInfo.OffsetY - glyphInfo.GlyphSize.Height) * scale);
-                Vec2 maxPosition = Vec2(minPosition.X + glyphInfo.GlyphSize.Width * scale,
-                                        minPosition.Y + glyphInfo.GlyphSize.Height * scale);
+                                        position.Y + (glyphInfo.OffsetY - glyphInfo.Size.Height) * scale);
+                Vec2 maxPosition = Vec2(minPosition.X + glyphInfo.Size.Width * scale,
+                                        minPosition.Y + glyphInfo.Size.Height * scale);
 
-                quads[i] = Quad::CreatePreTransformed(minPosition, maxPosition, color, 
+                pQuads[i] = Quad::CreatePreTransformed(minPosition, maxPosition, color, 
                                                       glyphInfo.MinTexCoords, 
                                                       glyphInfo.MaxTexCoords);
 
                 position.X += glyphInfo.AdvanceX * scale;
             }
 
-            ResourceManager::SubmitMesh(text, quads, 
+            ResourceManager::SubmitMesh(text, pQuads, 
                                         Quad::VerticeCount * text.length(), 
                                         sizeof(Vertex));
 
-            auto& drawable = EntityManager::AttachComponent<Drawable>(TextEntity);
+            auto& drawable = EntityManager::AttachComponent<Drawable>(m_textEntity);
             drawable.AttachMesh(text);
             drawable.AttachTexture(atlas.FontName);
-            drawable.SetColor(Vec4(1, 1, 1, 1));
+            drawable.SetColor(Vec4(0, 0, 0, 1));
 
-            auto& transform = EntityManager::AttachComponent<Transformable>(TextEntity);
-            transform.Scale = Vec3(1, 1, 1);
+            auto& transform = EntityManager::AttachComponent<Transformable>(m_textEntity);
             transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
 
-            free(quads);
+            free(pQuads);
         }
 
         // NOTE: Must be called explicitly.
         void Destroy()
         {
-            if (!Text.empty())
+            if (!m_text.empty())
             {
-                ResourceManager::ReleaseMesh(Text);
+                ResourceManager::ReleaseMesh(m_text);
             }
 
-            if (TextEntity.IsValid())
+            if (m_textEntity.IsValid())
             {
-                EntityManager::DestroyEntity(TextEntity);
+                EntityManager::DestroyEntity(m_textEntity);
             }
         }
 
         void OnRender()
         {
-            auto& drawable = EntityManager::GetComponent<Drawable>(TextEntity);
-            auto& transform = EntityManager::GetComponent<Transformable>(TextEntity);
+            auto& drawable = EntityManager::GetComponent<Drawable>(m_textEntity);
+            auto& transform = EntityManager::GetComponent<Transformable>(m_textEntity);
 
             transform.OnUpdate();
             transform.OnRender();
