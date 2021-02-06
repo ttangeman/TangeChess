@@ -27,7 +27,7 @@ namespace Tange
             for (auto i = 0; i < text.length(); i++)
             {
                 const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
-
+                // NOTE: XAdvance accounts for spaces, glyphInfo.Size does not!
                 textLineWidth += glyphInfo.AdvanceX * scale;
             }
 
@@ -102,28 +102,49 @@ namespace Tange
         float Thickness;
     };
 
+    // TODO: Dragable is currently busted because it does not move text/outlines.
     struct Dragable2D : public Component<Dragable2D>
     {
-        Rect BoundingBox;
+        // The dimensions for the "click box".
+        Vec2 Position;
+        Vec2 Scale;
+
         Vec2i PreviousMousePosition;
+
+        void Initialize(Vec2 position, Vec2 scale)
+        {
+            Position = position;
+            Scale = scale;
+
+            EventManager::BindHandler<WindowResized>(BoundEntity.Id,
+            [this](const IEvent& event)
+            {
+                const auto& resizeEvent = static_cast<const WindowResized&>(event);
+
+                auto dScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
+                                   Scale.Height / resizeEvent.CurrentHeight);
+                Scale = Vec2(resizeEvent.DesiredWidth * dScale.Width,
+                             resizeEvent.DesiredHeight * dScale.Height);
+                
+                auto dPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
+                                      Position.Height / resizeEvent.CurrentHeight);
+                Position = Vec2(resizeEvent.DesiredWidth * dPosition.Width,
+                                resizeEvent.DesiredHeight * dPosition.Height);
+            });
+        }
 
         bool CollidesWith(Vec2i point)
         {
-            if ((point.X < BoundingBox.MaxCorner.X && 
-                point.Y < BoundingBox.MaxCorner.Y) &&
-                (point.X > BoundingBox.MinCorner.X &&
-                point.Y > BoundingBox.MinCorner.Y))
+            auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
+
+            if ((point.X < boundingBox.MaxCorner.X && 
+                point.Y < boundingBox.MaxCorner.Y) &&
+                (point.X > boundingBox.MinCorner.X &&
+                point.Y > boundingBox.MinCorner.Y))
             {
                 return true;
             } 
             return false;
-        }
-
-        void ComputeBoundingBox(Vec2 position, Vec3 scale)
-        {
-            // The scale _is_ the diameter.
-            Vec2 radius = Vec2(scale.X / 2.0, scale.Y / 2.0);
-            BoundingBox = Rect(position - radius, position + radius);
         }
         
         void BindMouseMoved()
@@ -144,6 +165,9 @@ namespace Tange
                 Vec2i dPosition = mousePosition - PreviousMousePosition;
                 PreviousMousePosition = mousePosition;
                 transform.Position += dPosition;
+
+                // Update the dragables position.
+                Position = transform.Position; 
             });
         }
         
@@ -174,39 +198,63 @@ namespace Tange
 
                 if (mouseEvent.Button == InputEvent::LeftClick)
                 {
-                    auto& transform = EntityManager::GetComponent<Transformable>(BoundEntity);
-
-                    // Only need to update the bounding box when the panel is let go.
-                    ComputeBoundingBox(transform.Position, transform.Scale);
-                    
                     EventManager::DetachHandler<MouseMoved>(BoundEntity.Id);
                 }
             });
+        }
+
+        void DetachInputHandlers()
+        {
+            EventManager::DetachHandler<MouseClicked>(BoundEntity.Id);
+            EventManager::DetachHandler<MouseReleased>(BoundEntity.Id);
+            EventManager::DetachHandler<MouseMoved>(BoundEntity.Id);
         }
     };
 
     struct Clickable2D : Component<Clickable2D>
     {
-        Rect BoundingBox;
+        // The dimensions for the "click box".
+        Vec2 Position;
+        Vec2 Scale;
+
         std::function<void()> OnClick;
+
+        void Initialize(Vec2 position, Vec2 scale, 
+                        const std::function<void()>& onClick)
+        {
+            Position = position;
+            Scale = scale;
+            OnClick = onClick;
+
+            EventManager::BindHandler<WindowResized>(BoundEntity.Id,
+            [this](const IEvent& event)
+            {
+                const auto& resizeEvent = static_cast<const WindowResized&>(event);
+
+                auto dScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
+                                   Scale.Height / resizeEvent.CurrentHeight);
+                Scale = Vec2(resizeEvent.DesiredWidth * dScale.Width,
+                             resizeEvent.DesiredHeight * dScale.Height);
+                
+                auto dPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
+                                      Position.Height / resizeEvent.CurrentHeight);
+                Position = Vec2(resizeEvent.DesiredWidth * dPosition.Width,
+                                resizeEvent.DesiredHeight * dPosition.Height);
+            });
+        }
 
         bool CollidesWith(Vec2i point)
         {
-            if ((point.X < BoundingBox.MaxCorner.X && 
-                point.Y < BoundingBox.MaxCorner.Y) &&
-                (point.X > BoundingBox.MinCorner.X &&
-                point.Y > BoundingBox.MinCorner.Y))
+            auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
+
+            if ((point.X < boundingBox.MaxCorner.X && 
+                point.Y < boundingBox.MaxCorner.Y) &&
+                (point.X > boundingBox.MinCorner.X &&
+                point.Y > boundingBox.MinCorner.Y))
             {
                 return true;
             } 
             return false;
-        }
-        
-        void ComputeBoundingBox(Vec2 position, Vec3 scale)
-        {
-            // The scale _is_ the diameter.
-            Vec2 radius = Vec2(scale.X / 2.0, scale.Y / 2.0);
-            BoundingBox = Rect(position - radius, position + radius);
         }
 
         void BindInputHandlers()
@@ -227,6 +275,11 @@ namespace Tange
                     }
                 }
             });
+        }
+
+        void DetachInputHandlers()
+        {
+            EventManager::DetachHandler<MouseReleased>(BoundEntity.Id);
         }
     };
 }

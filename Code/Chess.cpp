@@ -109,10 +109,6 @@ namespace Tange
         [this](const IEvent& event)
         {
             const auto& keyEvent = (const KeyReleased&)event;
-            if (keyEvent.Key == InputEvent::KeyQ)
-            {
-                PlatformManager::ForceQuit();
-            }
 
             if (keyEvent.Key == InputEvent::KeyF11)
             {
@@ -132,7 +128,7 @@ namespace Tange
         m_menu.PushPanel(Vec2(300, 300), Vec2(240, 360), 2.0);
 
         m_menu.PushButton(Vec2(300, 400), Vec2(135, 50), 2.0, "Back to Game",
-        [this]()
+        [&]()
         {
             m_menu.ToggleVisibility();
         });

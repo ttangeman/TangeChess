@@ -3,6 +3,7 @@
 #include "Platform/PlatformWrapper.h"
 #include "Core/EventManager.h"
 #include "Platform/InputEvents.h"
+#include "Platform/ResizeEvent.h"
 
 // NOTE: These classes should be implemented for the platforms
 // that are supported by the application. For example, Windows
@@ -41,6 +42,15 @@ namespace Tange
         WindowHandle m_hWindow;
         std::atomic<bool> m_shouldQuit;
 
+        // Tracks the render dimensions of the window.
+        // It is stored because the old dimensions want to be known
+        // when the window is resized (WM_SIZE auto resizes the 
+        // window rect and only provides the new dimensions).
+        Vec2 m_renderDimensions;
+
+        // Tracks the window dimensions (including borders, etc.).
+        Vec2 m_windowDimensions;
+
     public:
         PlatformManager(const PlatformManager&) = delete;
         void operator=(const PlatformManager&) = delete;
@@ -58,12 +68,16 @@ namespace Tange
         static void Shutdown();
         
         static bool ShouldQuit();
-
         static void ForceQuit();
 
-        // Finds the dimensions of the actual window client minus the border.
         static Vec2 GetRenderDimensions();
-        
+        // Finds the dimensions of the actual window client minus the border.
+        static Vec2 RecomputeRenderDimensions();
+
+        static Vec2 GetWindowDimensions();
+        // Finds the dimensions of the actual window client minus the border.
+        static Vec2 RecomputeWindowDimensions();
+
         static WindowHandle GetWindow();
         
     private:

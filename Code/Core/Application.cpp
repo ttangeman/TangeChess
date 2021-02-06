@@ -17,6 +17,15 @@ namespace Tange
             IntializeRendererPipeline();
             ResourceManager::Initialize();
 
+            // TODO: Need a way to update all orthographic entities
+            // with the new width and height.
+            EventManager::BindHandler<WindowResized>(0, 
+            [](const IEvent& event)
+            {
+                const auto& resizeData = static_cast<const WindowResized&>(event);
+                ResizeWindow(resizeData.DesiredWidth, resizeData.DesiredHeight);
+            });
+
             // Register common entity components.
             EntityManager::RegisterComponent<Drawable>();
             EntityManager::RegisterComponent<Transformable>();

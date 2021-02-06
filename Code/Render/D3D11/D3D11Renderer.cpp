@@ -18,18 +18,18 @@ namespace Tange
         return defaultQuad;
     }
 
-    Quad Quad::CreatePreTransformed(Vec2 minPosition, Vec2 maxPosition, 
+    Quad Quad::CreatePreTransformed(Vec2 minP, Vec2 maxP, 
                                     Vec4 color, Vec2 minUV, Vec2 maxUV)
     {
         Quad result =
         {
-            Vec3(minPosition.X, minPosition.Y, 1.0), color, Vec2(minUV.U, minUV.V),
-            Vec3(minPosition.X, maxPosition.Y, 1.0), color, Vec2(minUV.U, maxUV.V),
-            Vec3(maxPosition.X, maxPosition.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
+            Vec3(minP.X, minP.Y, 1.0), color, Vec2(minUV.U, minUV.V),
+            Vec3(minP.X, maxP.Y, 1.0), color, Vec2(minUV.U, maxUV.V),
+            Vec3(maxP.X, maxP.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
 
-            Vec3(maxPosition.X, maxPosition.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
-            Vec3(maxPosition.X, minPosition.Y, 1.0), color, Vec2(maxUV.U, minUV.V),
-            Vec3(minPosition.X, minPosition.Y, 1.0), color, Vec2(minUV.U, minUV.V),
+            Vec3(maxP.X, maxP.Y, 1.0), color, Vec2(maxUV.U, maxUV.V),
+            Vec3(maxP.X, minP.Y, 1.0), color, Vec2(maxUV.U, minUV.V),
+            Vec3(minP.X, minP.Y, 1.0), color, Vec2(minUV.U, minUV.V),
         };
 
         return result;

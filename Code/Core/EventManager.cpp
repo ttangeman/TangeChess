@@ -38,10 +38,12 @@ namespace Tange
         for (auto i = 0; i < handlers.size(); i++)
         {
             auto& it = handlers[i];
+            
+            // NOTE: An id can have multiple of the same handler bound,
+            // so this if does not break the loop.
             if (it.Id == id)
             {
                 handlers.erase(handlers.begin() + i);
-                break;
             }
         }
     }
@@ -53,10 +55,12 @@ namespace Tange
             for (auto i = 0; i < handlers.size(); i++)
             {
                 auto& it = handlers[i];
+
+                // NOTE: An id can have multiple of the same handler bound,
+                // so this if does not break the loop.
                 if (it.Id == id)
                 {
                     handlers.erase(handlers.begin() + i);
-                    break;
                 }
             }
         }
@@ -65,8 +69,18 @@ namespace Tange
     template<typename T>
     void EventManager::Dispatch(IEvent&& payload)
     {
-        for (auto& it : s_instance.m_eventHandlers.at(T::GetIndex()))
+        // Robustness: A strange bug occured here where a foreach loop
+        // picked up erased elements from DetachAllHandlers in one of
+        // the handler vectors, even though I could SEE that the vector
+        // had size 0 in the debugger (even tried shrink_to_fit).
+        // Probably an odd race condition with input messages because
+        // it doesn't happen in other cases (?). Manually looping 
+        // through the vector seems to fix it??? 
+        auto& handler = s_instance.m_eventHandlers.at(T::GetIndex());
+        for (auto i = 0; i < handler.size(); i++)
         {
+            auto& it = handler[i];
+            ASSERT(it.Callback); 
             it.Callback(payload);
         }
     }

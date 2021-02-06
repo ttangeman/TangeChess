@@ -51,6 +51,17 @@ namespace Tange
                 PostQuitMessage(0);
                 return 0;
             } break;
+
+            case WM_SIZE:
+            {
+                Vec2 currentDim = PlatformManager::GetRenderDimensions();
+                Vec2 desiredDim = PlatformManager::RecomputeRenderDimensions();
+                //PlatformManager::RecomputeRenderDimensions();
+
+                EventManager::Dispatch<WindowResized>(WindowResized(desiredDim.Width, desiredDim.Height, 
+                                                                    currentDim.Width, currentDim.Height));
+
+            } break;
             
             default: 
             {
@@ -182,6 +193,7 @@ namespace Tange
         EventManager::RegisterEvent<MouseClicked>();
         EventManager::RegisterEvent<MouseReleased>();
         EventManager::RegisterEvent<MouseMoved>();
+        EventManager::RegisterEvent<WindowResized>();
 
         HINSTANCE hInstance = GetModuleHandle(0);
         
@@ -200,6 +212,9 @@ namespace Tange
         {
             s_instance.m_shouldQuit = false;
             
+            RecomputeRenderDimensions();
+            RecomputeWindowDimensions();
+
             ShowWindow(s_instance.m_hWindow, SW_SHOWNORMAL);
             ShowCursor(showCursor);
             
@@ -238,16 +253,34 @@ namespace Tange
        s_instance.m_shouldQuit = true;
     }
 
-    Vec2 PlatformManager::GetRenderDimensions()
+    Vec2 PlatformManager::RecomputeRenderDimensions()
     {
-        Vec2 result;
+        // Get the size of the windows actual draw dimensions (i.e. no
+        // window borders).
         RECT windowRect;
         GetClientRect(s_instance.m_hWindow, &windowRect);
-        
-        result.Width = (float) (windowRect.right - windowRect.left);
-        result.Height = (float) (windowRect.bottom - windowRect.top);
-        
-        return result;
+        s_instance.m_renderDimensions.Width = (float) (windowRect.right - windowRect.left);
+        s_instance.m_renderDimensions.Height = (float) (windowRect.bottom - windowRect.top);
+        return s_instance.m_renderDimensions;
+    }
+
+    Vec2 PlatformManager::GetRenderDimensions()
+    {
+        return s_instance.m_renderDimensions;
+    }
+
+    Vec2 PlatformManager::RecomputeWindowDimensions()
+    {
+        RECT windowRect;
+        GetWindowRect(s_instance.m_hWindow, &windowRect);
+        s_instance.m_windowDimensions.Width = (float) (windowRect.right - windowRect.left);
+        s_instance.m_windowDimensions.Height = (float) (windowRect.bottom - windowRect.top);
+        return s_instance.m_windowDimensions;
+    }
+
+    Vec2 PlatformManager::GetWindowDimensions()
+    {
+        return s_instance.m_windowDimensions;
     }
 
     WindowHandle PlatformManager::GetWindow()

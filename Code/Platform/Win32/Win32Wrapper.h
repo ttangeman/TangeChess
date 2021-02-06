@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <windef.h>
 #include "Core/Common.h"
 
 // NOTE: The wrapper must define a type alias to the appropiate

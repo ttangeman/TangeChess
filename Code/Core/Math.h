@@ -308,6 +308,13 @@ struct Rect
         return (this->MinCorner == operand.MinCorner &&
                 this->MaxCorner == operand.MaxCorner);
     }
+
+    static Rect ComputeBoundingBox(Vec2 centerP, Vec2 scale)
+    {
+        // The scale _is_ the diameter.
+        Vec2 radius = Vec2(scale.X / 2.0, scale.Y / 2.0);
+        return Rect(centerP - radius, centerP + radius);
+    }
 };
 
 inline float SafeRatioN(float numerator, float divisor, float value) 

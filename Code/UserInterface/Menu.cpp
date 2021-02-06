@@ -48,8 +48,10 @@ namespace Tange
         transform.Position = position;
         transform.Scale = Vec3(scale.X, scale.Y, 0);
 
+        // TODO: Need to detect focus for overlapped clickboxes.
         //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
-        //dragable.ComputeBoundingBox(transform.Position, transform.Scale);
+        /*dragable.Initialize(transform.Position, 
+                              Vec2(transform.Scale.X, transform.Scale.Y));*/
 
         if (outlineThickness > 0.0)
         {
@@ -75,8 +77,9 @@ namespace Tange
         transform.Scale = Vec3(scale.X, scale.Y, 0);
 
         auto& clickable = EntityManager::AttachComponent<Clickable2D>(entity);
-        clickable.ComputeBoundingBox(transform.Position, transform.Scale);
-        clickable.OnClick = callback;
+        clickable.Initialize(transform.Position, 
+                             Vec2(transform.Scale.X, transform.Scale.Y), 
+                             callback);
 
         if (outlineThickness > 0.0)
         {
@@ -204,7 +207,17 @@ namespace Tange
 
         for (auto& entity : m_entities)
         {
-            EventManager::DetachAllHandlers(entity.Id);
+            if (EntityManager::HasComponent<Dragable2D>(entity))
+            {
+                auto& dragable = EntityManager::GetComponent<Dragable2D>(entity);
+                dragable.DetachInputHandlers();
+            }
+
+            if (EntityManager::HasComponent<Clickable2D>(entity))
+            {
+                auto& clickable = EntityManager::GetComponent<Clickable2D>(entity);
+                clickable.DetachInputHandlers();
+            }
         }
     }
 
