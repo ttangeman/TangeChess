@@ -55,7 +55,7 @@ namespace Tange
         DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 #if 0
         // Flip fullscreen
-        swapChainDesc.BufferCount = BackBufferCount;
+        swapChainDesc.BufferCount = g_BackBufferCount;
         swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.OutputWindow = hWindow;
@@ -71,7 +71,7 @@ namespace Tange
         swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 #else
         // Exclusive fullscreen
-        swapChainDesc.BufferCount = BackBufferCount;
+        swapChainDesc.BufferCount = g_BackBufferCount;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.OutputWindow = hWindow;

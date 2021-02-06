@@ -25,7 +25,7 @@ namespace Tange
 {
     using namespace DirectX;
 
-    static const int32 BackBufferCount = 2;
+    static const int32 g_BackBufferCount = 2;
 
 #pragma pack(push, 1)
     struct Vertex

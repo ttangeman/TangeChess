@@ -19,25 +19,43 @@ namespace Tange
             m_text = text;
             m_textEntity = EntityManager::RegisterEntity();
 
+            float scale = pixelHeight / atlas.GlyphPixelSize;
+            float textLineWidth = 0;
+
+            // Loop once over the text to compute a bounding rectangle
+            // for the line(s) of text.
+            for (auto i = 0; i < text.length(); i++)
+            {
+                const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
+
+                textLineWidth += glyphInfo.AdvanceX * scale;
+            }
+
+            // TODO: Text wrapping if it goes offscreen!
+            ASSERT(textLineWidth <= GetDrawRegion().Width);
+
+            // Center the bounding box at the specified position.
+            auto adjustedP = Vec2(position.X - (textLineWidth / 2.0),
+                                  position.Y - (pixelHeight / 2.0));
+
             Quad* pQuads = (Quad*)malloc(sizeof(Quad) * text.length());
 
-            float scale = pixelHeight / atlas.GlyphPixelSize;
-
+            // Create a batched quad for all of the glyphs.
             for (auto i = 0; i < text.length(); i++)
             {
                 const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
 
                 // NOTE: Y is offset by the glyph height to account for the bitmap being flipped.
-                Vec2 minPosition = Vec2(position.X + glyphInfo.OffsetX * scale, 
-                                        position.Y + (glyphInfo.OffsetY - glyphInfo.Size.Height) * scale);
-                Vec2 maxPosition = Vec2(minPosition.X + glyphInfo.Size.Width * scale,
-                                        minPosition.Y + glyphInfo.Size.Height * scale);
+                Vec2 minP = Vec2(adjustedP.X + glyphInfo.OffsetX * scale, 
+                                 adjustedP.Y + (glyphInfo.OffsetY - glyphInfo.Size.Height) * scale);
+                Vec2 maxP = Vec2(minP.X + glyphInfo.Size.Width * scale,
+                                 minP.Y + glyphInfo.Size.Height * scale);
 
-                pQuads[i] = Quad::CreatePreTransformed(minPosition, maxPosition, color, 
-                                                      glyphInfo.MinTexCoords, 
-                                                      glyphInfo.MaxTexCoords);
+                pQuads[i] = Quad::CreatePreTransformed(minP, maxP, color, 
+                                                       glyphInfo.MinTexCoords, 
+                                                       glyphInfo.MaxTexCoords);
 
-                position.X += glyphInfo.AdvanceX * scale;
+                adjustedP.X += glyphInfo.AdvanceX * scale;
             }
 
             ResourceManager::SubmitMesh(text, pQuads, 
@@ -47,7 +65,6 @@ namespace Tange
             auto& drawable = EntityManager::AttachComponent<Drawable>(m_textEntity);
             drawable.AttachMesh(text);
             drawable.AttachTexture(atlas.FontName);
-            drawable.SetColor(Vec4(0, 0, 0, 1));
 
             auto& transform = EntityManager::AttachComponent<Transformable>(m_textEntity);
             transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);

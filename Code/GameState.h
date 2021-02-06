@@ -9,13 +9,7 @@
 
 namespace Tange
 {   
-    static const int32 UniquePieceCount = 12;
-    static const int32 TotalPieceCount = 32;
-    static const int32 RowCount = 8;
-    static const int32 ColCount = 8;
-    static const int32 SquareCount = RowCount * ColCount;
-    
-    static const std::string PieceNames[] =
+    static const std::string g_PieceNames[] =
     {
         "BlackKing",
         "BlackQueen",
@@ -68,6 +62,12 @@ namespace Tange
     class GameState
     {
     public: 
+        static const int32 UniquePieceCount = 12;
+        static const int32 TotalPieceCount = 32;
+        static const int32 RowCount = 8;
+        static const int32 ColCount = 8;
+        static const int32 SquareCount = RowCount * ColCount;
+
         // Keeps track of where each piece is on the board. Note that a entity id 
         // of 0 means that the square is empty.
         // NOTE: This has to be synchronized alongside the piece position.

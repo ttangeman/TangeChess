@@ -33,26 +33,27 @@ namespace Tange
     {
         // Due to the lack of having an actual mesh file to load,
         // all of the quads in the game are hard coded.
-        Quad pieceQuads[UniquePieceCount];
+        Quad pieceQuads[GameState::UniquePieceCount];
 
-        float pieceWidth = 1.0 / (UniquePieceCount / 2);
+        float pieceWidth = 1.0 / (GameState::UniquePieceCount / 2);
 
-        // Piece meshes.
-        for (auto i = 0; i < UniquePieceCount; i++)
+        // Push the piece meshes.
+        for (auto i = 0; i < GameState::UniquePieceCount; i++)
         {
+            // NOTE: The piece texture is a 6x2 atlas.
             float minU = pieceWidth * (i % 6);
-            float minV = (i < (UniquePieceCount / 2)) ? 0 : 0.5;
+            float minV = (i < (GameState::UniquePieceCount / 2)) ? 0 : 0.5;
             float maxU = minU + pieceWidth;
             float maxV = minV + 0.5;
 
             pieceQuads[i] = Quad::Default();
             pieceQuads[i].SetTexCoords(Vec2(minU, minV), Vec2(maxU, maxV));
 
-            ResourceManager::SubmitMesh(PieceNames[i], pieceQuads[i].Vertices,
-                                       Quad::VerticeCount, sizeof(Vertex));
+            ResourceManager::SubmitMesh(g_PieceNames[i], pieceQuads[i].Vertices,
+                                        Quad::VerticeCount, sizeof(Vertex));
         }
 
-        // Board mesh
+        // Push the board mesh.
         Vec4 colors[] = 
         {
             {0.71, 0.53, 0.39, 1.0}, // Dark
@@ -60,20 +61,22 @@ namespace Tange
         };
 
         Vec2 drawRegion = GetDrawRegion();
-        auto squareDim = Vec2(drawRegion.Width / ColCount,
-                              drawRegion.Height / RowCount);
+        auto squareDim = Vec2(drawRegion.Width / GameState::ColCount,
+                              drawRegion.Height / GameState::RowCount);
 
-        Quad boardQuads[SquareCount];
+        Quad boardQuads[GameState::SquareCount];
 
-        for (auto row = 0; row < RowCount; row++)
+        for (auto row = 0; row < GameState::RowCount; row++)
         { 
             auto minP = Vec2(0.0, squareDim.Height * row);
             auto maxP = Vec2(squareDim.Width, squareDim.Height * (row + 1));
 
-            for (auto col = 0; col < ColCount; col++)
+            for (auto col = 0; col < GameState::ColCount; col++)
             {
                 auto color = colors[(col + row) % 2];
-                boardQuads[(row * ColCount) + col] = Quad::CreatePreTransformed(minP, maxP, color);
+                auto index = (row * GameState::ColCount) + col;
+
+                boardQuads[index] = Quad::CreatePreTransformed(minP, maxP, color);
 
                 minP.X += squareDim.Width;
                 maxP.X += squareDim.Width;
@@ -81,7 +84,7 @@ namespace Tange
         }
 
         ResourceManager::SubmitMesh("ChessBoard", reinterpret_cast<Vertex*>(boardQuads),
-                                    Quad::VerticeCount * SquareCount, sizeof(Vertex));
+                                    Quad::VerticeCount * GameState::SquareCount, sizeof(Vertex));
     }
 
     Chess::Chess(const std::string& title, int32 width, int32 height)
@@ -122,15 +125,27 @@ namespace Tange
             }
         });
         
-        m_menu.SetBaseColor(Vec4(0, 0, 0, 0.7));
+        m_menu.SetBaseColor(Vec4(0, 0, 0, 0.9));
         m_menu.SetOutlineColor(Vec4(0.95, 0.89, 0.71, 0.9));
         m_menu.SetTextColor(Vec4(0.95, 0.89, 0.71, 0.95));
 
-        m_menu.PushPanel(Vec2(300, 300), Vec2(180, 360), 2.0);
-        m_menu.PushButton(Vec2(300, 300), Vec2(135, 50), 2.0, "Click me",
+        m_menu.PushPanel(Vec2(300, 300), Vec2(240, 360), 2.0);
+
+        m_menu.PushButton(Vec2(300, 400), Vec2(135, 50), 2.0, "Back to Game",
+        [this]()
+        {
+            m_menu.ToggleVisibility();
+        });
+
+        m_menu.PushButton(Vec2(300, 300), Vec2(135, 50), 2.0, "Options",
         []()
         {
-            OutputDebugStringA("Button pressed");
+        });
+
+        m_menu.PushButton(Vec2(300, 200), Vec2(135, 50), 2.0, "Quit",
+        []()
+        {
+            PlatformManager::ForceQuit();
         });
 
         m_gameState.StartGame(PieceColor::White);

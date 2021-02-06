@@ -123,7 +123,7 @@ namespace Tange
     // Converts a 2D square index into a 1D index for the board state.
     static int32 IndexBoardState(Vec2 square)
     {
-        return (square.Y - 1) * ColCount + (square.X - 1); 
+        return (square.Y - 1) * GameState::ColCount + (square.X - 1); 
     }
 
     Entity GameState::GetEntity(Vec2 square) const
@@ -134,7 +134,7 @@ namespace Tange
     const std::string& GameState::GetPieceName(Entity entity) const
     {
         auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
-        return PieceNames[(int32)piece.Type + ((int32)piece.Color * 6)];
+        return g_PieceNames[(int32)piece.Type + ((int32)piece.Color * 6)];
     }
 
     bool GameState::IsValidSquare(Vec2 square) const

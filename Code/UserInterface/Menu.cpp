@@ -87,10 +87,7 @@ namespace Tange
         if (!text.empty())
         {
             auto& label = EntityManager::AttachComponent<Text>(entity);
-            // TODO: Programmatically try to center the text.
-            Vec2 textPosition = Vec2(transform.Position.X - transform.Scale.X * 0.25,
-                                     transform.Position.Y - transform.Scale.Y * 0.2);
-            label.CreateText(m_atlas, text, textPosition, m_textColor, 12);
+            label.CreateText(m_atlas, text, transform.Position, m_textColor, 12);
         }
 
         m_entities.emplace_back(entity);
