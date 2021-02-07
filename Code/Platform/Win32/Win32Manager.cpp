@@ -56,7 +56,6 @@ namespace Tange
             {
                 Vec2 currentDim = PlatformManager::GetRenderDimensions();
                 Vec2 desiredDim = PlatformManager::RecomputeRenderDimensions();
-                //PlatformManager::RecomputeRenderDimensions();
 
                 EventManager::Dispatch<WindowResized>(WindowResized(desiredDim.Width, desiredDim.Height, 
                                                                     currentDim.Width, currentDim.Height));
@@ -94,21 +93,21 @@ namespace Tange
         }
     }
 
-    Vec2i PlatformManager::CalculateMousePosition()
+    Vec2 PlatformManager::CalculateMousePosition()
     {
-        POINT cursorPosition;
+        POINT cursorP;
         // Gets the mouse position relative to the screen.
-        GetCursorPos(&cursorPosition);
+        GetCursorPos(&cursorP);
         // This maps the mouse position into the window's dimensions.
-        ScreenToClient(s_instance.m_hWindow, &cursorPosition);
+        ScreenToClient(s_instance.m_hWindow, &cursorP);
 
         RECT clientRect;
         GetClientRect(s_instance.m_hWindow, &clientRect);
         auto clientHeight = clientRect.bottom - clientRect.top;
 
         // Flip the Y to bottom-up instead of top-down.
-        cursorPosition.y = ABS_VALUE(cursorPosition.y - clientHeight);
-        return Vec2i(cursorPosition.x, cursorPosition.y);
+        cursorP.y = ABS_VALUE(cursorP.y - clientHeight);
+        return Vec2(cursorP.x, cursorP.y);
     }
 
     void PlatformManager::DispatchSystemMessages() 
@@ -130,43 +129,43 @@ namespace Tange
                 // more info.
                 case WM_LBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONDOWN: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseClicked>(MouseClicked(InputEvent::MiddleClick, position));
                 } break;
                 
                 case WM_LBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::LeftClick, position));
                 } break;
                 
                 case WM_RBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::RightClick, position));
                 } break;
                 
                 case WM_MBUTTONUP: 
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseReleased>(MouseReleased(InputEvent::MiddleClick, position));
                 } break;
 
                 case WM_MOUSEMOVE:
                 {
-                    Vec2i position = CalculateMousePosition();
+                    Vec2 position = CalculateMousePosition();
                     EventManager::Dispatch<MouseMoved>(MouseMoved(position));
                 } break;
                 

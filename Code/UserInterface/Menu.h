@@ -8,6 +8,10 @@
 
 namespace Tange
 {
+    // TODO: Instead of using window coordinates, the Menu could always
+    // default to a (500, 500) orthographic coordinate system instead and
+    // map mouse positions into that system. This would ensure that the GUI is scaled
+    // right on all aspect ratios.
     class Menu
     {
         std::vector<Entity> m_entities;
@@ -27,7 +31,7 @@ namespace Tange
 
         void PushPanel(Vec2 position, Vec2 scale, float outlineThickness);
         void PushButton(Vec2 position, Vec2 scale, float outlineThickness,
-                        const std::string& text, std::function<void()> callback);
+                        const std::string& text, const std::function<void()>& callback);
 
         void OnUpdate();
         void OnRender();

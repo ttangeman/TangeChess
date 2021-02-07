@@ -14,7 +14,7 @@ namespace Tange
 
     public:
         void CreateText(const FontAtlas& atlas, const std::string& text, 
-                         Vec2 position, Vec4 color, float pixelHeight)
+                        Vec2 position, Vec4 color, float pixelHeight)
         {
             m_text = text;
             m_textEntity = EntityManager::RegisterEntity();
@@ -103,13 +103,23 @@ namespace Tange
     };
 
     // TODO: Dragable is currently busted because it does not move text/outlines.
+    // Probably need some kind of GuiComponent that tracks the parent/children entities.
+    // The text entity storing a separate entity from the one it's bound to is quite janky,
+    // for example.
     struct Dragable2D : public Component<Dragable2D>
     {
         // The dimensions for the "click box".
         Vec2 Position;
         Vec2 Scale;
 
-        Vec2i PreviousMousePosition;
+        // Tracks previous mouse position.
+        Vec2 PreviousMousePosition;
+
+        // Used for mapping the mouse position into a coordinate system
+        // that is not window coordinates (the default).
+        bool MapMouseCoordinates = false;
+        Vec2 DestMouseMin;
+        Vec2 DestMouseMax;
 
         void Initialize(Vec2 position, Vec2 scale)
         {
@@ -121,19 +131,26 @@ namespace Tange
             {
                 const auto& resizeEvent = static_cast<const WindowResized&>(event);
 
-                auto dScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
+                auto tScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
                                    Scale.Height / resizeEvent.CurrentHeight);
-                Scale = Vec2(resizeEvent.DesiredWidth * dScale.Width,
-                             resizeEvent.DesiredHeight * dScale.Height);
+                Scale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
+                             resizeEvent.DesiredHeight * tScale.Height);
                 
-                auto dPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
+                auto tPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
                                       Position.Height / resizeEvent.CurrentHeight);
-                Position = Vec2(resizeEvent.DesiredWidth * dPosition.Width,
-                                resizeEvent.DesiredHeight * dPosition.Height);
+                Position = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
+                                resizeEvent.DesiredHeight * tPosition.Height);
             });
         }
 
-        bool CollidesWith(Vec2i point)
+        void SetMouseMapping(Vec2 min, Vec2 max)
+        {
+            MapMouseCoordinates = true;
+            DestMouseMin = min;
+            DestMouseMax = max;
+        }
+
+        bool CollidesWith(Vec2 point)
         {
             auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
 
@@ -156,16 +173,26 @@ namespace Tange
 
                 auto& transform = EntityManager::GetComponent<Transformable>(BoundEntity);
                 
-                Vec2i mousePosition = PlatformManager::CalculateMousePosition();
+                Vec2 mouseP = PlatformManager::CalculateMousePosition();
 
+                if (MapMouseCoordinates)
+                {
+                    // Normally mouse coordinates are in window space.
+                    Vec2 renderDim = GetDrawRegion();
+                    Vec2 tPosition = Vec2(mouseP.X / renderDim.Width,
+                                          mouseP.Y / renderDim.Height);
+                    mouseP.X = Lerp(DestMouseMin.X, tPosition.X, DestMouseMax.X);
+                    mouseP.Y = Lerp(DestMouseMin.Y, tPosition.Y, DestMouseMax.Y);
+                }
+#if 1
                 // This snaps the center of the GUI element to the mouse.
-                //transform.Position = Vec2(mousePosition.X, mousePosition.Y);
-
+                transform.Position = mouseP;
+#else
                 // This moves the GUI element centered around where it was clicked.
-                Vec2i dPosition = mousePosition - PreviousMousePosition;
-                PreviousMousePosition = mousePosition;
+                Vec2i dPosition = mouseP - PreviousMousePosition;
                 transform.Position += dPosition;
-
+#endif
+                PreviousMousePosition = mouseP;
                 // Update the dragables position.
                 Position = transform.Position; 
             });
@@ -181,11 +208,23 @@ namespace Tange
                 // Selection check on left click.
                 if (mouseEvent.Button == InputEvent::LeftClick)
                 {
+                    Vec2 mouseP = Vec2(mouseEvent.MousePosition.X, 
+                                       mouseEvent.MousePosition.Y);
+                                       
+                    if (MapMouseCoordinates)
+                    {
+                        Vec2 renderDim = GetDrawRegion();
+                        Vec2 tPosition = Vec2(mouseP.X / renderDim.Width,
+                                            mouseP.Y / renderDim.Height);
+                        mouseP.X = Lerp(DestMouseMin.X, tPosition.X, DestMouseMax.X);
+                        mouseP.Y = Lerp(DestMouseMin.Y, tPosition.Y, DestMouseMax.Y);
+                    }
+
                     // If a selection is detected, then the MouseMoved handler will
                     // be bound to the entity.
-                    if (CollidesWith(mouseEvent.MousePosition))
+                    if (CollidesWith(mouseP))
                     {
-                        PreviousMousePosition = mouseEvent.MousePosition;
+                        PreviousMousePosition = mouseP;
                         BindMouseMoved();
                     }
                 }
@@ -231,19 +270,19 @@ namespace Tange
             {
                 const auto& resizeEvent = static_cast<const WindowResized&>(event);
 
-                auto dScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
+                auto tScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
                                    Scale.Height / resizeEvent.CurrentHeight);
-                Scale = Vec2(resizeEvent.DesiredWidth * dScale.Width,
-                             resizeEvent.DesiredHeight * dScale.Height);
+                Scale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
+                             resizeEvent.DesiredHeight * tScale.Height);
                 
-                auto dPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
+                auto tPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
                                       Position.Height / resizeEvent.CurrentHeight);
-                Position = Vec2(resizeEvent.DesiredWidth * dPosition.Width,
-                                resizeEvent.DesiredHeight * dPosition.Height);
+                Position = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
+                                resizeEvent.DesiredHeight * tPosition.Height);
             });
         }
 
-        bool CollidesWith(Vec2i point)
+        bool CollidesWith(Vec2 point)
         {
             auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
 

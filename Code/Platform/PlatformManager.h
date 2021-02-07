@@ -3,7 +3,7 @@
 #include "Platform/PlatformWrapper.h"
 #include "Core/EventManager.h"
 #include "Platform/InputEvents.h"
-#include "Platform/ResizeEvent.h"
+#include "Platform/WindowEvents.h"
 
 // NOTE: These classes should be implemented for the platforms
 // that are supported by the application. For example, Windows
@@ -56,7 +56,7 @@ namespace Tange
         void operator=(const PlatformManager&) = delete;
 
         // Finds the mouse position.
-        static Vec2i CalculateMousePosition();
+        static Vec2 CalculateMousePosition();
         
         // Dispatches messages from the system to the event manager,
         // such as keyboard and mouse input.

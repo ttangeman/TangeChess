@@ -25,7 +25,9 @@ static int32 _EventAccumulator = 0;
 
 namespace Tange
 {
-    // NOTE: Each event needs the EVENT_BOILERPLATE macro
+    // NOTE: Each event needs the EVENT_BOILERPLATE macro!
+    // Also, do NOT make a default constructor for events because it will overwrite
+    // the m_eventIndex.
     struct IEvent
     {
         virtual ~IEvent()

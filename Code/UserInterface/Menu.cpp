@@ -50,8 +50,7 @@ namespace Tange
 
         // TODO: Need to detect focus for overlapped clickboxes.
         //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
-        /*dragable.Initialize(transform.Position, 
-                              Vec2(transform.Scale.X, transform.Scale.Y));*/
+        /*dragable.Initialize(transform.Position, scale);*/
 
         if (outlineThickness > 0.0)
         {
@@ -63,7 +62,7 @@ namespace Tange
     }
 
     void Menu::PushButton(Vec2 position, Vec2 scale, float outlineThickness,
-                          const std::string& text, std::function<void()> callback) 
+                          const std::string& text, const std::function<void()>& callback) 
     {
         auto entity = EntityManager::RegisterEntity();
 
@@ -77,9 +76,7 @@ namespace Tange
         transform.Scale = Vec3(scale.X, scale.Y, 0);
 
         auto& clickable = EntityManager::AttachComponent<Clickable2D>(entity);
-        clickable.Initialize(transform.Position, 
-                             Vec2(transform.Scale.X, transform.Scale.Y), 
-                             callback);
+        clickable.Initialize(transform.Position, scale, callback);
 
         if (outlineThickness > 0.0)
         {

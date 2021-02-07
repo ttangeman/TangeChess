@@ -36,13 +36,20 @@ namespace Tange
             auto& transform = EntityManager::AttachComponent<Transformable>(entity);
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
+            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
+            
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
+
             transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
+            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
             
@@ -56,13 +63,20 @@ namespace Tange
             auto& transform = EntityManager::AttachComponent<Transformable>(entity);
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
+            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
+
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
+
             transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
+            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
             
@@ -81,13 +95,20 @@ namespace Tange
             auto& transform = EntityManager::AttachComponent<Transformable>(entity);
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
+            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = PieceType::Pawn;
+
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
+
             transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
+            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
             
@@ -101,13 +122,20 @@ namespace Tange
             auto& transform = EntityManager::AttachComponent<Transformable>(entity);
             auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
+            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = standardPieceRow[squareIndex % ColCount];
+
             drawable.AttachMesh(GetPieceName(entity));
             drawable.AttachTexture("Texture/Pieces");
+
             transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
             transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+
+            dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
+            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
             

@@ -110,11 +110,6 @@ namespace Tange
         {
             const auto& keyEvent = (const KeyReleased&)event;
 
-            if (keyEvent.Key == InputEvent::KeyF11)
-            {
-                ToggleFullscreen();
-            }
-
             if (keyEvent.Key == InputEvent::KeyEscape)
             {
                 m_menu.ToggleVisibility();

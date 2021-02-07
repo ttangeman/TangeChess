@@ -9,6 +9,8 @@ namespace Tange
 
     // The template pattern is needed to make each inheritance
     // of Component to be unique for m_componentIndex.
+    // NOTE: Do NOT make a default constructor for components,
+    // as it will overwrite the m_componentIndex.
     template<class T>
     class Component
     {        

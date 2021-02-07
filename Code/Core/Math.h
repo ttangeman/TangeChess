@@ -159,6 +159,12 @@ union Vec3
     {
         float R, G, B;
     };
+
+    struct
+    {
+        Vec2 XY;
+        float Z;
+    };
     
     float Data[3];
     
@@ -342,4 +348,12 @@ inline float SafeRatio1(float numerator, float divisor)
 inline float SafeInverse(float value) 
 {
     return SafeRatio0(1.0, value);
+}
+
+inline float Lerp(float a, float t, float b) {
+    return (1.0f - t)*a + t*b;
+}
+
+inline Vec2 Lerp(Vec2 a, float t, Vec2 b) {
+    return Vec2((1.0f - t)*a.X + t*b.Y, (1.0f - t)*a.Y + t*b.Y);
 }

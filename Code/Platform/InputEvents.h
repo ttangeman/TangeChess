@@ -118,9 +118,9 @@ namespace Tange
         EVENT_BOILERPLATE()
 
         InputEvent Button;
-        Vec2i MousePosition;
+        Vec2 MousePosition;
 
-        MouseClicked(InputEvent event, Vec2i position)
+        MouseClicked(InputEvent event, Vec2 position)
             : Button(event), MousePosition(position)
         {
         }
@@ -131,9 +131,9 @@ namespace Tange
         EVENT_BOILERPLATE()
 
         InputEvent Button;
-        Vec2i MousePosition;
+        Vec2 MousePosition;
 
-        MouseReleased(InputEvent event, Vec2i position)
+        MouseReleased(InputEvent event, Vec2 position)
             : Button(event), MousePosition(position)
         {
         }
@@ -143,9 +143,9 @@ namespace Tange
     {
         EVENT_BOILERPLATE()
 
-        Vec2i MousePosition;
+        Vec2 MousePosition;
 
-        MouseMoved(Vec2i position)
+        MouseMoved(Vec2 position)
             : MousePosition(position)
         {
         }
