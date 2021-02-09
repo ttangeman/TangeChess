@@ -11,8 +11,7 @@ namespace Tange
         usize Size;
     };
 
-    // TODO: Is a class even needed for this?
-    class FileManager
+    class FileSystem
     {
     public:
         // Reads the entire file into the heap and returns the data (a shared pointer and the size).

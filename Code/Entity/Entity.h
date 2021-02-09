@@ -1,22 +1,21 @@
 #pragma once
 
 #include "Core/Common.h"
+#include "Render/Renderer.h"
+#include "Render/RenderHandle.h"
 
 namespace Tange
 {
-    union Entity
+    struct Entity
     {
-        struct
-        {
-            // Cannot be 0.
-            int16 Id;
-            int16 Index;
-        };
-        int32 Packed;
+        int32 Id;
+        int32 Index;
+        RenderHandle hRender = {};
+        Transform Transform = {};
 
         bool operator==(const Entity& operand) const
         {
-            return (this->Packed == operand.Packed);
+            return (this->Id == operand.Id);
         }
 
         bool IsValid() const

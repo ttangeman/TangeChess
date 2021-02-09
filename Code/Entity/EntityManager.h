@@ -7,21 +7,23 @@
 
 namespace Tange
 {  
-    struct IComponentSystem
-    {
-        IComponentSystem() = default;
+    static constexpr int32 g_MaxEntityCount = 128;
 
-        virtual ~IComponentSystem()
+    struct IComponentContainer
+    {
+        IComponentContainer() = default;
+
+        virtual ~IComponentContainer()
         {
         }
 
         virtual void DestroyEntity(Entity entity) = 0;
     };
 
-    template<typename T, int32 ArraySize>
-    struct ComponentArray : IComponentSystem
+    template<typename T>
+    struct ComponentArray : IComponentContainer
     {
-        std::array<T, ArraySize> Components;
+        std::array<T, g_MaxEntityCount> Components;
 
         ComponentArray() = default;
 
@@ -47,11 +49,9 @@ namespace Tange
         // NOTE: Must not shrink/delete elements in order to
         // maintain stable indices for component types.
         // Essentially a custom pool allocator for each component type.
-        std::vector<IComponentSystem*> m_componentSystems;
+        std::vector<IComponentContainer*> m_componentContainers;
 
     public:
-        static const int32 MaxEntityCount = 128;
-
         ~EntityManager();
         EntityManager operator=(const EntityManager&) = delete;
         EntityManager(const EntityManager&) = delete;
@@ -83,7 +83,7 @@ namespace Tange
     private:
         // Helper for casting to the correct component array type.
         template <typename T>
-        static ComponentArray<T, MaxEntityCount>* CastComponentArray();
+        static ComponentArray<T>* CastComponentArray();
 
         EntityManager() = default;
     };

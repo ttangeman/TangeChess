@@ -1,57 +1,8 @@
 #pragma once
 
-#include "Core/Common.h"
-#include "Platform/PlatformManager.h"
+#define USING_D3D11 1
 
-// NOTE: All of these functions should be implemented for
-// each graphics API.
-namespace Tange
-{
-    struct Vertex;
-    struct Quad;
-    struct Mesh;
-    struct Shader;
-    struct Texture;
-    struct Transform;
-    class GpuBuffer;
-
-    // Initializes the renderer.
-    void IntializeRendererPipeline();
-    
-    // Shutsdown the renderer.
-    void Shutdown();
-    
-    // Displays the frame and swaps the back buffer.
-    void PresentFrame();
-
-    // Clears the screen with a color.
-    void FullClear(Vec4 clearColor);
-    
-    // Sets the active shader.
-    void SetShader(const std::string& shaderName);
-
-    // Sets the viewport.
-    void SetViewport(Vec2 dimensions);
-
-    // Gets the render dimensions of the actual draw area of the window.
-    Vec2 GetDrawRegion();
-
-    // Resizes the application.
-    void ResizeWindow(float desiredWidth, float desiredHeight); 
-
-    // Changes/toggles whether the application is fullscreen or not.
-    void ToggleFullscreen();
-    void ForceFullscreen();
-    void ForceWindowed();
-
-    bool IsFullscreen();
-    
-    // Resizes the swap chain's back buffer size.
-    void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight);
-
-    // Resizes the output target.
-    void ResizeTarget(uint32 desiredWidth, uint32 desiredHeight);
-
-    // Clears the active render target.
-    void ClearRenderTarget();
-}
+#ifdef USING_D3D11
+#include "Render/D3D11/D3D11Renderer.h"
+#include "Render/D3D11/D3D11GpuBuffer.h"
+#endif

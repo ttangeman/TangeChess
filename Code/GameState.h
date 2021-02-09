@@ -4,8 +4,6 @@
 #include "Entity/Entity.h"
 #include "Entity/EntityManager.h"
 #include "Entity/Component.h"
-#include "Render/Transformable.h"
-#include "Render/Drawable.h"
 
 namespace Tange
 {   
@@ -62,11 +60,11 @@ namespace Tange
     class GameState
     {
     public: 
-        static const int32 UniquePieceCount = 12;
-        static const int32 TotalPieceCount = 32;
-        static const int32 RowCount = 8;
-        static const int32 ColCount = 8;
-        static const int32 SquareCount = RowCount * ColCount;
+        static constexpr int32 UniquePieceCount = 12;
+        static constexpr int32 TotalPieceCount = 32;
+        static constexpr int32 RowCount = 8;
+        static constexpr int32 ColCount = 8;
+        static constexpr int32 SquareCount = RowCount * ColCount;
 
         // Keeps track of where each piece is on the board. Note that a entity id 
         // of 0 means that the square is empty.

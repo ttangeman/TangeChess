@@ -4,23 +4,25 @@
 #include "Core/EntryPoint.h"
 #include "Core/EventManager.h"
 #include "Platform/PlatformWrapper.h"
+#include "Platform/WindowEvents.h"
+#include "Platform/InputEvents.h"
 // TODO: Better way to include this?
 #include "Render/D3D11/D3D11Renderer.h"
 #include "Render/Renderer.h"
-#include "Render/Transformable.h"
-#include "Render/Drawable.h"
 #include "Render/ResourceManager.h"
+#include "Render/RenderQueue.h"
+#include "World/WorldTransform.h"
+#include "UserInterface/GuiComponents.h"
 
 // Unity build (single translation unit) includes.
 #include "Core/EventManager.cpp"
 #include "Platform/Win32/Win32Manager.cpp"
-#include "Platform/Win32/Win32FileManager.cpp"
+#include "Platform/Win32/Win32FileSystem.cpp"
 #include "Asset/Image.cpp"
 #include "Asset/FontAtlas.cpp"
 #include "Render/D3D11/D3D11Renderer.cpp"
-#include "Render/D3D11/D3D11Transformable.cpp"
-#include "Render/D3D11/D3D11Drawable.cpp"
 #include "Render/D3D11/D3D11ResourceManager.cpp"
+#include "Render/D3D11/D3D11RenderQueue.cpp"
 #include "Entity/EntityManager.cpp"
 #include "UserInterface/Menu.cpp"
 
@@ -34,10 +36,12 @@ namespace Tange
         // The desired update rate for the application. Defaults to 60Hz.
         float m_desiredUpdateRate;
 
-    public:
+    protected:
         // Stores the last elapsed time for updating and rendering the application.
-        float LastFrameTime;
+        float m_lastFrameTime;
+        float m_dTime;
 
+    public:
         Application() = delete;
         Application(const std::string& title, int32 width, int32 height);
         virtual ~Application();

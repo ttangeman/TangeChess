@@ -1,8 +1,5 @@
 #pragma once
 
-// NOTE: Implements all of the functions from this header.
-#include "Render/Renderer.h"
-
 #include <d3d11.h>
 #include <dxgi.h>
 #include <DirectXMath.h>
@@ -95,6 +92,45 @@ namespace Tange
         XMMATRIX Projection;
         // GPU relevant data.
         std::shared_ptr<GpuBuffer> pTransformBuffer;
+
+        Transform();
+
+        void WindowOrthographic();
+        void Orthographic(Vec2 min, Vec2 max, float nearZ, float farZ);
+        void Update(Vec3 position, Vec3 scale, Vec3 rotation);
     };
 #pragma pack(pop)
+
+    // Initailize/shutdown the render pipeline.
+    void IntializeRendererPipeline();
+    void ShutdownRendererPipeline();
+
+    // Swap the back buffers and present the frame.
+    void PresentFrame();
+
+    // Clear the entire screen with the color.
+    void FullClear(Vec4 clearColor);
+    
+    // Set the active shader.
+    void SetShader(const std::string& shaderName);
+
+    // Set the viewport.
+    void SetViewport(Vec2 dimensions);
+
+    // Returns the current draw region.
+    Vec2 GetDrawRegion();
+
+    // Resizes the window
+    void ResizeWindow(float desiredWidth, float desiredHeight);
+
+    // Change from/to fullscreen.
+    void ToggleFullscreen();
+    void ForceWindowed();
+    void ForceFullscreen();
+    bool IsFullscreen();
+
+    // Resize the back buffer/render target.
+    void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight);
+    void ResizeTarget(uint32 desiredWidth, uint32 desiredHeight);
+    void ClearRenderTarget();
 }

@@ -2,8 +2,9 @@
 
 namespace Tange
 {
-    Menu::Menu(const FontAtlas& atlas)
-        : m_atlas(atlas)
+    Menu::Menu(const RenderQueue& renderQueue, const FontAtlas& atlas)
+        : m_renderQueue(renderQueue),
+          m_atlas(atlas)
     {
     }
 
@@ -11,9 +12,9 @@ namespace Tange
     {
         for (auto entity : m_entities)
         {
-            if (EntityManager::HasComponent<Text>(entity))
+            if (EntityManager::HasComponent<TextTag>(entity))
             {
-                auto& label = EntityManager::GetComponent<Text>(entity);
+                auto& label = EntityManager::GetComponent<TextTag>(entity);
                 label.Destroy();
             }
             EntityManager::DestroyEntity(entity);
@@ -35,22 +36,81 @@ namespace Tange
         m_textColor = color;
     }
 
+    void Menu::PushText(const std::string& text, Vec2 position, float pixelHeight)
+    {
+        if (text.empty()) return;
+
+        auto entity = EntityManager::RegisterEntity();
+        entity.Transform.WindowOrthographic();
+        
+        auto& tag = EntityManager::AttachComponent<TextTag>(entity);
+        tag.Text = text;
+
+        float scale = pixelHeight / m_atlas.GlyphPixelSize;
+        float textLineWidth = 0;
+
+        // Loop once over the text to compute a bounding rectangle
+        // for the line(s) of text.
+        for (auto i = 0; i < text.length(); i++)
+        {
+            const auto& glyphInfo = m_atlas.LookupGlyphInfo(text[i]);
+            // NOTE: XAdvance accounts for spaces, glyphInfo.Size does not!
+            textLineWidth += glyphInfo.AdvanceX * scale;
+        }
+
+        // TODO: Text wrapping if it goes offscreen!
+        ASSERT(textLineWidth <= GetDrawRegion().Width);
+
+        // Center the bounding box at the specified position.
+        auto adjustedP = Vec2(position.X - (textLineWidth / 2.0),
+                              position.Y - (pixelHeight / 2.0));
+
+        Quad* pQuads = (Quad*)malloc(sizeof(Quad) * text.length());
+
+        // Create a batched quad for all of the glyphs.
+        for (auto i = 0; i < text.length(); i++)
+        {
+            const auto& glyphInfo = m_atlas.LookupGlyphInfo(text[i]);
+
+            // NOTE: Y is offset by the glyph height to account for the bitmap being flipped.
+            Vec2 minP = Vec2(adjustedP.X + glyphInfo.OffsetX * scale, 
+                             adjustedP.Y + (glyphInfo.OffsetY - glyphInfo.Size.Height) * scale);
+            Vec2 maxP = Vec2(minP.X + glyphInfo.Size.Width * scale,
+                             minP.Y + glyphInfo.Size.Height * scale);
+
+            pQuads[i] = Quad::CreatePreTransformed(minP, maxP, m_textColor, 
+                                                   glyphInfo.MinTexCoords, 
+                                                   glyphInfo.MaxTexCoords);
+
+            adjustedP.X += glyphInfo.AdvanceX * scale;
+        }
+
+        ResourceManager::SubmitMesh(text, pQuads, 
+                                    Quad::VerticeCount * text.length(), 
+                                    sizeof(Vertex));
+
+        entity.hRender.AttachMesh(text);
+        entity.hRender.AttachTexture(m_atlas.FontName);
+
+        free(pQuads);
+
+        m_entities.push_back(entity);
+    }
+
     void Menu::PushPanel(Vec2 position, Vec2 scale, float outlineThickness)
     {
         auto entity = EntityManager::RegisterEntity();
+        entity.hRender.AttachMesh("DefaultQuad");
+        entity.hRender.SetColor(m_baseColor);
+        entity.Transform.WindowOrthographic();
 
-        auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
-        drawable.AttachMesh("DefaultQuad");
-        drawable.SetColor(m_baseColor);
-
-        auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-        transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
-        transform.Position = position;
-        transform.Scale = Vec3(scale.X, scale.Y, 0);
+        auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
+        worldP.Position.XY = position;
+        worldP.Scale.XY = scale;
 
         // TODO: Need to detect focus for overlapped clickboxes.
         //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
-        /*dragable.Initialize(transform.Position, scale);*/
+        /*dragable.Initialize(position, scale);*/
 
         if (outlineThickness > 0.0)
         {
@@ -65,18 +125,16 @@ namespace Tange
                           const std::string& text, const std::function<void()>& callback) 
     {
         auto entity = EntityManager::RegisterEntity();
+        entity.hRender.AttachMesh("DefaultQuad");
+        entity.hRender.SetColor(m_baseColor);
+        entity.Transform.WindowOrthographic();
 
-        auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
-        drawable.AttachMesh("DefaultQuad");
-        drawable.SetColor(m_baseColor);
-
-        auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-        transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
-        transform.Position = position;
-        transform.Scale = Vec3(scale.X, scale.Y, 0);
+        auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
+        worldP.Position.XY = position;
+        worldP.Scale.XY = scale;
 
         auto& clickable = EntityManager::AttachComponent<Clickable2D>(entity);
-        clickable.Initialize(transform.Position, scale, callback);
+        clickable.Initialize(position, scale, callback);
 
         if (outlineThickness > 0.0)
         {
@@ -84,95 +142,87 @@ namespace Tange
             outline2d.Thickness = outlineThickness;
         }
 
+        m_entities.emplace_back(entity);
+
         if (!text.empty())
         {
-            auto& label = EntityManager::AttachComponent<Text>(entity);
-            label.CreateText(m_atlas, text, transform.Position, m_textColor, 12);
+            PushText(text, position, scale.Y * 0.25);
         }
-
-        m_entities.emplace_back(entity);
     }
 
-    void Menu::OnUpdate()
+    void Menu::Update(float timeStep) 
     {
         if (m_visible)
         {
             for (auto entity : m_entities)
-            {
-                auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-                transform.OnUpdate();
+            {   
+                if (EntityManager::HasComponent<WorldTransform>(entity))
+                {                
+                    auto& worldP = EntityManager::GetComponent<WorldTransform>(entity);
+                    entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
+                }
             }
         }
     }
 
-    void Menu::OnRender()
+    void Menu::Render()
     {
         if (m_visible)
         {
             for (auto entity : m_entities)
             {
-                SetShader("PixelFill");
-
-                auto& transform = EntityManager::GetComponent<Transformable>(entity);
-                auto& drawable = EntityManager::GetComponent<Drawable>(entity);
-
-                transform.OnRender();
-                drawable.OnRender();
-
-                // A tad janky, but the entity is reused to draw outlines.
-                // Ideally, a quad batching system would be used for a single mesh,
-                // but that is currently not implemented and that has issues of its own
-                // (have to modify the mesh instead of using transforms).
-                if (EntityManager::HasComponent<Outline2D>(entity))
+                if (!entity.hRender.hTexture.IsValid())
                 {
-                    auto& outline2d = EntityManager::GetComponent<Outline2D>(entity);
-                    float thickness = outline2d.Thickness;
+                    m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
-                    // Copy the original transform to reinstate its old transform later.
-                    auto baseTransform = transform;
-                    drawable.SetColor(m_outlineColor);
+                    if (EntityManager::HasComponent<Outline2D>(entity))
+                    {
+                        auto& outline2d = EntityManager::GetComponent<Outline2D>(entity);
+                        float thickness = outline2d.Thickness;
 
-                    Vec2 radius = Vec2(transform.Scale.X / 2.0, transform.Scale.Y / 2.0);
-                
-                    // Left rectangle.
-                    transform.Position = Vec2(baseTransform.Position.X - radius.X, 
-                                              baseTransform.Position.Y);
-                    transform.Scale = Vec3(thickness, baseTransform.Scale.Y + thickness, 1);
-                    transform.OnUpdate();
-                    drawable.OnRender();
+                        // Copy the original transform to reinstate it later.
+                        auto& worldP = EntityManager::GetComponent<WorldTransform>(entity);
+                        auto oldWorldP = worldP;
+                        entity.hRender.SetColor(m_outlineColor);
 
-                    // Top rectangle.
-                    transform.Position = Vec2(baseTransform.Position.X, 
-                                              baseTransform.Position.Y + radius.Y);
-                    transform.Scale = Vec3(baseTransform.Scale.X + thickness, thickness, 1);
-                    transform.OnUpdate();
-                    drawable.OnRender();
+                        Vec2 radius = Vec2(worldP.Scale.X / 2.0, worldP.Scale.Y / 2.0);
+                    
+                        // Left rectangle.
+                        worldP.Position.XY = Vec2(oldWorldP.Position.X - radius.X, 
+                                            oldWorldP.Position.Y);
+                        worldP.Scale = Vec3(thickness, oldWorldP.Scale.Y + thickness, 1);
+                        entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
+                        m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
-                    // Right rectangle
-                    transform.Position = Vec2(baseTransform.Position.X + radius.X,
-                                              baseTransform.Position.Y);
-                    transform.Scale = Vec3(thickness, baseTransform.Scale.Y + thickness, 1);
-                    transform.OnUpdate();
-                    drawable.OnRender();
+                        // Top rectangle.
+                        worldP.Position.XY = Vec2(oldWorldP.Position.X, 
+                                                oldWorldP.Position.Y + radius.Y);
+                        worldP.Scale = Vec3(oldWorldP.Scale.X + thickness, thickness, 1);
+                        entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
+                        m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
-                    // Bottom rectangle
-                    transform.Position = Vec2(baseTransform.Position.X, 
-                                              baseTransform.Position.Y - radius.Y);
-                    transform.Scale = Vec3(baseTransform.Scale.X + thickness, thickness, 1);
-                    transform.OnUpdate();
-                    drawable.OnRender();
+                        // Right rectangle
+                        worldP.Position.XY = Vec2(oldWorldP.Position.X + radius.X,
+                                                oldWorldP.Position.Y);
+                        worldP.Scale = Vec3(thickness, oldWorldP.Scale.Y + thickness, 1);
+                        entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
+                        m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
-                    // Reinstate the base state.
-                    transform.Position = baseTransform.Position;
-                    transform.Scale = baseTransform.Scale;
-                    drawable.SetColor(m_baseColor);
+                        // Bottom rectangle
+                        worldP.Position.XY = Vec2(oldWorldP.Position.X, 
+                                                oldWorldP.Position.Y - radius.Y);
+                        worldP.Scale = Vec3(oldWorldP.Scale.X + thickness, thickness, 1);
+                        entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
+                        m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
+
+                        // Reinstate the base state.
+                        worldP = oldWorldP;
+                        entity.hRender.SetColor(m_baseColor);
+                    }
                 }
-
-                if (EntityManager::HasComponent<Text>(entity))
+                else
                 {
-                    SetShader("Textured");
-                    auto& label = EntityManager::GetComponent<Text>(entity);
-                    label.OnRender();
+                    m_renderQueue.Submit("Textured", entity.hRender, entity.Transform);
                 }
             }
         }

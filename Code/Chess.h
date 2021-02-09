@@ -10,6 +10,7 @@ namespace Tange
 {
     class Chess : public Application
     {
+        RenderQueue m_renderQueue;
         GameState m_gameState;
         FontAtlas m_fontAtlas;
         Menu m_menu;

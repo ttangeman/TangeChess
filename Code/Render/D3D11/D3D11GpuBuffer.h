@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Render/D3D11/D3D11Renderer.h"
 
 namespace Tange

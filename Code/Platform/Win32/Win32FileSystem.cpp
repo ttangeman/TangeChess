@@ -1,8 +1,8 @@
-#include "Platform/FileManager.h"
+#include "Platform/FileSystem.h"
 
 namespace Tange
 {
-    FileData FileManager::ReadEntireFile(const std::string& fileName)
+    FileData FileSystem::ReadEntireFile(const std::string& fileName)
     {
         HANDLE hFile = CreateFileA(fileName.c_str(), GENERIC_READ, 0, 
                                    nullptr, OPEN_EXISTING, 0, nullptr);

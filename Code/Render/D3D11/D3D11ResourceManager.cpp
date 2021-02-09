@@ -1,5 +1,4 @@
 #include "Render/ResourceManager.h"
-#include "Render/D3D11/D3D11Renderer.h"
 
 namespace Tange
 {

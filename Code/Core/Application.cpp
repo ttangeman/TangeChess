@@ -27,12 +27,11 @@ namespace Tange
             });
 
             // Register common entity components.
-            EntityManager::RegisterComponent<Drawable>();
-            EntityManager::RegisterComponent<Transformable>();
+            EntityManager::RegisterComponent<WorldTransform>();
             EntityManager::RegisterComponent<Dragable2D>();
             EntityManager::RegisterComponent<Clickable2D>();
             EntityManager::RegisterComponent<Outline2D>();
-            EntityManager::RegisterComponent<Text>();
+            EntityManager::RegisterComponent<TextTag>();
         }
     }
 
@@ -52,17 +51,23 @@ namespace Tange
             Update();
             Render();
 
-            LastFrameTime = m_timer.Stop();
+            m_lastFrameTime = m_timer.Stop();
 
-            if (LastFrameTime < m_desiredUpdateRate)
+            if (m_lastFrameTime < m_desiredUpdateRate)
             {
+                m_dTime = m_desiredUpdateRate;
+                
                 // Need to convert from seconds to milliseconds.
-                auto sleepTime = (uint64)((m_desiredUpdateRate - LastFrameTime) * 1000);
+                auto sleepTime = (uint64)((m_desiredUpdateRate - m_lastFrameTime) * 1000);
                 
                 if (sleepTime > 0)
                 {
                     SleepMs(sleepTime); 
                 }
+            }
+            else
+            {
+                m_dTime = m_lastFrameTime;
             }
         }
     }

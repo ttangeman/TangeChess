@@ -3,97 +3,24 @@
 #include "Core/Common.h"
 #include "Entity/Component.h"
 #include "Entity/Entity.h"
+#include "Entity/EntityManager.h"
 #include "Render/ResourceManager.h"
+#include "Platform/PlatformManager.h"
 
 namespace Tange
 {
-    class Text : public Component<Text>
+    // Used to tag text so that it can be appropiately destroyed.
+    struct TextTag : public Component<TextTag>
     {
-        Entity m_textEntity;
-        std::string m_text;
+        std::string Text;
 
-    public:
-        void CreateText(const FontAtlas& atlas, const std::string& text, 
-                        Vec2 position, Vec4 color, float pixelHeight)
-        {
-            m_text = text;
-            m_textEntity = EntityManager::RegisterEntity();
-
-            float scale = pixelHeight / atlas.GlyphPixelSize;
-            float textLineWidth = 0;
-
-            // Loop once over the text to compute a bounding rectangle
-            // for the line(s) of text.
-            for (auto i = 0; i < text.length(); i++)
-            {
-                const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
-                // NOTE: XAdvance accounts for spaces, glyphInfo.Size does not!
-                textLineWidth += glyphInfo.AdvanceX * scale;
-            }
-
-            // TODO: Text wrapping if it goes offscreen!
-            ASSERT(textLineWidth <= GetDrawRegion().Width);
-
-            // Center the bounding box at the specified position.
-            auto adjustedP = Vec2(position.X - (textLineWidth / 2.0),
-                                  position.Y - (pixelHeight / 2.0));
-
-            Quad* pQuads = (Quad*)malloc(sizeof(Quad) * text.length());
-
-            // Create a batched quad for all of the glyphs.
-            for (auto i = 0; i < text.length(); i++)
-            {
-                const auto& glyphInfo = atlas.LookupGlyphInfo(text[i]);
-
-                // NOTE: Y is offset by the glyph height to account for the bitmap being flipped.
-                Vec2 minP = Vec2(adjustedP.X + glyphInfo.OffsetX * scale, 
-                                 adjustedP.Y + (glyphInfo.OffsetY - glyphInfo.Size.Height) * scale);
-                Vec2 maxP = Vec2(minP.X + glyphInfo.Size.Width * scale,
-                                 minP.Y + glyphInfo.Size.Height * scale);
-
-                pQuads[i] = Quad::CreatePreTransformed(minP, maxP, color, 
-                                                       glyphInfo.MinTexCoords, 
-                                                       glyphInfo.MaxTexCoords);
-
-                adjustedP.X += glyphInfo.AdvanceX * scale;
-            }
-
-            ResourceManager::SubmitMesh(text, pQuads, 
-                                        Quad::VerticeCount * text.length(), 
-                                        sizeof(Vertex));
-
-            auto& drawable = EntityManager::AttachComponent<Drawable>(m_textEntity);
-            drawable.AttachMesh(text);
-            drawable.AttachTexture(atlas.FontName);
-
-            auto& transform = EntityManager::AttachComponent<Transformable>(m_textEntity);
-            transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
-
-            free(pQuads);
-        }
-
-        // NOTE: Must be called explicitly.
         void Destroy()
         {
-            if (!m_text.empty())
+            if (!Text.empty())
             {
-                ResourceManager::ReleaseMesh(m_text);
+                ResourceManager::ReleaseMesh(Text);
             }
-
-            if (m_textEntity.IsValid())
-            {
-                EntityManager::DestroyEntity(m_textEntity);
-            }
-        }
-
-        void OnRender()
-        {
-            auto& drawable = EntityManager::GetComponent<Drawable>(m_textEntity);
-            auto& transform = EntityManager::GetComponent<Transformable>(m_textEntity);
-
-            transform.OnUpdate();
-            transform.OnRender();
-            drawable.OnRender();
+            EntityManager::DestroyEntity(BoundEntity);
         }
     };
 
@@ -109,8 +36,8 @@ namespace Tange
     struct Dragable2D : public Component<Dragable2D>
     {
         // The dimensions for the "click box".
-        Vec2 Position;
-        Vec2 Scale;
+        Vec2 ClickPosition;
+        Vec2 ClickScale;
 
         // Tracks previous mouse position.
         Vec2 PreviousMousePosition;
@@ -123,23 +50,23 @@ namespace Tange
 
         void Initialize(Vec2 position, Vec2 scale)
         {
-            Position = position;
-            Scale = scale;
+            ClickPosition = position;
+            ClickScale = scale;
 
             EventManager::BindHandler<WindowResized>(BoundEntity.Id,
             [this](const IEvent& event)
             {
                 const auto& resizeEvent = static_cast<const WindowResized&>(event);
-
-                auto tScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
-                                   Scale.Height / resizeEvent.CurrentHeight);
-                Scale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
-                             resizeEvent.DesiredHeight * tScale.Height);
+                // TODO: Account for mouse mapping?
+                auto tScale = Vec2(ClickScale.Width / resizeEvent.CurrentWidth,
+                                   ClickScale.Height / resizeEvent.CurrentHeight);
+                ClickScale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
+                                  resizeEvent.DesiredHeight * tScale.Height);
                 
-                auto tPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
-                                      Position.Height / resizeEvent.CurrentHeight);
-                Position = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
-                                resizeEvent.DesiredHeight * tPosition.Height);
+                auto tPosition = Vec2(ClickPosition.Width / resizeEvent.CurrentWidth,
+                                      ClickPosition.Height / resizeEvent.CurrentHeight);
+                ClickPosition = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
+                                     resizeEvent.DesiredHeight * tPosition.Height);
             });
         }
 
@@ -152,7 +79,7 @@ namespace Tange
 
         bool CollidesWith(Vec2 point)
         {
-            auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
+            auto boundingBox = Rect::ComputeBoundingBox(ClickPosition, ClickScale);
 
             if ((point.X < boundingBox.MaxCorner.X && 
                 point.Y < boundingBox.MaxCorner.Y) &&
@@ -171,7 +98,7 @@ namespace Tange
             {
                 const auto& mouseEvent = static_cast<const MouseMoved&>(event);
 
-                auto& transform = EntityManager::GetComponent<Transformable>(BoundEntity);
+                auto& worldP = EntityManager::GetComponent<WorldTransform>(BoundEntity);
                 
                 Vec2 mouseP = PlatformManager::CalculateMousePosition();
 
@@ -186,15 +113,15 @@ namespace Tange
                 }
 #if 1
                 // This snaps the center of the GUI element to the mouse.
-                transform.Position = mouseP;
+                worldP.Position.XY = mouseP;
 #else
                 // This moves the GUI element centered around where it was clicked.
                 Vec2i dPosition = mouseP - PreviousMousePosition;
-                transform.Position += dPosition;
+                worldP.Position += dPosition;
 #endif
                 PreviousMousePosition = mouseP;
                 // Update the dragables position.
-                Position = transform.Position; 
+                ClickPosition = worldP.Position.XY; 
             });
         }
         
@@ -208,14 +135,14 @@ namespace Tange
                 // Selection check on left click.
                 if (mouseEvent.Button == InputEvent::LeftClick)
                 {
-                    Vec2 mouseP = Vec2(mouseEvent.MousePosition.X, 
-                                       mouseEvent.MousePosition.Y);
-                                       
+                    Vec2 mouseP = mouseEvent.MousePosition;
+
+                    // Map mouse coordinates to the desired space, if requested.
                     if (MapMouseCoordinates)
                     {
                         Vec2 renderDim = GetDrawRegion();
                         Vec2 tPosition = Vec2(mouseP.X / renderDim.Width,
-                                            mouseP.Y / renderDim.Height);
+                                              mouseP.Y / renderDim.Height);
                         mouseP.X = Lerp(DestMouseMin.X, tPosition.X, DestMouseMax.X);
                         mouseP.Y = Lerp(DestMouseMin.Y, tPosition.Y, DestMouseMax.Y);
                     }
@@ -253,16 +180,16 @@ namespace Tange
     struct Clickable2D : Component<Clickable2D>
     {
         // The dimensions for the "click box".
-        Vec2 Position;
-        Vec2 Scale;
+        Vec2 ClickPosition;
+        Vec2 ClickScale;
 
         std::function<void()> OnClick;
 
         void Initialize(Vec2 position, Vec2 scale, 
                         const std::function<void()>& onClick)
         {
-            Position = position;
-            Scale = scale;
+            ClickPosition = position;
+            ClickScale = scale;
             OnClick = onClick;
 
             EventManager::BindHandler<WindowResized>(BoundEntity.Id,
@@ -270,21 +197,21 @@ namespace Tange
             {
                 const auto& resizeEvent = static_cast<const WindowResized&>(event);
 
-                auto tScale = Vec2(Scale.Width / resizeEvent.CurrentWidth,
-                                   Scale.Height / resizeEvent.CurrentHeight);
-                Scale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
-                             resizeEvent.DesiredHeight * tScale.Height);
+                auto tScale = Vec2(ClickScale.Width / resizeEvent.CurrentWidth,
+                                   ClickScale.Height / resizeEvent.CurrentHeight);
+                ClickScale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
+                                  resizeEvent.DesiredHeight * tScale.Height);
                 
-                auto tPosition = Vec2(Position.Width / resizeEvent.CurrentWidth,
-                                      Position.Height / resizeEvent.CurrentHeight);
-                Position = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
-                                resizeEvent.DesiredHeight * tPosition.Height);
+                auto tPosition = Vec2(ClickPosition.Width / resizeEvent.CurrentWidth,
+                                      ClickPosition.Height / resizeEvent.CurrentHeight);
+                ClickPosition = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
+                                     resizeEvent.DesiredHeight * tPosition.Height);
             });
         }
 
         bool CollidesWith(Vec2 point)
         {
-            auto boundingBox = Rect::ComputeBoundingBox(Position, Scale);
+            auto boundingBox = Rect::ComputeBoundingBox(ClickPosition, ClickScale);
 
             if ((point.X < boundingBox.MaxCorner.X && 
                 point.Y < boundingBox.MaxCorner.Y) &&

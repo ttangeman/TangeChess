@@ -2,7 +2,7 @@
 
 #include "Core/Common.h"
 #include "Asset/Image.h"
-#include "Platform/FileManager.h"
+#include "Platform/FileSystem.h"
 
 namespace Tange
 {
@@ -29,7 +29,7 @@ namespace Tange
         // the glyph correctly.
         GlyphInfo m_glyphInfos[GlyphCount];
         
-        public:
+    public:
         int32 GlyphPixelSize;
         std::string FontName;
 
@@ -42,7 +42,7 @@ namespace Tange
                         const std::string& fontName, 
                         int32 glyphSize = 16);
 
-        // Grabs the glyph information for the specififed character.
+        // Grabs the glyph information for the specified character.
         const GlyphInfo& LookupGlyphInfo(char character) const;
     };
 }

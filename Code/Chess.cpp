@@ -4,14 +4,14 @@ namespace Tange
 {
     static void LoadAllShaders()
     {
-        FileData defaultVertexShader = FileManager::ReadEntireFile("Shaders/Default.vs.cso");
-        FileData colorFillPixelShader = FileManager::ReadEntireFile("Shaders/Fullclear.ps.cso");
+        FileData defaultVertexShader = FileSystem::ReadEntireFile("Shaders/Default.vs.cso");
+        FileData colorFillPixelShader = FileSystem::ReadEntireFile("Shaders/Fullclear.ps.cso");
 
         ResourceManager::SubmitShader("PixelFill",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
                                      colorFillPixelShader.pData.get(), colorFillPixelShader.Size);
 
-        FileData texturePixelShader = FileManager::ReadEntireFile("Shaders/Textured.ps.cso");
+        FileData texturePixelShader = FileSystem::ReadEntireFile("Shaders/Textured.ps.cso");
 
         ResourceManager::SubmitShader("Textured",
                                      defaultVertexShader.pData.get(), defaultVertexShader.Size,
@@ -24,7 +24,7 @@ namespace Tange
         piecesImage.LoadBMP("Data/Pieces.bmp");
         ResourceManager::SubmitTexture("Texture/Pieces", piecesImage);
 
-        FileData fontFile = FileManager::ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
+        FileData fontFile = FileSystem::ReadEntireFile("Data/Font/NotoSans/NotoSans-Bold.ttf");
         Image fontAtlasImage = atlas.BuildFont(fontFile, "NotoSans-Bold");
         ResourceManager::SubmitTexture(atlas.FontName, fontAtlasImage);
     }
@@ -89,7 +89,7 @@ namespace Tange
 
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Application(title, width, height),
-          m_menu(m_fontAtlas),
+          m_menu(m_renderQueue, m_fontAtlas),
           m_gameState()
     {
         LoadAllShaders();
@@ -97,13 +97,8 @@ namespace Tange
         InitializeChessMeshes();
 
         m_boardEntity = EntityManager::RegisterEntity();
-        
-        auto& drawable = EntityManager::AttachComponent<Drawable>(m_boardEntity);
-        drawable.AttachMesh("ChessBoard");
-
-        auto& transform = EntityManager::AttachComponent<Transformable>(m_boardEntity);
-        transform.SetOrthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
-        transform.OnUpdate();
+        m_boardEntity.hRender.AttachMesh("ChessBoard");
+        m_boardEntity.Transform.WindowOrthographic();
 
         EventManager::BindHandler<KeyReleased>(0, 
         [this](const IEvent& event)
@@ -150,47 +145,31 @@ namespace Tange
     {
         for (auto entity : m_gameState.BoardState)
         {
-            if (entity.IsValid())
+            if (EntityManager::HasComponent<WorldTransform>(entity))
             {
-                auto& transform = EntityManager::GetComponent<Transformable>(entity);
-                transform.OnUpdate();
+                auto& worldP = EntityManager::GetComponent<WorldTransform>(entity);
+                entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
             }
         }
 
-        m_menu.OnUpdate();
+        m_menu.Update(m_dTime);
     }
 
     void Chess::Render()
     {
         FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
 
-        SetShader("PixelFill");
-
-        // TODO: Clearly a lot of this code is repeated.
-        // I would just ask the entity manager for all drawables/transformables,
-        // but the menu does not want to always be drawn, so I need a way
-        // to indicate that. Also, the shader needs to be set.
-        auto& boardTransform = EntityManager::GetComponent<Transformable>(m_boardEntity);
-        boardTransform.OnRender();
-
-        auto& boardDrawable = EntityManager::GetComponent<Drawable>(m_boardEntity);
-        boardDrawable.OnRender();
-
-        SetShader("Textured");
+        m_renderQueue.Submit("PixelFill", m_boardEntity.hRender, m_boardEntity.Transform);
 
         for (auto entity : m_gameState.BoardState)
         {
             if (entity.IsValid())
             {
-                auto& transform = EntityManager::GetComponent<Transformable>(entity);
-                transform.OnRender();
-
-                auto& drawable = EntityManager::GetComponent<Drawable>(entity);
-                drawable.OnRender();
+                m_renderQueue.Submit("Textured", entity.hRender, entity.Transform);
             }
         }
 
-        m_menu.OnRender();
+        m_menu.Render();
 
         PresentFrame();
     }

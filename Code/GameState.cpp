@@ -33,22 +33,21 @@ namespace Tange
         while (squareIndex < ColCount)
         {
             Entity entity = EntityManager::RegisterEntity();
-            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
             auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
+            worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
+
             piece.Color = desiredColor;
             piece.Type = standardPieceRow[squareIndex % ColCount];
-            
-            drawable.AttachMesh(GetPieceName(entity));
-            drawable.AttachTexture("Texture/Pieces");
 
-            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
-            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+            entity.hRender.AttachMesh(GetPieceName(entity));
+            entity.hRender.AttachTexture("Texture/Pieces");
+            entity.Transform.Orthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
-            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
@@ -60,22 +59,21 @@ namespace Tange
         while (squareIndex < ColCount * 2)
         {
             Entity entity = EntityManager::RegisterEntity();
-            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+            auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
             auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
 
-            drawable.AttachMesh(GetPieceName(entity));
-            drawable.AttachTexture("Texture/Pieces");
+            entity.hRender.AttachMesh(GetPieceName(entity));
+            entity.hRender.AttachTexture("Texture/Pieces");
+            entity.Transform.Orthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
-            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
-            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+            worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
-            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
@@ -92,22 +90,22 @@ namespace Tange
         while (squareIndex < ColCount * 7)
         {
             Entity entity = EntityManager::RegisterEntity();
-            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+
+            auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
             auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = PieceType::Pawn;
 
-            drawable.AttachMesh(GetPieceName(entity));
-            drawable.AttachTexture("Texture/Pieces");
+            entity.hRender.AttachMesh(GetPieceName(entity));
+            entity.hRender.AttachTexture("Texture/Pieces");
+            entity.Transform.Orthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
-            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
-            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+            worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
-            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
@@ -119,22 +117,22 @@ namespace Tange
         while (squareIndex < ColCount * 8)
         {
             Entity entity = EntityManager::RegisterEntity();
-            auto& transform = EntityManager::AttachComponent<Transformable>(entity);
-            auto& drawable = EntityManager::AttachComponent<Drawable>(entity);
+
+            auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
             auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = standardPieceRow[squareIndex % ColCount];
 
-            drawable.AttachMesh(GetPieceName(entity));
-            drawable.AttachTexture("Texture/Pieces");
+            entity.hRender.AttachMesh(GetPieceName(entity));
+            entity.hRender.AttachTexture("Texture/Pieces");
+            entity.Transform.Orthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
-            transform.Position = Vec2(squareIndex % ColCount + 1, squareIndex / RowCount + 1);
-            transform.SetOrthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
+            worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
-            dragable.Initialize(transform.Position, transform.Scale.XY);
+            dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
 
             BoardState[squareIndex] = entity;
@@ -195,7 +193,7 @@ namespace Tange
         validMoves.reserve(16);
         
         auto& piece = EntityManager::GetComponent<PieceComponent>(entity);
-        auto& transform = EntityManager::GetComponent<Transformable>(entity);
+        auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
         auto oppositeColor = FindOppositeColor(piece.Color);
 
         switch (piece.Type)
@@ -205,10 +203,10 @@ namespace Tange
             case PieceType::Pawn:
             {
                 // TODO: Implement en passant and promotion.
-                Vec2 forward = transform.Position + Vec2(0, 1);
-                Vec2 twoForward = transform.Position + Vec2(0, 2);
-                Vec2 leftDiagonal = transform.Position + Vec2(-1, 1);
-                Vec2 rightDiagonal = transform.Position + Vec2(1, 1);
+                Vec2 forward = worldP.Position.XY + Vec2(0, 1);
+                Vec2 twoForward = worldP.Position.XY + Vec2(0, 2);
+                Vec2 leftDiagonal = worldP.Position.XY + Vec2(-1, 1);
+                Vec2 rightDiagonal = worldP.Position.XY + Vec2(1, 1);
 
                 if (!IsOccupiedSquare(forward) && IsValidSquare(forward))
                 {
@@ -239,15 +237,15 @@ namespace Tange
                 // TODO: Castle and handle checks.
                 Vec2 possibleMoveSet[] =
                 {
-                    Vec2(transform.Position.X, transform.Position.Y + 1),  
-                    Vec2(transform.Position.X, transform.Position.Y - 1),  
-                    Vec2(transform.Position.X + 1, transform.Position.Y),  
-                    Vec2(transform.Position.X - 1, transform.Position.Y),  
+                    Vec2(worldP.Position.X, worldP.Position.Y + 1),  
+                    Vec2(worldP.Position.X, worldP.Position.Y - 1),  
+                    Vec2(worldP.Position.X + 1, worldP.Position.Y),  
+                    Vec2(worldP.Position.X - 1, worldP.Position.Y),  
 
-                    Vec2(transform.Position.X + 1, transform.Position.Y + 1),  
-                    Vec2(transform.Position.X - 1, transform.Position.Y + 1),  
-                    Vec2(transform.Position.X + 1, transform.Position.Y - 1),  
-                    Vec2(transform.Position.X - 1, transform.Position.Y - 1),  
+                    Vec2(worldP.Position.X + 1, worldP.Position.Y + 1),  
+                    Vec2(worldP.Position.X - 1, worldP.Position.Y + 1),  
+                    Vec2(worldP.Position.X + 1, worldP.Position.Y - 1),  
+                    Vec2(worldP.Position.X - 1, worldP.Position.Y - 1),  
                 };             
 
                 for (auto it : possibleMoveSet)
@@ -274,10 +272,10 @@ namespace Tange
             {
                 case PieceType::Bishop:
                 {
-                    Vec2 topLeftDiagonal = transform.Position + Vec2(-1, 1);
-                    Vec2 topRightDiagonal = transform.Position + Vec2(1, 1);
-                    Vec2 bottomLeftDiagonal = transform.Position + Vec2(-1, -1);
-                    Vec2 bottomRightDiagonal = transform.Position + Vec2(1, -1);
+                    Vec2 topLeftDiagonal = worldP.Position.XY + Vec2(-1, 1);
+                    Vec2 topRightDiagonal = worldP.Position.XY + Vec2(1, 1);
+                    Vec2 bottomLeftDiagonal = worldP.Position.XY + Vec2(-1, -1);
+                    Vec2 bottomRightDiagonal = worldP.Position.XY + Vec2(1, -1);
 
                     while (IsValidSquare(topLeftDiagonal))
                     {
@@ -353,10 +351,10 @@ namespace Tange
                 
                 case PieceType::Rook:
                 {
-                    Vec2 up = transform.Position + Vec2(0, 1);
-                    Vec2 down = transform.Position + Vec2(0, -1);
-                    Vec2 right = transform.Position + Vec2(1, 0);
-                    Vec2 left = transform.Position + Vec2(-1, 0);
+                    Vec2 up = worldP.Position.XY + Vec2(0, 1);
+                    Vec2 down = worldP.Position.XY + Vec2(0, -1);
+                    Vec2 right = worldP.Position.XY + Vec2(1, 0);
+                    Vec2 left = worldP.Position.XY + Vec2(-1, 0);
                     
                     while (IsValidSquare(up))
                     {
@@ -433,15 +431,15 @@ namespace Tange
             {
                 Vec2 possibleMoveSet[] = 
                 {
-                    Vec2(transform.Position.X - 1, transform.Position.Y + 2),
-                    Vec2(transform.Position.X - 2, transform.Position.Y + 1),
-                    Vec2(transform.Position.X + 1, transform.Position.Y + 2),
-                    Vec2(transform.Position.X + 2, transform.Position.Y + 1),
+                    Vec2(worldP.Position.X - 1, worldP.Position.Y + 2),
+                    Vec2(worldP.Position.X - 2, worldP.Position.Y + 1),
+                    Vec2(worldP.Position.X + 1, worldP.Position.Y + 2),
+                    Vec2(worldP.Position.X + 2, worldP.Position.Y + 1),
                     
-                    Vec2(transform.Position.X - 1, transform.Position.Y - 2),
-                    Vec2(transform.Position.X - 2, transform.Position.Y - 1),
-                    Vec2(transform.Position.X + 1, transform.Position.Y - 2),
-                    Vec2(transform.Position.X + 2, transform.Position.Y - 1),
+                    Vec2(worldP.Position.X - 1, worldP.Position.Y - 2),
+                    Vec2(worldP.Position.X - 2, worldP.Position.Y - 1),
+                    Vec2(worldP.Position.X + 1, worldP.Position.Y - 2),
+                    Vec2(worldP.Position.X + 2, worldP.Position.Y - 1),
                 };
                 
                 for (auto it : possibleMoveSet)
@@ -481,10 +479,10 @@ namespace Tange
             // The desired square is valid if it is in the valid set!
             if (it.destinationSquare == desiredSquare)
             {
-                auto& transform = EntityManager::GetComponent<Transformable>(entity);
+                auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
                 
                 // NOTE: Need to synchronize the two positions!
-                transform.Position = desiredSquare;
+                worldP.Position.XY = desiredSquare;
                 
                 if (it.captureEntity.IsValid())
                 {
@@ -492,7 +490,7 @@ namespace Tange
                     EntityManager::DestroyEntity(captured);
                 }
 
-                BoardState[IndexBoardState(transform.Position)] = {};
+                BoardState[IndexBoardState(worldP.Position.XY)] = {};
                 BoardState[IndexBoardState(desiredSquare)] = entity;
 
                 return true;

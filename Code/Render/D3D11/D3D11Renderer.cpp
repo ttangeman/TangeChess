@@ -46,6 +46,53 @@ namespace Tange
         Vertices[5].TexCoord = Vec2(min.U, min.V);
     }
 
+    Transform::Transform()
+    {
+        pTransformBuffer = std::make_shared<GpuBuffer>(sizeof(TransformData));
+    }
+
+    void Transform::WindowOrthographic()
+    {
+        Orthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
+    }
+
+    void Transform::Orthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ)
+    {
+        Projection = DirectX::XMMatrixOrthographicOffCenterLH(minView.X, maxView.X,
+                                                              minView.Y, maxView.Y,
+                                                              nearZ, farZ);
+
+        auto* pTransformData = static_cast<TransformData*>(pTransformBuffer->MapBuffer());
+
+        pTransformData->World = DirectX::XMMatrixIdentity();
+        // TODO: Camera
+        pTransformData->View = DirectX::XMMatrixIdentity();
+        pTransformData->Projection = DirectX::XMMatrixTranspose(Projection);
+        
+        pTransformBuffer->Unmap();                    
+    }
+
+    void Transform::Update(Vec3 position, Vec3 scale, Vec3 rotation)
+    {
+        XMMATRIX scaling = DirectX::XMMatrixScaling(scale.X, scale.Y, scale.Z);
+        XMMATRIX rotationX = DirectX::XMMatrixRotationX(DEGREES_TO_RADIANS(rotation.X));
+        XMMATRIX rotationY = DirectX::XMMatrixRotationY(DEGREES_TO_RADIANS(rotation.Y));
+        XMMATRIX rotationZ = DirectX::XMMatrixRotationZ(DEGREES_TO_RADIANS(rotation.Z));
+        XMMATRIX translation = DirectX::XMMatrixTranslation(position.X, position.Y, position.Z);
+
+        // NOTE: Order is super important! Rotations should come before translation!
+        XMMATRIX affineTransform = scaling * rotationX * rotationY * rotationZ * translation;
+
+        auto* pTransformData = static_cast<TransformData*>(pTransformBuffer->MapBuffer());
+
+        pTransformData->World = DirectX::XMMatrixTranspose(affineTransform);
+        // TODO: Camera
+        pTransformData->View = DirectX::XMMatrixIdentity();
+        pTransformData->Projection = DirectX::XMMatrixTranspose(Projection);
+        
+        pTransformBuffer->Unmap();
+    }
+
     void IntializeRendererPipeline()
     {
         auto hWindow = PlatformManager::GetWindow();
