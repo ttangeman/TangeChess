@@ -49,12 +49,12 @@ namespace Tange
     };
 
     // Stores a possible move for a piece.
-    // If the move should cause a capture, then captureEntity
+    // If the move should cause a capture, then CaptureEntity
     // should be set to the possibly destroyed entity.
     struct PieceMove
     {
-        Vec2 destinationSquare;
-        Entity captureEntity;
+        Vec2 DestinationSquare;
+        Entity CaptureEntity;
     };
     
     class GameState

@@ -477,14 +477,14 @@ namespace Tange
         for (auto& it : validMoveSet)
         {
             // The desired square is valid if it is in the valid set!
-            if (it.destinationSquare == desiredSquare)
+            if (it.DestinationSquare == desiredSquare)
             {
                 auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
                 
                 // NOTE: Need to synchronize the two positions!
                 worldP.Position.XY = desiredSquare;
                 
-                if (it.captureEntity.IsValid())
+                if (it.CaptureEntity.IsValid())
                 {
                     Entity captured = BoardState[IndexBoardState(desiredSquare)];
                     EntityManager::DestroyEntity(captured);

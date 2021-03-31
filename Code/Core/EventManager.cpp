@@ -77,6 +77,7 @@ namespace Tange
         // it doesn't happen in other cases (?). Manually looping 
         // through the vector seems to fix it??? 
         auto& handler = s_instance.m_eventHandlers.at(T::GetIndex());
+
         for (auto i = 0; i < handler.size(); i++)
         {
             auto& it = handler[i];

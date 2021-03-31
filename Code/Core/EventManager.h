@@ -24,6 +24,7 @@ namespace Tange
     class EventManager
     {
         static EventManager s_instance;
+
         // NOTE: Unable to remove from the outer vector in order to maintain
         // index stability. The inner vector is used as a FIFO queue, so deleting
         // handlers is allowed.
@@ -41,11 +42,11 @@ namespace Tange
         template<typename T>
         static void BindHandler(int32 id, const std::function<void(const IEvent&)>& callback);
 
-        // Detach a specific event type from a handler name.
+        // Detach a specific event type from a handler id.
         template<typename T>
         static void DetachHandler(int32 id);
 
-        // Detaches all handlers registered under a name.
+        // Detaches all handlers registered under an id.
         static void DetachAllHandlers(int32 id);
 
         // Dispatches an event to all subscribed handlers.

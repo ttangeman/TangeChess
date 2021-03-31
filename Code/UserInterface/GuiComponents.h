@@ -4,14 +4,17 @@
 #include "Entity/Component.h"
 #include "Entity/Entity.h"
 #include "Entity/EntityManager.h"
+#include "World/WorldTransform.h"
 #include "Render/ResourceManager.h"
 #include "Platform/PlatformManager.h"
 
 namespace Tange
 {
-    // Used to tag text so that it can be appropiately destroyed.
+    // TODO: This is extremely bad because we could have shared
+    // text.
     struct TextTag : public Component<TextTag>
     {
+        // TODO: Can maybe use the BoundEntity for the mesh name.
         std::string Text;
 
         void Destroy()
@@ -29,10 +32,7 @@ namespace Tange
         float Thickness;
     };
 
-    // TODO: Dragable is currently busted because it does not move text/outlines.
-    // Probably need some kind of GuiComponent that tracks the parent/children entities.
-    // The text entity storing a separate entity from the one it's bound to is quite janky,
-    // for example.
+    // TODO: Merge dragable and clickable.
     struct Dragable2D : public Component<Dragable2D>
     {
         // The dimensions for the "click box".

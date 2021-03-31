@@ -168,7 +168,13 @@ union Vec3
     
     float Data[3];
     
-    Vec3() = default;    
+    Vec3() = default;
+    
+    Vec3(Vec2 xy, float z) : X(xy.X), Y(xy.Y), Z(Z)
+    {
+
+    } 
+
     Vec3(float x, float y, float z) : X(x), Y(y), Z(z)
     {
     }

@@ -88,12 +88,10 @@ namespace Tange
         ResourceManager::SubmitMesh(text, pQuads, 
                                     Quad::VerticeCount * text.length(), 
                                     sizeof(Vertex));
+        free(pQuads);
 
         entity.hRender.AttachMesh(text);
         entity.hRender.AttachTexture(m_atlas.FontName);
-
-        free(pQuads);
-
         m_entities.push_back(entity);
     }
 
@@ -103,6 +101,7 @@ namespace Tange
         entity.hRender.AttachMesh("DefaultQuad");
         entity.hRender.SetColor(m_baseColor);
         entity.Transform.WindowOrthographic();
+        m_entities.emplace_back(entity);
 
         auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
         worldP.Position.XY = position;
@@ -117,17 +116,16 @@ namespace Tange
             auto& outline2d = EntityManager::AttachComponent<Outline2D>(entity);
             outline2d.Thickness = outlineThickness;
         }
-
-        m_entities.emplace_back(entity);
     }
 
     void Menu::PushButton(Vec2 position, Vec2 scale, float outlineThickness,
                           const std::string& text, const std::function<void()>& callback) 
     {
-        auto entity = EntityManager::RegisterEntity();
+        auto entity = EntityManager::RegisterEntity();        
         entity.hRender.AttachMesh("DefaultQuad");
         entity.hRender.SetColor(m_baseColor);
         entity.Transform.WindowOrthographic();
+        m_entities.emplace_back(entity);
 
         auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
         worldP.Position.XY = position;
@@ -142,8 +140,8 @@ namespace Tange
             outline2d.Thickness = outlineThickness;
         }
 
-        m_entities.emplace_back(entity);
-
+        // NOTE: Text pushed _after_ the button to ensure
+        // it overlays on top.
         if (!text.empty())
         {
             PushText(text, position, scale.Y * 0.25);
@@ -165,6 +163,7 @@ namespace Tange
         }
     }
 
+    // TODO: Outlines complicate trying to separate this out from the menu.
     void Menu::Render()
     {
         if (m_visible)
@@ -189,28 +188,28 @@ namespace Tange
                     
                         // Left rectangle.
                         worldP.Position.XY = Vec2(oldWorldP.Position.X - radius.X, 
-                                            oldWorldP.Position.Y);
+                                                  oldWorldP.Position.Y);
                         worldP.Scale = Vec3(thickness, oldWorldP.Scale.Y + thickness, 1);
                         entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
                         m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
                         // Top rectangle.
                         worldP.Position.XY = Vec2(oldWorldP.Position.X, 
-                                                oldWorldP.Position.Y + radius.Y);
+                                                  oldWorldP.Position.Y + radius.Y);
                         worldP.Scale = Vec3(oldWorldP.Scale.X + thickness, thickness, 1);
                         entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
                         m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
                         // Right rectangle
                         worldP.Position.XY = Vec2(oldWorldP.Position.X + radius.X,
-                                                oldWorldP.Position.Y);
+                                                  oldWorldP.Position.Y);
                         worldP.Scale = Vec3(thickness, oldWorldP.Scale.Y + thickness, 1);
                         entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
                         m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);
 
                         // Bottom rectangle
                         worldP.Position.XY = Vec2(oldWorldP.Position.X, 
-                                                oldWorldP.Position.Y - radius.Y);
+                                                  oldWorldP.Position.Y - radius.Y);
                         worldP.Scale = Vec3(oldWorldP.Scale.X + thickness, thickness, 1);
                         entity.Transform.Update(worldP.Position, worldP.Scale, worldP.Orientation);
                         m_renderQueue.Submit("PixelFill", entity.hRender, entity.Transform);

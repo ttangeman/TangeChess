@@ -2,8 +2,9 @@
 
 #include "Core/Common.h"
 #include "Entity/EntityManager.h"
-#include "Entity/IEntityGroup.h"
 #include "UserInterface/GuiComponents.h"
+#include "Render/RenderQueue.h"
+#include "Asset/FontAtlas.h"
 
 namespace Tange
 {
@@ -11,7 +12,7 @@ namespace Tange
     // default to a (500, 500) orthographic coordinate system instead and
     // map mouse positions into that system. This would ensure that the GUI is scaled
     // right on all aspect ratios.
-    class Menu : public IEntityGroup
+    class Menu
     {
         const RenderQueue& m_renderQueue;
         const FontAtlas& m_atlas;
@@ -35,8 +36,8 @@ namespace Tange
         void PushButton(Vec2 position, Vec2 scale, float outlineThickness,
                         const std::string& text, const std::function<void()>& callback);
 
-        void Update(float timeStep) override;
-        void Render() override;
+        void Update(float timeStep);
+        void Render();
 
         void Show();
         void Hide();
