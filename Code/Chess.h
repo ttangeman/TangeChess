@@ -13,7 +13,7 @@ namespace Tange
         RenderQueue m_renderQueue;
         GameState m_gameState;
         FontAtlas m_fontAtlas;
-        Menu m_menu;
+        GuiMenu m_menu;
         Entity m_boardEntity;
 
     public:    

@@ -170,7 +170,7 @@ union Vec3
     
     Vec3() = default;
     
-    Vec3(Vec2 xy, float z) : X(xy.X), Y(xy.Y), Z(Z)
+    Vec3(Vec2 xy, float z) : X(xy.X), Y(xy.Y), Z(z)
     {
 
     } 

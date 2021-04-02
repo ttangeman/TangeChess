@@ -35,7 +35,7 @@ namespace Tange
             Entity entity = EntityManager::RegisterEntity();
             auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
-            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
+            //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
@@ -46,9 +46,11 @@ namespace Tange
             entity.hRender.AttachTexture("Texture/Pieces");
             entity.Transform.Orthographic(Vec2(0.5, 0.5), Vec2(8.5, 8.5), 0.1, 100.0);
 
+            /*
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
             dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
+            */
 
             BoardState[squareIndex] = entity;
             
@@ -61,7 +63,7 @@ namespace Tange
             Entity entity = EntityManager::RegisterEntity();
             auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
-            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
+            //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = desiredColor;
             piece.Type = PieceType::Pawn;
@@ -72,9 +74,11 @@ namespace Tange
 
             worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
+            /*
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
             dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
+            */
 
             BoardState[squareIndex] = entity;
             
@@ -93,7 +97,7 @@ namespace Tange
 
             auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
-            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
+            //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = PieceType::Pawn;
@@ -104,9 +108,11 @@ namespace Tange
 
             worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
+            /*
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
             dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
+            */
 
             BoardState[squareIndex] = entity;
             
@@ -120,7 +126,7 @@ namespace Tange
 
             auto& worldP = EntityManager::AttachComponent<WorldTransform>(entity);
             auto& piece = EntityManager::AttachComponent<PieceComponent>(entity);
-            auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
+            //auto& dragable = EntityManager::AttachComponent<Dragable2D>(entity);
 
             piece.Color = FindOppositeColor(desiredColor);
             piece.Type = standardPieceRow[squareIndex % ColCount];
@@ -131,9 +137,11 @@ namespace Tange
 
             worldP.Position = Vec3(squareIndex % ColCount + 1, squareIndex / RowCount + 1, 1);
 
+            /*
             dragable.SetMouseMapping(Vec2(0.5, 0.5), Vec2(8.5, 8.5));
             dragable.Initialize(worldP.Position.XY, worldP.Scale.XY);
             dragable.BindInputHandlers();
+            */
 
             BoardState[squareIndex] = entity;
             

@@ -12,7 +12,6 @@
 #include "Render/ResourceManager.h"
 #include "Render/RenderQueue.h"
 #include "World/WorldTransform.h"
-#include "UserInterface/GuiComponents.h"
 
 // Unity build (single translation unit) includes.
 #include "Core/EventManager.cpp"
@@ -24,7 +23,9 @@
 #include "Render/D3D11/D3D11ResourceManager.cpp"
 #include "Render/D3D11/D3D11RenderQueue.cpp"
 #include "Entity/EntityManager.cpp"
-#include "UserInterface/Menu.cpp"
+#include "UserInterface/GuiMenu.cpp"
+#include "UserInterface/GuiButton.cpp"
+#include "UserInterface/TextLine.cpp"
 
 namespace Tange
 { 

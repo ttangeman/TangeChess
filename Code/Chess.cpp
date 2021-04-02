@@ -89,7 +89,7 @@ namespace Tange
 
     Chess::Chess(const std::string& title, int32 width, int32 height)
         : Application(title, width, height),
-          m_menu(m_renderQueue, m_fontAtlas),
+          m_menu(m_renderQueue),
           m_gameState()
     {
         LoadAllShaders();
@@ -110,11 +110,19 @@ namespace Tange
                 m_menu.ToggleVisibility();
             }
         });
-        
-        m_menu.SetBaseColor(Vec4(0, 0, 0, 0.9));
-        m_menu.SetOutlineColor(Vec4(0.95, 0.89, 0.71, 0.9));
-        m_menu.SetTextColor(Vec4(0.95, 0.89, 0.71, 0.95));
 
+        m_menu.Add<GuiObject>(GuiObject {Vec2(300, 300), Vec2(240, 360), Vec4(0, 0, 0, 0.8)});
+        m_menu.Add<GuiButton>(GuiButton 
+        {
+            Vec2(300, 400), Vec2(135, 50), 
+            m_fontAtlas, "Back to Game", 16, Vec4(1, 0, 0, 1),
+            [&]()
+            {
+                m_menu.ToggleVisibility();
+            }
+        });
+
+#if 0
         m_menu.PushPanel(Vec2(300, 300), Vec2(240, 360), 2.0);
 
         m_menu.PushButton(Vec2(300, 400), Vec2(135, 50), 2.0, "Back to Game",
@@ -133,7 +141,7 @@ namespace Tange
         {
             PlatformManager::ForceQuit();
         });
-
+#endif
         m_gameState.StartGame(PieceColor::White);
     }        
     

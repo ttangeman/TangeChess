@@ -18,13 +18,15 @@ namespace Tange
         RenderHandle m_hRender = {};
         Transform m_transform = {};
         Vec2 m_position = Vec2(0, 0);
-        Vec2 m_scale = 0;
+        Vec2 m_scale = Vec2(0, 0);
         bool m_visible = false;
 
     public:
-        GuiObject()
+        GuiObject(Vec2 centerP, Vec2 dimensions)
+            : m_position(centerP), m_scale(dimensions)
         {
             m_hRender.AttachMesh("DefaultQuad");
+            m_hRender.SetColor(Vec4(0, 0, 0, 1));
             m_transform.WindowOrthographic();
 
             // TODO: Get a proper id from event manager!
@@ -45,6 +47,12 @@ namespace Tange
             });
         }
 
+        GuiObject(Vec2 centerP, Vec2 dimensions, Vec4 color)
+            : GuiObject(centerP, dimensions)
+        {
+            SetColor(color);
+        }
+
         virtual void Destory()
         {
             EventManager::DetachHandler<WindowResized>(1);
@@ -63,7 +71,10 @@ namespace Tange
         // For unordinary cases, this method can be overriden.
         virtual void Render(const RenderQueue& queue)
         {
-            queue.Submit("PixelFill", m_hRender, m_transform);
+            if (m_visible)
+            {
+                queue.Submit("PixelFill", m_hRender, m_transform);
+            }
         }
 
         virtual void Show()
@@ -79,7 +90,7 @@ namespace Tange
         void ToggleVisibility()
         {
             // This is done this way as Show/Hide can be overriden.
-            if (m_visible)
+            if (!m_visible)
             {
                 Show();
             }
@@ -91,7 +102,7 @@ namespace Tange
 
         void SetColor(Vec4 color)
         {
-            m_hRender.SetColor(Vec4(0, 0, 0, 1));
+            m_hRender.SetColor(color);
         }
     };
 }
