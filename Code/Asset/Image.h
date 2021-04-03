@@ -20,6 +20,8 @@ namespace Tange
 
         Image() = default;
         ~Image();
+        Image(const Image& other);
+        void operator=(const Image& other);
         Image(Image&& other);
 
         // Loads a Windows bitmap.
@@ -33,9 +35,5 @@ namespace Tange
 
         // Used for swapping the endianess of pixel colors.
         void SwapBGRAToRGBA();
-
-    private:
-        // Frees the pixel pointer.
-        void FreePixels();
     };
 }

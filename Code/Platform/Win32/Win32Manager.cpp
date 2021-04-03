@@ -187,13 +187,6 @@ namespace Tange
                                                     int32 windowHeight, bool showCursor, 
                                                     bool useWindowBorders)
     {
-        EventManager::RegisterEvent<KeyPressed>();
-        EventManager::RegisterEvent<KeyReleased>();
-        EventManager::RegisterEvent<MouseClicked>();
-        EventManager::RegisterEvent<MouseReleased>();
-        EventManager::RegisterEvent<MouseMoved>();
-        EventManager::RegisterEvent<WindowResized>();
-
         HINSTANCE hInstance = GetModuleHandle(0);
         
         WNDCLASSA windowClass = {};

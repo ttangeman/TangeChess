@@ -60,7 +60,7 @@ namespace Tange
             {0.94, 0.85, 0.71, 1.0}, // Light
         };
 
-        Vec2 drawRegion = GetDrawRegion();
+        Vec2 drawRegion = Renderer::GetDrawRegion();
         auto squareDim = Vec2(drawRegion.Width / GameState::ColCount,
                               drawRegion.Height / GameState::RowCount);
 
@@ -115,7 +115,7 @@ namespace Tange
         m_menu.Add<GuiButton>(GuiButton 
         {
             Vec2(300, 400), Vec2(135, 50), 
-            m_fontAtlas, "Back to Game", 16, Vec4(1, 0, 0, 1),
+            m_fontAtlas, "Back to Game", 12, Vec4(1, 0, 0, 1),
             [&]()
             {
                 m_menu.ToggleVisibility();
@@ -165,7 +165,7 @@ namespace Tange
 
     void Chess::Render()
     {
-        FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
+        Renderer::FullClear(Vec4(0.17f, 0.34f, 0.68f, 1.0f));
 
         m_renderQueue.Submit("PixelFill", m_boardEntity.hRender, m_boardEntity.Transform);
 
@@ -179,6 +179,6 @@ namespace Tange
 
         m_menu.Render();
 
-        PresentFrame();
+        Renderer::PresentFrame();
     }
 }

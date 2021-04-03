@@ -46,7 +46,7 @@ namespace Tange
         }
 
         // TODO: Text wrapping if it goes offscreen!
-        ASSERT(textLineWidth <= GetDrawRegion().Width);
+        ASSERT(textLineWidth <= Renderer::GetDrawRegion().Width);
 
         // Center the bounding box at the specified position.
         auto adjustedP = Vec2(position.X - (textLineWidth / 2.0),

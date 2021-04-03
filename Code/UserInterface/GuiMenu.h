@@ -10,6 +10,7 @@ namespace Tange
     class GuiMenu
     {
         const RenderQueue& m_renderQueue;
+        
         std::vector<std::unique_ptr<GuiObject>> m_objects;
 
     public:

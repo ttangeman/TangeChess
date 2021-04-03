@@ -17,8 +17,6 @@ namespace Tange
         ID3D11Buffer* m_pBuffer;
 
     public:
-        GpuBuffer() = default;
-
         GpuBuffer(usize bufferSize)
         {
             CreateBuffer(bufferSize);
@@ -29,16 +27,14 @@ namespace Tange
             ReleaseBuffer();
         }
 
-        GpuBuffer(const GpuBuffer& copy)
-        {
-            std::memcpy(this, &copy, sizeof(*this));
-        }
-        
         GpuBuffer(GpuBuffer&& other)
+            : m_pBuffer(other.m_pBuffer)
         {
-            this->m_pBuffer = other.m_pBuffer;
             other.m_pBuffer = nullptr;
         }
+
+        GpuBuffer(const GpuBuffer&) = delete;
+        void operator=(const GpuBuffer&) = delete;
 
         void* MapBuffer()
         {

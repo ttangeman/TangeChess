@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/IEvent.h"
+#include "Core/Event.h"
 
 namespace Tange
 {
-    struct Handler
+    struct EventHandler
     {
         // The function to dispatch the event to.
         std::function<void(const IEvent&)> Callback;
@@ -15,7 +15,7 @@ namespace Tange
         // single dispatches.
         int32 Id;
 
-        Handler(int32 id, std::function<void(const IEvent&)> callback)
+        EventHandler(int32 id, std::function<void(const IEvent&)> callback)
             : Id(id), Callback(callback)
         {
         }
@@ -28,15 +28,13 @@ namespace Tange
         // NOTE: Unable to remove from the outer vector in order to maintain
         // index stability. The inner vector is used as a FIFO queue, so deleting
         // handlers is allowed.
-        std::vector<std::vector<Handler>> m_eventHandlers;
+        std::vector<std::vector<EventHandler>> m_eventHandlers;
+
+        static bool IsRegisteredEvent(int32 index);
 
     public:
         EventManager(const EventManager&) = delete;
         void operator=(const EventManager&) = delete;
-
-        // Registers the event for possible handling.
-        template<typename T>
-        static void RegisterEvent();
 
         // Registers a callback for an event.
         template<typename T>

@@ -53,7 +53,7 @@ namespace Tange
 
     void Transform::WindowOrthographic()
     {
-        Orthographic(Vec2(), GetDrawRegion(), 0.1, 100.0);
+        Orthographic(Vec2(), Renderer::GetDrawRegion(), 0.1, 100.0);
     }
 
     void Transform::Orthographic(Vec2 minView, Vec2 maxView, float nearZ, float farZ)
@@ -93,7 +93,7 @@ namespace Tange
         pTransformBuffer->Unmap();
     }
 
-    void IntializeRendererPipeline()
+    void Renderer::InitializePipeline()
     {
         auto hWindow = PlatformManager::GetWindow();
 
@@ -179,7 +179,7 @@ namespace Tange
         g_pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xffffffff);
     }
     
-    void ShutdownRendererPipeline()
+    void Renderer::ShutdownPipeline()
     {
         // NOTE: To avoid thread contention, go windowed before releasing the swap chain.
         g_pSwapChain->SetFullscreenState(false, nullptr);
@@ -189,7 +189,7 @@ namespace Tange
         SAFE_RELEASE(g_pSwapChain);
     }
 
-    void PresentFrame()
+    void Renderer::PresentFrame()
     {
         HRESULT result = g_pSwapChain->Present(0, 0);
 
@@ -203,12 +203,12 @@ namespace Tange
         g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTarget, nullptr);
     }
 
-    void FullClear(Vec4 clearColor)
+    void Renderer::FullClear(Vec4 clearColor)
     {
         g_pDeviceContext->ClearRenderTargetView(g_pRenderTarget, clearColor.Data);
     }
 
-    void SetShader(const std::string& shaderName)
+    void Renderer::SetShader(const std::string& shaderName)
     {
         auto hShader = ResourceManager::ShaderLocator.GetResourceHandle(shaderName);
         const Shader& shader = ResourceManager::ShaderLocator.LookupResource(hShader);
@@ -218,7 +218,7 @@ namespace Tange
         g_pDeviceContext->IASetInputLayout(shader.pInputLayout);
     } 
 
-    void SetViewport(Vec2 dimensions)
+    void Renderer::SetViewport(Vec2 dimensions)
     {
         D3D11_VIEWPORT viewport = {};
         viewport.TopLeftX = 0.0f;
@@ -231,12 +231,12 @@ namespace Tange
         g_pDeviceContext->RSSetViewports(1, &viewport);
     }
 
-    Vec2 GetDrawRegion()
+    Vec2 Renderer::GetDrawRegion()
     {
         return PlatformManager::GetRenderDimensions();
     }
 
-    void ResizeWindow(float desiredWidth, float desiredHeight)
+    void Renderer::ResizeWindow(float desiredWidth, float desiredHeight)
     {
         BOOL isFullscreen;
         g_pSwapChain->GetFullscreenState(&isFullscreen, nullptr);
@@ -257,31 +257,31 @@ namespace Tange
         SetViewport(Vec2(desiredWidth, desiredHeight));
     }
 
-    void ToggleFullscreen() 
+    void Renderer::ToggleFullscreen() 
     {
         BOOL isFullscreen;
         g_pSwapChain->GetFullscreenState(&isFullscreen, nullptr);
         g_pSwapChain->SetFullscreenState(!isFullscreen, nullptr);
     }
 
-    void ForceWindowed()
+    void Renderer::ForceWindowed()
     {
         g_pSwapChain->SetFullscreenState(false, nullptr);
     }
 
-    void ForceFullscreen()
+    void Renderer::ForceFullscreen()
     {
         g_pSwapChain->SetFullscreenState(true, nullptr);
     }
     
-    bool IsFullscreen() 
+    bool Renderer::IsFullscreen() 
     {
         BOOL isFullscreen;
         g_pSwapChain->GetFullscreenState(&isFullscreen, nullptr);
         return isFullscreen;
     }
 
-    void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight)
+    void Renderer::ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight)
     {
         g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
         SAFE_RELEASE(g_pRenderTarget);
@@ -291,7 +291,7 @@ namespace Tange
         SetViewport(Vec2((float)desiredWidth, (float)desiredHeight));
     }
 
-    void ResizeTarget(uint32 desiredWidth, uint32 desiredHeight)
+    void Renderer::ResizeTarget(uint32 desiredWidth, uint32 desiredHeight)
     {
         DXGI_MODE_DESC desiredDesc = {};
         desiredDesc.Width = desiredWidth;
@@ -299,7 +299,7 @@ namespace Tange
         g_pSwapChain->ResizeTarget(&desiredDesc);
     }
 
-    void ClearRenderTarget()
+    void Renderer::ClearRenderTarget()
     {
         HRESULT result;
         ID3D11Texture2D* pBackBuffer;

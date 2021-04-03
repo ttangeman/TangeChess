@@ -7,7 +7,7 @@ namespace Tange
                              const RenderHandle& hRender, 
                              const Transform& transform) const
     {
-        SetShader(shaderName);
+        Renderer::SetShader(shaderName);
         
         const Mesh& mesh = hRender.GetMesh();
         g_pDeviceContext->IASetVertexBuffers(mesh.VertexBufferSlot, mesh.VertexBufferCount, 

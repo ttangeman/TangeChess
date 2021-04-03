@@ -101,36 +101,39 @@ namespace Tange
     };
 #pragma pack(pop)
 
-    // Initailize/shutdown the render pipeline.
-    void IntializeRendererPipeline();
-    void ShutdownRendererPipeline();
+    namespace Renderer
+    {
+        // Initailize/shutdown the render pipeline.
+        void InitializePipeline();
+        void ShutdownPipeline();
 
-    // Swap the back buffers and present the frame.
-    void PresentFrame();
+        // Swap the back buffers and present the frame.
+        void PresentFrame();
 
-    // Clear the entire screen with the color.
-    void FullClear(Vec4 clearColor);
-    
-    // Set the active shader.
-    void SetShader(const std::string& shaderName);
+        // Clear the entire screen with the color.
+        void FullClear(Vec4 clearColor);
 
-    // Set the viewport.
-    void SetViewport(Vec2 dimensions);
+        // Set the active shader.
+        void SetShader(const std::string& shaderName);
 
-    // Returns the current draw region.
-    Vec2 GetDrawRegion();
+        // Set the viewport.
+        void SetViewport(Vec2 dimensions);
 
-    // Resizes the window
-    void ResizeWindow(float desiredWidth, float desiredHeight);
+        // Returns the current draw region.
+        Vec2 GetDrawRegion();
 
-    // Change from/to fullscreen.
-    void ToggleFullscreen();
-    void ForceWindowed();
-    void ForceFullscreen();
-    bool IsFullscreen();
+        // Resizes the window
+        void ResizeWindow(float desiredWidth, float desiredHeight);
 
-    // Resize the back buffer/render target.
-    void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight);
-    void ResizeTarget(uint32 desiredWidth, uint32 desiredHeight);
-    void ClearRenderTarget();
+        // Change from/to fullscreen.
+        void ToggleFullscreen();
+        void ForceWindowed();
+        void ForceFullscreen();
+        bool IsFullscreen();
+
+        // Resize the back buffer/render target.
+        void ResizeBackBuffers(uint32 desiredWidth, uint32 desiredHeight);
+        void ResizeTarget(uint32 desiredWidth, uint32 desiredHeight);
+        void ClearRenderTarget();
+    }
 }

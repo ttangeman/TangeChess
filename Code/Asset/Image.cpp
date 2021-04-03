@@ -4,7 +4,24 @@ namespace Tange
 {
     Image::~Image()
     {
-        FreePixels();
+        if (pPixels)
+        {
+            std::free(pPixels);
+        }
+    }
+    
+    Image::Image(const Image& other)
+    {
+        std::memcpy(this, &other, sizeof(*this));
+        pPixels = (uint8*)std::malloc(GetSize());
+        std::memcpy(pPixels, other.pPixels, GetSize());
+    }
+
+    void Image::operator=(const Image& other)
+    {
+        std::memcpy(this, &other, sizeof(*this));
+        pPixels = (uint8*)std::malloc(GetSize());
+        std::memcpy(pPixels, other.pPixels, GetSize());
     }
 
     Image::Image(Image&& other)
@@ -70,14 +87,6 @@ namespace Tange
                         (blue << 16) |
                         (alpha << 24);
             }
-        }
-    }
-    
-    void Image::FreePixels()
-    {
-        if (pPixels)
-        {
-            std::free(pPixels);
         }
     }
 }

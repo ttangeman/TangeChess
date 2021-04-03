@@ -14,7 +14,7 @@ namespace Tange
             m_desiredUpdateRate = 0.0167f;
             
             // Initialize the renderer.
-            IntializeRendererPipeline();
+            Renderer::InitializePipeline();
             ResourceManager::Initialize();
 
             // TODO: Need a way to update all orthographic entities
@@ -23,7 +23,7 @@ namespace Tange
             [](const IEvent& event)
             {
                 const auto& resizeData = static_cast<const WindowResized&>(event);
-                ResizeWindow(resizeData.DesiredWidth, resizeData.DesiredHeight);
+                Renderer::ResizeWindow(resizeData.DesiredWidth, resizeData.DesiredHeight);
             });
 
             // Register common entity components.
@@ -33,7 +33,7 @@ namespace Tange
 
     Application::~Application()
     {
-        ShutdownRendererPipeline();
+        Renderer::ShutdownPipeline();
         PlatformManager::Shutdown();
     }
 

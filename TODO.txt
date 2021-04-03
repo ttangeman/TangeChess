@@ -1,8 +1,11 @@
 - Decouple the entity system from the GUI.
 - Update entity manager to use RTTI and unordered_maps for components. 
 - Components should no longer be stored with ComponentContainers but rather a 
-  custom pool allocator.
+  custom pool allocator. The pool allocator should not be templated.
+    - See: https://github.com/alecthomas/entityx/blob/master/entityx/Entity.h
 - Update the event manager to be less janky.
+  - See: https://github.com/alecthomas/entityx/blob/master/entityx/Event.h
+    for a better way of assigning a unique identifier to the types of events.
 - Make some kind of manager for lines of text.
   - Update ResourceManager to allow receiving a unqiue id,
     rather than always providing a name.

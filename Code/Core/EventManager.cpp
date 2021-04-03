@@ -4,46 +4,55 @@ namespace Tange
 {
     EventManager EventManager::s_instance;
 
-    template<typename T>
-    void EventManager::RegisterEvent()
+    bool EventManager::IsRegisteredEvent(int32 index)
     {
-        // Make sure that the event was not already registered.
-        ASSERT(!T::IsInitialized());
+        // The index should never be greater than the number of handlers.
+        ASSERT(index <= s_instance.m_eventHandlers.size());
 
-        if (!T::IsInitialized())
+        if (index == s_instance.m_eventHandlers.size())
         {
-            T::Initialize();
-            std::vector<Handler> eventHandler;
-            s_instance.m_eventHandlers.push_back(eventHandler);
+            return false;
         }
+        return true;
     }
 
-    template<typename T>
+    template<typename DerivedEvent>
     void EventManager::BindHandler(int32 id, const std::function<void(const IEvent&)>& callback)
     {
-        ASSERT(T::IsInitialized());
-
-        if (T::IsInitialized())
+        if (!IsRegisteredEvent(DerivedEvent::GetIndex()))
         {
-            auto& handlers = s_instance.m_eventHandlers.at(T::GetIndex());
-            handlers.emplace_back(Handler(id, callback));
-        }
+            // Lazily register a vector of handlers if it is not registered.
+            // The index gets lazily initialized in the if-statement too, 
+            // if it was never before used.
+            s_instance.m_eventHandlers.emplace_back(std::vector<EventHandler> {});
+        }  
+
+        auto& handlers = s_instance.m_eventHandlers.at(DerivedEvent::GetIndex());
+        handlers.emplace_back(EventHandler(id, callback));
     }
 
-    template<typename T>
+    template<typename DerivedEvent>
     void EventManager::DetachHandler(int32 id)
     {
-        auto& handlers = s_instance.m_eventHandlers.at(T::GetIndex());
-        
-        for (auto i = 0; i < handlers.size(); i++)
+        // Make sure that we have handlers to actually detach.
+        // This could probably be omitted, as the m_eventHandlers would throw
+        // an out_of_bounds exception.
+        ASSERT(IsRegisteredEvent(DerivedEvent::GetIndex()));
+
+        if (IsRegisteredEvent(DerivedEvent::GetIndex()))
         {
-            auto& it = handlers[i];
+            auto& handlers = s_instance.m_eventHandlers.at(DerivedEvent::GetIndex());
             
-            // NOTE: An id can have multiple of the same handler bound,
-            // so this if does not break the loop.
-            if (it.Id == id)
+            for (auto i = 0; i < handlers.size(); i++)
             {
-                handlers.erase(handlers.begin() + i);
+                auto& it = handlers[i];
+                
+                // NOTE: An id can have multiple of the same handler bound,
+                // so this if does not break the loop.
+                if (it.Id == id)
+                {
+                    handlers.erase(handlers.begin() + i);
+                }
             }
         }
     }
@@ -66,35 +75,48 @@ namespace Tange
         }
     }
 
-    template<typename T>
+    template<typename DerivedEvent>
     void EventManager::Dispatch(IEvent&& payload)
-    {
-        // Robustness: A strange bug occured here where a foreach loop
-        // picked up erased elements from DetachAllHandlers in one of
-        // the handler vectors, even though I could SEE that the vector
-        // had size 0 in the debugger (even tried shrink_to_fit).
-        // Probably an odd race condition with input messages because
-        // it doesn't happen in other cases (?). Manually looping 
-        // through the vector seems to fix it??? 
-        auto& handler = s_instance.m_eventHandlers.at(T::GetIndex());
-
-        for (auto i = 0; i < handler.size(); i++)
+    { 
+        if (IsRegisteredEvent(DerivedEvent::GetIndex()))
         {
-            auto& it = handler[i];
-            ASSERT(it.Callback); 
-            it.Callback(payload);
+            auto& handler = s_instance.m_eventHandlers.at(DerivedEvent::GetIndex());
+
+            for (auto i = 0; i < handler.size(); i++)
+            {
+                auto& it = handler[i];
+                ASSERT(it.Callback); 
+                it.Callback(payload);
+            }
+        }  
+        else
+        {
+            // Lazily register a vector of handlers if it is not registered.
+            // The index gets lazily initialized in the if-statement too, 
+            // if it was never before used.
+            s_instance.m_eventHandlers.emplace_back(std::vector<EventHandler> {});
         }
     }
 
-    template <typename T>
+    template <typename DerivedEvent>
     void EventManager::DispatchTo(int32 id, IEvent&& payload)
     {
-        for (auto& it : s_instance.m_eventHandlers.at(T::GetIndex()))
+        if (!IsRegisteredEvent(DerivedEvent::GetIndex()))
         {
-            if (it.Id == id)
+            for (auto& it : s_instance.m_eventHandlers.at(DerivedEvent::GetIndex()))
             {
-                it.Callback(payload);
+                if (it.Id == id)
+                {
+                    it.Callback(payload);
+                }
             }
+        }  
+        else
+        {
+            // Lazily register a vector of handlers if it is not registered.
+            // The index gets lazily initialized in the if-statement too, 
+            // if it was never before used.
+            s_instance.m_eventHandlers.emplace_back(std::vector<EventHandler> {});
         }
     }
 }

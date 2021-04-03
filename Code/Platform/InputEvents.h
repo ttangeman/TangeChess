@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Common.h"
-#include "Core/IEvent.h"
+#include "Core/Event.h"
 
 namespace Tange
 {
@@ -89,10 +89,8 @@ namespace Tange
         KeyF12,
     };
 
-    struct KeyPressed : public IEvent
+    struct KeyPressed : Event<KeyPressed>
     {
-        EVENT_BOILERPLATE()
-
         InputEvent Key;
 
         KeyPressed(InputEvent event)
@@ -101,10 +99,8 @@ namespace Tange
         }
     };
 
-    struct KeyReleased : public IEvent
+    struct KeyReleased : Event<KeyReleased>
     {
-        EVENT_BOILERPLATE()
-
         InputEvent Key;
 
         KeyReleased(InputEvent event)
@@ -113,10 +109,8 @@ namespace Tange
         }
     };
 
-    struct MouseClicked : public IEvent
+    struct MouseClicked : Event<MouseClicked>
     {
-        EVENT_BOILERPLATE()
-
         InputEvent Button;
         Vec2 MousePosition;
 
@@ -126,10 +120,8 @@ namespace Tange
         }
     };
 
-    struct MouseReleased : public IEvent
+    struct MouseReleased : Event<MouseReleased>
     {
-        EVENT_BOILERPLATE()
-
         InputEvent Button;
         Vec2 MousePosition;
 
@@ -139,10 +131,8 @@ namespace Tange
         }
     };
 
-    struct MouseMoved : public IEvent
+    struct MouseMoved : Event<MouseMoved>
     {
-        EVENT_BOILERPLATE()
-
         Vec2 MousePosition;
 
         MouseMoved(Vec2 position)
