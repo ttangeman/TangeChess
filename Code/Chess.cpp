@@ -111,37 +111,43 @@ namespace Tange
             }
         });
 
-        m_menu.Add<GuiObject>(GuiObject {Vec2(300, 300), Vec2(240, 360), Vec4(0, 0, 0, 0.8)});
-        m_menu.Add<GuiButton>(GuiButton 
+        GuiConfig config {};
+        config.pFontAtlas = &m_fontAtlas;
+
+        m_menu.Add<GuiObject>(GuiObject 
         {
-            Vec2(300, 400), Vec2(135, 50), 
-            m_fontAtlas, "Back to Game", 12, Vec4(1, 0, 0, 1),
+            Vec2(300, 300), Vec2(240, 360), Vec4(0, 0, 0, 0.8)
+        });
+
+        GuiButton backButton = 
+        {
+            config, "Back to Game", Vec2(300, 400), Vec2(135, 50), 
             [&]()
             {
                 m_menu.ToggleVisibility();
             }
-        });
+        };
+        backButton.AddOutline(config);
+        
+        m_menu.Add<GuiButton>(backButton);
 
-#if 0
-        m_menu.PushPanel(Vec2(300, 300), Vec2(240, 360), 2.0);
-
-        m_menu.PushButton(Vec2(300, 400), Vec2(135, 50), 2.0, "Back to Game",
-        [&]()
+        m_menu.Add<GuiButton>(GuiButton
         {
-            m_menu.ToggleVisibility();
+            config, "Options", Vec2(300, 300), Vec2(135, 50),
+            []()
+            {
+            }
         });
 
-        m_menu.PushButton(Vec2(300, 300), Vec2(135, 50), 2.0, "Options",
-        []()
+        m_menu.Add<GuiButton>(GuiButton
         {
+            config, "Quit", Vec2(300, 200), Vec2(135, 50),
+            []()
+            {
+                PlatformManager::ForceQuit();
+            }
         });
 
-        m_menu.PushButton(Vec2(300, 200), Vec2(135, 50), 2.0, "Quit",
-        []()
-        {
-            PlatformManager::ForceQuit();
-        });
-#endif
         m_gameState.StartGame(PieceColor::White);
     }        
     

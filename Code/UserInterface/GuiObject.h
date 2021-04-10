@@ -7,6 +7,7 @@
 #include "Core/EventManager.h"
 #include "Platform/InputEvents.h"
 #include "Platform/WindowEvents.h"
+#include "UserInterface/GuiConfig.h"
 
 namespace Tange
 {
@@ -18,10 +19,12 @@ namespace Tange
         RenderHandle m_hRender = {};
         Transform m_transform = {};
         Vec2 m_position = Vec2(0, 0);
-        Vec2 m_scale = Vec2(0, 0);
+        Vec2 m_scale = Vec2(1, 1);
         bool m_visible = false;
 
     public:
+        GuiObject() = default;
+
         GuiObject(Vec2 centerP, Vec2 dimensions)
             : m_position(centerP), m_scale(dimensions)
         {
@@ -53,7 +56,7 @@ namespace Tange
             SetColor(color);
         }
 
-        virtual void Destory()
+        virtual void Destroy()
         {
             EventManager::DetachHandler<WindowResized>(1);
         }

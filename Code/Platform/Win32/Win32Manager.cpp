@@ -55,7 +55,7 @@ namespace Tange
             case WM_SIZE:
             {
                 Vec2 currentDim = PlatformManager::GetRenderDimensions();
-                Vec2 desiredDim = PlatformManager::RecomputeRenderDimensions();
+                Vec2 desiredDim = PlatformManager::ComputeRenderDimensions();
 
                 EventManager::Dispatch<WindowResized>(WindowResized(desiredDim.Width, desiredDim.Height, 
                                                                     currentDim.Width, currentDim.Height));
@@ -204,8 +204,8 @@ namespace Tange
         {
             s_instance.m_shouldQuit = false;
             
-            RecomputeRenderDimensions();
-            RecomputeWindowDimensions();
+            ComputeRenderDimensions();
+            ComputeWindowDimensions();
 
             ShowWindow(s_instance.m_hWindow, SW_SHOWNORMAL);
             ShowCursor(showCursor);
@@ -245,7 +245,7 @@ namespace Tange
        s_instance.m_shouldQuit = true;
     }
 
-    Vec2 PlatformManager::RecomputeRenderDimensions()
+    Vec2 PlatformManager::ComputeRenderDimensions()
     {
         // Get the size of the windows actual draw dimensions (i.e. no
         // window borders).
@@ -261,7 +261,7 @@ namespace Tange
         return s_instance.m_renderDimensions;
     }
 
-    Vec2 PlatformManager::RecomputeWindowDimensions()
+    Vec2 PlatformManager::ComputeWindowDimensions()
     {
         RECT windowRect;
         GetWindowRect(s_instance.m_hWindow, &windowRect);

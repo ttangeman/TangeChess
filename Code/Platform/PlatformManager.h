@@ -9,8 +9,6 @@
 // that are supported by the application. For example, Windows
 // should have a Win32Manager file with the implementations of
 // Stopwatch and PlatformManager.
-// NOTE: PlatformManager is not an abstract class because there should only
-// ever be one type of PlatformManager at a time.
 
 namespace Tange
 {
@@ -72,11 +70,11 @@ namespace Tange
 
         static Vec2 GetRenderDimensions();
         // Finds the dimensions of the actual window client minus the border.
-        static Vec2 RecomputeRenderDimensions();
+        static Vec2 ComputeRenderDimensions();
 
         static Vec2 GetWindowDimensions();
         // Finds the dimensions of the actual window client minus the border.
-        static Vec2 RecomputeWindowDimensions();
+        static Vec2 ComputeWindowDimensions();
 
         static WindowHandle GetWindow();
         

@@ -11,27 +11,15 @@
 
 namespace Tange
 {
-    // A line of text is a special case of a GuiObject
-    // that warrants its own class. This should be treated 
-    // as the child of objects, so show/hide methods are not 
-    // needed since that will be shared with the parent.
-    class TextLine
+    class TextLine : public GuiObject
     {
-        std::string text;
-        RenderHandle m_hRender = {};
-        Transform m_transform = {};
-
-        Vec2 m_position = {};
-        Vec2 m_scale = {};
+        std::string m_text;
 
     public:
-        TextLine();
-        void Destroy();
+        TextLine(const GuiConfig& config, const std::string& text, Vec2 position);
+        TextLine(const std::string& text, const FontAtlas& atlas, 
+                 Vec2 position, float pixelHeight, Vec4 color);
 
-        void Update();
-        void Render(const RenderQueue& queue);
-
-        void SetText(const FontAtlas& atlas, const std::string& text, 
-                     Vec2 position, float pixelHeight, Vec4 color);
+        void Render(const RenderQueue& queue) override;
     };
 }

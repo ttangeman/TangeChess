@@ -2,16 +2,15 @@
 
 #include "Core/Common.h"
 
-static int32 _EventAccumulator = 0;
-
 namespace Tange
 {
+    static int32 _EventAccumulator = 0;
+
     class IEvent
     {
     public:
         virtual ~IEvent()
         {
-
         }
     };
 
@@ -23,14 +22,9 @@ namespace Tange
 
         static int32 GetIndex()
         {
-            // Lazyily initialize the event index.
+            // Lazily initialize the event index.
             static int32 m_eventIndex = _EventAccumulator++;
             return m_eventIndex;
-        }
-
-    public:
-        virtual ~Event()
-        {
         }
     };
 }

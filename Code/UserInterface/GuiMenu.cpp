@@ -7,10 +7,12 @@ namespace Tange
     {
     }
 
-    template<typename T>
-    void GuiMenu::Add(T&& object)
+    GuiMenu::~GuiMenu()
     {
-        m_objects.emplace_back(std::make_unique<T>(object));
+        for (auto& object : m_objects)
+        {
+            object->Destroy();
+        }
     }
 
     template<typename T>

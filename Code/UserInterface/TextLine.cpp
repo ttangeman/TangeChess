@@ -2,38 +2,19 @@
 
 namespace Tange
 {
-    TextLine::TextLine()
+    TextLine::TextLine(const GuiConfig& config, const std::string& text, Vec2 position)
+        : TextLine(text, *config.pFontAtlas, position, 
+                   config.FontPixelHeight, config.FontColor)
     {
     }
 
-    void TextLine::Destroy()
-    {
-        EventManager::DetachHandler<WindowResized>(1);
-    }
-
-    void TextLine::Update()
-    {
-        m_transform.Update(Vec3(m_position, 1), 
-                    Vec3(m_scale, 1), 
-                    Vec3(0, 0 , 0));
-    }
-
-    void TextLine::Render(const RenderQueue& queue)
-    {
-        queue.Submit("Textured", m_hRender, m_transform);
-    }
-
-    void TextLine::SetText(const FontAtlas& atlas, const std::string& text, 
-                           Vec2 position, float pixelHeight, Vec4 color)
+    TextLine::TextLine(const std::string& text, const FontAtlas& atlas, 
+                       Vec2 position, float pixelHeight, Vec4 color)
+        : m_text(text)
     {
         if (text.empty()) return;
-
-        m_transform.WindowOrthographic();
-        m_position = position;
         
         float scale = pixelHeight / atlas.GlyphPixelSize;
-        m_scale = Vec2(scale, scale);
-
         float textLineWidth = 0;
 
         // Loop once over the text to compute a bounding rectangle
@@ -52,7 +33,7 @@ namespace Tange
         auto adjustedP = Vec2(position.X - (textLineWidth / 2.0),
                               position.Y - (pixelHeight / 2.0));
 
-        Quad* pQuads = (Quad*)malloc(sizeof(Quad) * text.length());
+        Quad* pQuads = (Quad*)std::malloc(sizeof(Quad) * text.length());
 
         // Create a batched quad for all of the glyphs.
         for (auto i = 0; i < text.length(); i++)
@@ -78,9 +59,37 @@ namespace Tange
         ResourceManager::SubmitMesh(text, pQuads, 
                                     Quad::VerticeCount * text.length(), 
                                     sizeof(Vertex));
-        free(pQuads);
+        std::free(pQuads);
 
         m_hRender.AttachMesh(text);
         m_hRender.AttachTexture(atlas.FontName);
+        m_hRender.SetColor(Vec4(0, 0, 0, 1));
+        m_transform.WindowOrthographic();
+        m_scale = Vec2(1, 1);
+
+        // TODO: Get a proper id from event manager!
+        EventManager::BindHandler<WindowResized>(1,
+        [this](const IEvent& event)
+        {
+            const auto& resizeEvent = static_cast<const WindowResized&>(event);
+
+            auto tScale = Vec2(m_scale.Width / resizeEvent.CurrentWidth,
+                               m_scale.Height / resizeEvent.CurrentHeight);
+            m_scale = Vec2(resizeEvent.DesiredWidth * tScale.Width,
+                            resizeEvent.DesiredHeight * tScale.Height);
+            
+            auto tPosition = Vec2(m_position.Width / resizeEvent.CurrentWidth,
+                                  m_position.Height / resizeEvent.CurrentHeight);
+            m_position = Vec2(resizeEvent.DesiredWidth * tPosition.Width,
+                              resizeEvent.DesiredHeight * tPosition.Height);
+        });
+    }
+
+    void TextLine::Render(const RenderQueue& queue)
+    {
+        if (m_visible)
+        {
+            queue.Submit("Textured", m_hRender, m_transform);
+        }
     }
 }

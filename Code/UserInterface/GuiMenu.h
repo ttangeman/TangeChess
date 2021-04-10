@@ -2,6 +2,7 @@
 
 #include "Core/Common.h"
 #include "UserInterface/GuiObject.h"
+#include "UserInterface/GuiConfig.h"
 #include "Asset/FontAtlas.h"
 #include "Render/RenderQueue.h"
 
@@ -15,11 +16,7 @@ namespace Tange
 
     public:
         explicit GuiMenu(const RenderQueue& queue);
-        GuiMenu(const GuiMenu&) = delete;
-        void operator=(const GuiMenu&) = delete;
-
-        template<typename T>
-        void Add(T&& object);
+        ~GuiMenu();
 
         template<typename T>
         void Add(const T& object);
@@ -30,5 +27,9 @@ namespace Tange
         void ToggleVisibility();
         void Show();
         void Hide();
+
+    private:
+        GuiMenu(const GuiMenu&) = delete;
+        void operator=(const GuiMenu&) = delete;
     };
 }
